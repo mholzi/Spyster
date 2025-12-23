@@ -654,7 +654,7 @@ class GameState:
             state["round_scores"] = self.round_scores
 
         elif self.phase == GamePhase.SCORING:
-            # Story 5.7: Scoring phase state
+            # Story 5.7 & 6.5: Scoring phase state with leaderboard
             state["spy_caught"] = self.spy_caught
             state["convicted"] = self.convicted_player
             state["actual_spy"] = self._spy_name
@@ -663,17 +663,113 @@ class GameState:
             # Current scores
             state["scores"] = {p.name: p.score for p in self.players.values()}
 
-            # Standings (sorted by score)
-            state["standings"] = sorted(
-                [
-                    {"name": p.name, "score": p.score}
-                    for p in self.players.values()
-                ],
-                key=lambda x: x["score"],
+            # Story 6.5: Standings with round changes (sorted by score)
+            standings = []
+            for p in sorted(
+                self.players.values(),
+                key=lambda x: x.score,
                 reverse=True
-            )
+            ):
+                round_score = self.round_scores.get(p.name, {})
+                standings.append({
+                    "name": p.name,
+                    "score": p.score,
+                    "round_change": round_score.get("points", 0),
+                    "is_self": p.name == for_player,
+                })
+            state["standings"] = standings
+
+            # Story 6.5: Round info
+            state["round_number"] = self.current_round
+            state["total_rounds"] = self.config.num_rounds
+
+            # Story 6.5: Scoring timer
+            if "scoring" in self._timers and not self._timers["scoring"].done():
+                state["scoring_timer"] = self._get_timer_remaining("scoring")
+
+        elif self.phase == GamePhase.END:
+            # Story 6.7: End game state with winner and final standings
+            state["round_number"] = self.current_round
+            state["total_rounds"] = self.config.num_rounds
+
+            # Determine winner
+            winner_info = self._determine_winner()
+            state["winner"] = winner_info
+
+            # Final standings with is_self for highlighting
+            standings = []
+            for p in sorted(
+                self.players.values(),
+                key=lambda x: x.score,
+                reverse=True
+            ):
+                standings.append({
+                    "name": p.name,
+                    "score": p.score,
+                    "is_self": p.name == for_player,
+                })
+            state["standings"] = standings
+            state["final_standings"] = standings
+
+            # Game statistics
+            state["game_stats"] = self._get_game_stats()
 
         return state
+
+    def _determine_winner(self) -> dict:
+        """
+        Determine the winner(s) of the game (Story 6.7).
+
+        Returns dict with:
+            - name: Winner name (or None if tie)
+            - score: Winning score
+            - is_tie: True if multiple players tied
+            - tied_players: List of tied player names (if tie)
+        """
+        if not self.players:
+            return {"name": None, "score": 0, "is_tie": False}
+
+        sorted_players = sorted(
+            self.players.values(),
+            key=lambda p: p.score,
+            reverse=True
+        )
+
+        top_score = sorted_players[0].score
+        winners = [p for p in sorted_players if p.score == top_score]
+
+        if len(winners) == 1:
+            return {
+                "name": winners[0].name,
+                "score": top_score,
+                "is_tie": False,
+                "tied_players": [],
+            }
+        else:
+            return {
+                "name": None,
+                "score": top_score,
+                "is_tie": True,
+                "tied_players": [w.name for w in winners],
+            }
+
+    def _get_game_stats(self) -> dict:
+        """
+        Get game statistics for end screen (Story 6.7).
+
+        Returns:
+            Game statistics dictionary
+        """
+        stats = {
+            "total_rounds": self.current_round,
+        }
+
+        # Count spies caught from round history
+        if hasattr(self, 'round_history'):
+            spies_caught = sum(1 for r in self.round_history if r.get("spy_caught"))
+            stats["spies_caught"] = spies_caught
+
+        return stats
 
     def _get_timer_remaining(self, timer_name: str) -> float:
         """Get remaining seconds for a named timer (Story 4.2).
@@ -998,14 +1094,15 @@ class GameState:
 
     def transition_to_scoring(self) -> tuple[bool, str | None]:
         """
-        Transition from REVEAL to SCORING phase (Story 5.7: AC6).
+        Transition from REVEAL to SCORING phase (Story 5.7: AC6, Story 6.5).
 
         Processes conviction and calculates scores.
+        Starts scoring display timer for auto-advance to next round.
 
         Returns:
             (success: bool, error_code: str | None)
         """
-        from ..const import ERR_INVALID_PHASE
+        from ..const import ERR_INVALID_PHASE, SCORING_DISPLAY_SECONDS
 
         if self.phase != GamePhase.REVEAL:
             return False, ERR_INVALID_PHASE
@@ -1018,13 +1115,145 @@ class GameState:
         # Transition to SCORING
         self.phase = GamePhase.SCORING
 
+        # Story 6.5: Start scoring display timer (for auto-advance)
+        self.start_timer(
+            "scoring",
+            float(SCORING_DISPLAY_SECONDS),
+            self._on_scoring_timer_expired
+        )
+
         _LOGGER.info(
-            "Transitioned to SCORING: spy_caught=%s, convicted=%s",
+            "Transitioned to SCORING: spy_caught=%s, convicted=%s, timer=%ds",
             self.spy_caught,
-            self.convicted_player
+            self.convicted_player,
+            SCORING_DISPLAY_SECONDS
         )
 
         return True, None
+
+    async def _on_scoring_timer_expired(self, timer_name: str) -> None:
+        """
+        Handle scoring display timer expiration (Story 6.5/6.6).
+
+        Advances to next round or ends game.
+
+        Args:
+            timer_name: Name of the expired timer (ignored)
+        """
+        _LOGGER.info("Scoring display timer expired")
+
+        # Story 6.6: Check if game should end
+        if self.should_end_game():
+            _LOGGER.info("Final round complete - transitioning to END")
+            self.phase = GamePhase.END
+        else:
+            # Story 6.6: Start next round
+            success, error = self.start_next_round()
+            if not success:
+                _LOGGER.error("Failed to start next round: %s", error)
+
+    def should_end_game(self) -> bool:
+        """Check if game should end after current round (Story 6.6)."""
+        return self.current_round >= self.config.num_rounds
+
+    def start_next_round(self) -> tuple[bool, str | None]:
+        """
+        Advance to next round (Story 6.6).
+
+        Saves round history, resets state, assigns new spy/location,
+        and transitions to ROLES phase.
+
+        Returns:
+            (success: bool, error_code: str | None)
+        """
+        from ..const import ERR_INVALID_PHASE, ERR_GAME_ENDED
+
+        # Phase guard
+        if self.phase != GamePhase.SCORING:
+            return False, ERR_INVALID_PHASE
+
+        # Check if game should end
+        if self.current_round >= self.config.num_rounds:
+            return False, ERR_GAME_ENDED
+
+        # Save round history
+        self._save_round_history()
+
+        # Reset for new round
+        self._reset_for_new_round()
+
+        # Increment round counter
+        self.current_round += 1
+
+        # Assign new spy and location
+        try:
+            from .roles import assign_roles
+            assign_roles(self)
+        except ValueError as err:
+            _LOGGER.error("Failed to assign roles for round %d: %s", self.current_round, err)
+            # Continue anyway - shouldn't fail with existing players
+            return False, "role_assignment_failed"
+
+        # Transition to ROLES phase
+        self.phase = GamePhase.ROLES
+
+        _LOGGER.info(
+            "Started round %d of %d",
+            self.current_round,
+            self.config.num_rounds
+        )
+
+        # Start role display timer
+        self.start_timer(
+            "role_display",
+            5.0,
+            self._on_role_display_complete
+        )
+
+        return True, None
+
+    def _save_round_history(self) -> None:
+        """Save current round data to history (Story 6.6)."""
+        if not hasattr(self, 'round_history'):
+            self.round_history: list[dict] = []
+
+        self.round_history.append({
+            "round": self.current_round,
+            "spy": self._spy_name,
+            "location": self._current_location.get("id") if self._current_location else None,
+            "convicted": self.convicted_player,
+            "spy_caught": self.spy_caught,
+            "scores": dict(self.round_scores),
+        })
+        _LOGGER.debug("Round %d history saved", self.current_round)
+
+    def _reset_for_new_round(self) -> None:
+        """Reset state for new round (Story 6.6)."""
+        # Clear votes
+        self.votes = {}
+        self.vote_results = {}
+        self.convicted_player = None
+
+        # Clear spy guess
+        self.spy_guess = None
+        self.spy_action_taken = False
+
+        # Clear round scores (cumulative stays in player objects)
+        self.round_scores = {}
+        self.spy_caught = False
+
+        # Reset vote caller
+        self.vote_caller = None
+
+        # Reset turn (will be re-initialized)
+        self.current_questioner_id = None
+        self.current_answerer_id = None
+        self._turn_order = []
+
+        # Clear timers (new timers will be started)
+        self.cancel_all_timers()
+
+        _LOGGER.debug("State reset for new round")
 
     def remove_player(self, player_name: str, requester_name: str | None = None) -> tuple[bool, str | None]:
         """Remove a disconnected player from the lobby (Story 2.6).

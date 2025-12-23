@@ -69,6 +69,9 @@ ERR_NO_ROUND_DURATION = "NO_ROUND_DURATION"
 ERR_INSUFFICIENT_PLAYERS = "INSUFFICIENT_PLAYERS"
 ERR_TURN_NOT_INITIALIZED = "TURN_NOT_INITIALIZED"
 
+# Error codes for game progression (Story 6.6)
+ERR_GAME_ENDED = "GAME_ENDED"
+
 # Error messages for user display
 ERROR_MESSAGES = {
     ERR_INVALID_MESSAGE: "Message must be JSON with a 'type' field.",
@@ -100,6 +103,7 @@ ERROR_MESSAGES = {
     ERR_NO_ROUND_DURATION: "Round duration not configured.",
     ERR_INSUFFICIENT_PLAYERS: "Not enough players to continue.",
     ERR_TURN_NOT_INITIALIZED: "Turn order has not been initialized.",
+    ERR_GAME_ENDED: "Game has already ended.",
     ERR_ALREADY_VOTED: "You've already submitted your vote.",
     ERR_INVALID_TARGET: "Invalid vote target.",
     ERR_NO_TARGET_SELECTED: "Please select a player to vote for.",
@@ -119,6 +123,7 @@ TIMER_ROUND_DEFAULT = 300  # Default 5 minutes for questioning, configurable (St
 TIMER_VOTE = 60  # 60 seconds for voting (Story 4.1, FR30)
 TIMER_REVEAL_DELAY = 3  # Delay before reveal sequence (Story 4.1)
 VOTE_TIMER_DURATION = 60  # FR30, ARCH-10 (kept for backward compatibility)
+SCORING_DISPLAY_SECONDS = 10  # Time to view leaderboard before next round (Story 6.5)
 
 # Configuration Limits (Story 3.1)
 CONFIG_MIN_ROUND_DURATION = 1      # minutes

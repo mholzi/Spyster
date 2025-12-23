@@ -320,13 +320,63 @@
                 </div>
             </div>
 
-            <!-- Scoring View (placeholder) -->
-            <div id="scoring-view" style="display: none;">
-                <h2 class="text-center text-primary" style="margin-bottom: var(--space-lg);">
-                    Leaderboard
-                </h2>
-                <div id="leaderboard" class="flex flex-col gap-md">
-                    <!-- Leaderboard items will be inserted here -->
+            <!-- Scoring View (Story 6.5) -->
+            <div id="scoring-view" class="phase-view" style="display: none;">
+                <div class="scoring-header">
+                    <h1 class="scoring-title">Round <span id="scoring-round-number">1</span> Complete</h1>
+                    <div id="next-round-timer" class="next-round-countdown">
+                        Next round in <span id="scoring-countdown-value">10</span>s
+                    </div>
+                </div>
+
+                <!-- Personal Score Change -->
+                <div id="personal-score-change" class="personal-score-card">
+                    <div class="score-label">Your Score</div>
+                    <div id="player-total-score" class="total-score">0</div>
+                    <div id="player-round-change" class="round-change"></div>
+                </div>
+
+                <!-- Leaderboard -->
+                <div class="leaderboard-section">
+                    <h2 class="leaderboard-title">Standings</h2>
+                    <div id="leaderboard-list" class="leaderboard-list">
+                        <!-- Leaderboard items injected dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- End Game View (Story 6.7) -->
+            <div id="end-view" class="phase-view" style="display: none;">
+                <div class="end-header">
+                    <h1 class="end-title">Game Over!</h1>
+                </div>
+
+                <!-- Winner Display -->
+                <div id="winner-display" class="winner-card">
+                    <div class="winner-label">Winner</div>
+                    <div id="winner-name" class="winner-name"></div>
+                    <div id="winner-score" class="winner-score"></div>
+                </div>
+
+                <!-- Final Leaderboard -->
+                <div class="leaderboard-section">
+                    <h2 class="leaderboard-title">Final Standings</h2>
+                    <div id="final-leaderboard-list" class="leaderboard-list">
+                        <!-- Final standings injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- Game Stats (optional) -->
+                <div id="game-stats" class="game-stats">
+                    <h3 class="game-stats-title">Game Stats</h3>
+                    <div id="game-stats-content"></div>
+                </div>
+
+                <!-- Actions -->
+                <div class="end-actions">
+                    <div id="waiting-for-host" class="waiting-message">
+                        Waiting for host to start new game...
+                    </div>
                 </div>
             </div>
         </main>

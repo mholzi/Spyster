@@ -88,14 +88,14 @@ development_status:
   epic-5-retrospective: optional
 
   # Epic 6: Scoring & Game Progression
-  epic-6: backlog
-  6-1-scoring-module-with-pure-functions: backlog
-  6-2-vote-scoring-calculation: backlog
-  6-3-double-agent-bonus: backlog
-  6-4-spy-location-guess-scoring: backlog
-  6-5-leaderboard-display: backlog
-  6-6-round-progression: backlog
-  6-7-game-end-and-winner-declaration: backlog
+  epic-6: done
+  6-1-scoring-module-with-pure-functions: done  # Implemented in Story 5.7 (scoring.py created)
+  6-2-vote-scoring-calculation: done  # Implemented in Story 5.7 (calculate_vote_score)
+  6-3-double-agent-bonus: done  # Implemented in Story 5.7 (calculate_double_agent_bonus)
+  6-4-spy-location-guess-scoring: done  # Implemented in Story 5.7 (calculate_spy_guess_scores)
+  6-5-leaderboard-display: done  # Completed 2025-12-23
+  6-6-round-progression: done  # Completed 2025-12-23
+  6-7-game-end-and-winner-declaration: done  # Completed 2025-12-23
   epic-6-retrospective: optional
 
   # Epic 7: Host Display Experience

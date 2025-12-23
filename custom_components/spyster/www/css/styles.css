@@ -2882,3 +2882,341 @@ p {
     }
 }
 
+/* ============================================================================
+   STORY 6.5: SCORING/LEADERBOARD VIEW
+   ============================================================================ */
+
+#scoring-view {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    padding: var(--space-md);
+    min-height: 100vh;
+}
+
+.scoring-header {
+    text-align: center;
+}
+
+.scoring-title {
+    font-size: 24px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-md);
+    font-family: var(--font-display);
+}
+
+.next-round-countdown {
+    font-size: 16px;
+    color: var(--color-text-secondary);
+}
+
+#scoring-countdown-value {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent-secondary);
+}
+
+/* Personal Score Card */
+.personal-score-card {
+    background: var(--color-bg-secondary);
+    border: 2px solid var(--color-accent-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 45, 106, 0.2);
+}
+
+.score-label {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.total-score {
+    font-size: 48px;
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+    line-height: 1;
+    margin: var(--space-sm) 0;
+    font-family: var(--font-display);
+}
+
+.round-change {
+    font-size: 24px;
+    font-weight: var(--font-weight-bold);
+    font-family: var(--font-display);
+}
+
+.round-change.positive { color: var(--color-success); }
+.round-change.negative { color: var(--color-error); }
+.round-change.neutral { color: var(--color-text-secondary); }
+
+/* Leaderboard */
+.leaderboard-section {
+    flex: 1;
+}
+
+.leaderboard-title {
+    font-size: 18px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-secondary);
+    text-align: center;
+    margin-bottom: var(--space-md);
+}
+
+.leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    border: 2px solid transparent;
+}
+
+.leaderboard-item--self {
+    border-color: var(--color-accent-primary);
+    background: rgba(255, 45, 106, 0.1);
+}
+
+/* Top 3 styling */
+.leaderboard-item--rank-1 { border-color: var(--color-all-in); }
+.leaderboard-item--rank-2 { border-color: #c0c0c0; }
+.leaderboard-item--rank-3 { border-color: #cd7f32; }
+
+.leaderboard-rank {
+    font-size: 18px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-secondary);
+    min-width: 30px;
+    font-family: var(--font-display);
+}
+
+.leaderboard-item--rank-1 .leaderboard-rank { color: var(--color-all-in); }
+.leaderboard-item--rank-2 .leaderboard-rank { color: #c0c0c0; }
+.leaderboard-item--rank-3 .leaderboard-rank { color: #cd7f32; }
+
+.leaderboard-name {
+    flex: 1;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.leaderboard-score {
+    font-size: 18px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+}
+
+.leaderboard-change {
+    font-size: 14px;
+    font-weight: var(--font-weight-semibold);
+    min-width: 40px;
+    text-align: right;
+}
+
+.leaderboard-change.positive { color: var(--color-success); }
+.leaderboard-change.negative { color: var(--color-error); }
+.leaderboard-change.neutral { color: var(--color-text-secondary); }
+
+/* ============================================================================
+   STORY 6.6: ROUND TRANSITION
+   ============================================================================ */
+
+.round-transition-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fade-in 0.3s ease-out;
+}
+
+.round-transition-text {
+    font-size: 48px;
+    font-weight: var(--font-weight-black);
+    color: var(--color-accent-primary);
+    font-family: var(--font-display);
+    text-shadow: var(--glow-primary);
+    animation: scale-pop 0.5s ease-out;
+}
+
+@keyframes scale-pop {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ============================================================================
+   STORY 6.7: END GAME VIEW
+   ============================================================================ */
+
+#end-view {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    padding: var(--space-md);
+    min-height: 100vh;
+}
+
+.end-header {
+    text-align: center;
+    padding: var(--space-lg);
+}
+
+.end-title {
+    font-size: 32px;
+    font-weight: var(--font-weight-black);
+    color: var(--color-accent-primary);
+    font-family: var(--font-display);
+    text-shadow: var(--glow-primary);
+    animation: title-glow 2s ease-in-out infinite;
+}
+
+@keyframes title-glow {
+    0%, 100% {
+        text-shadow: 0 0 10px rgba(255, 45, 106, 0.5);
+    }
+    50% {
+        text-shadow: 0 0 30px rgba(255, 45, 106, 0.8);
+    }
+}
+
+/* Winner Card */
+.winner-card {
+    background: var(--color-bg-secondary);
+    border: 3px solid var(--color-all-in);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+    text-align: center;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+}
+
+.winner-label {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--space-sm);
+}
+
+.winner-name {
+    font-size: 36px;
+    font-weight: var(--font-weight-black);
+    color: var(--color-all-in);
+    font-family: var(--font-display);
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    margin-bottom: var(--space-sm);
+}
+
+.winner-score {
+    font-size: 24px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+}
+
+.winner-card--self {
+    animation: winner-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes winner-pulse {
+    0%, 100% {
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 50px rgba(255, 215, 0, 0.6);
+    }
+}
+
+.winner-card--tie .winner-name {
+    font-size: 28px;
+}
+
+/* Game Stats */
+.game-stats {
+    display: none;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+}
+
+.game-stats-title {
+    font-size: 16px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-md);
+    text-align: center;
+}
+
+.stat-item {
+    padding: var(--space-sm) 0;
+    border-bottom: 1px solid var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    font-size: 14px;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+/* End Actions */
+.end-actions {
+    margin-top: auto;
+    padding: var(--space-lg);
+    text-align: center;
+}
+
+.waiting-message {
+    font-size: 16px;
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+/* Reduced Motion for End Game */
+@media (prefers-reduced-motion: reduce) {
+    .round-transition-overlay {
+        animation: none;
+    }
+
+    .round-transition-text {
+        animation: none;
+    }
+
+    .end-title {
+        animation: none;
+        text-shadow: 0 0 10px rgba(255, 45, 106, 0.5);
+    }
+
+    .winner-card--self {
+        animation: none;
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    }
+}
+

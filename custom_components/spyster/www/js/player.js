@@ -327,6 +327,16 @@ class PlayerClient {
     if (state.phase === 'REVEAL') {
       this.handleRevealPhase(state);
     }
+
+    // Story 6.5: Handle SCORING phase
+    if (state.phase === 'SCORING') {
+      this.handleScoringPhase(state);
+    }
+
+    // Story 6.7: Handle END phase
+    if (state.phase === 'END') {
+      this.handleEndPhase(state);
+    }
   }
 
   /**
@@ -1361,12 +1371,12 @@ class PlayerClient {
   // ==========================================================================
 
   /**
-   * Hide all game views (Story 5.6)
+   * Hide all game views (Story 5.6, 6.5, 6.7)
    */
   hideAllViews() {
     const views = [
       'join-view', 'lobby-view', 'roles-loading-view', 'role-view',
-      'questioning-view', 'vote-view', 'reveal-view', 'scoring-view'
+      'questioning-view', 'vote-view', 'reveal-view', 'scoring-view', 'end-view'
     ];
     views.forEach(viewId => {
       const view = document.getElementById(viewId);
@@ -1659,6 +1669,264 @@ class PlayerClient {
         // Server will transition to SCORING
       }
     }, 1000);
+  }
+
+  // ==========================================================================
+  // STORY 6.5: SCORING PHASE METHODS
+  // ==========================================================================
+
+  /**
+   * Handle SCORING phase state update (Story 6.5)
+   * @param {Object} state - Game state with standings and round info
+   */
+  handleScoringPhase(state) {
+    this.hideAllViews();
+
+    const scoringView = document.getElementById('scoring-view');
+    if (scoringView) {
+      scoringView.style.display = 'block';
+    }
+
+    // Update round number
+    this.updateRoundInfo(state);
+
+    // Show personal score change
+    this.showPersonalScore(state);
+
+    // Render leaderboard
+    this.renderLeaderboard(state.standings);
+
+    // Start countdown to next round
+    if (state.scoring_timer !== undefined) {
+      this.startNextRoundCountdown(state.scoring_timer);
+    }
+
+    console.log('[Player] Scoring phase displayed');
+  }
+
+  /**
+   * Show personal score prominently (Story 6.5: AC4)
+   * @param {Object} state - Game state with standings
+   */
+  showPersonalScore(state) {
+    const standings = state.standings || [];
+    const myStanding = standings.find(s => s.is_self);
+
+    if (!myStanding) return;
+
+    const totalEl = document.getElementById('player-total-score');
+    const changeEl = document.getElementById('player-round-change');
+
+    if (totalEl) {
+      totalEl.textContent = myStanding.score;
+    }
+
+    if (changeEl) {
+      const change = myStanding.round_change || 0;
+      const sign = change >= 0 ? '+' : '';
+      changeEl.textContent = `${sign}${change}`;
+      changeEl.className = `round-change ${change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral'}`;
+    }
+  }
+
+  /**
+   * Render leaderboard list (Story 6.5: AC2, AC3)
+   * @param {Array} standings - Array of player standings
+   */
+  renderLeaderboard(standings) {
+    const list = document.getElementById('leaderboard-list');
+    if (!list || !standings) return;
+
+    list.innerHTML = '';
+
+    standings.forEach((player, index) => {
+      const rank = index + 1;
+      const item = document.createElement('div');
+      item.className = `leaderboard-item ${player.is_self ? 'leaderboard-item--self' : ''}`;
+
+      // Top 3 styling
+      if (rank <= 3) {
+        item.classList.add(`leaderboard-item--rank-${rank}`);
+      }
+
+      const changeSign = (player.round_change || 0) >= 0 ? '+' : '';
+      const changeClass = (player.round_change || 0) > 0 ? 'positive' : (player.round_change || 0) < 0 ? 'negative' : 'neutral';
+
+      item.innerHTML = `
+        <span class="leaderboard-rank">${rank}</span>
+        <span class="leaderboard-name">${this.escapeHtml(player.name)}</span>
+        <span class="leaderboard-score">${player.score}</span>
+        <span class="leaderboard-change ${changeClass}">${changeSign}${player.round_change || 0}</span>
+      `;
+
+      list.appendChild(item);
+    });
+  }
+
+  /**
+   * Update round information display (Story 6.5)
+   * @param {Object} state - Game state with round info
+   */
+  updateRoundInfo(state) {
+    const roundEl = document.getElementById('scoring-round-number');
+    if (roundEl && state.round_number) {
+      roundEl.textContent = state.round_number;
+    }
+  }
+
+  /**
+   * Start countdown to next round (Story 6.5: AC6)
+   * @param {number} seconds - Remaining seconds
+   */
+  startNextRoundCountdown(seconds) {
+    const countdownEl = document.getElementById('scoring-countdown-value');
+    const timerContainer = document.getElementById('next-round-timer');
+
+    if (!countdownEl) return;
+
+    // Show timer container
+    if (timerContainer) {
+      timerContainer.style.display = 'block';
+    }
+
+    // Clear any existing countdown
+    if (this._nextRoundCountdownInterval) {
+      clearInterval(this._nextRoundCountdownInterval);
+    }
+
+    let remaining = Math.ceil(seconds);
+    countdownEl.textContent = remaining.toString();
+
+    this._nextRoundCountdownInterval = setInterval(() => {
+      remaining--;
+      countdownEl.textContent = remaining.toString();
+
+      if (remaining <= 0) {
+        clearInterval(this._nextRoundCountdownInterval);
+        this._nextRoundCountdownInterval = null;
+        // Server will transition to next phase
+      }
+    }, 1000);
+  }
+
+  // ==========================================================================
+  // STORY 6.7: END PHASE METHODS
+  // ==========================================================================
+
+  /**
+   * Handle END phase state update (Story 6.7)
+   * @param {Object} state - Game state with final standings and winner
+   */
+  handleEndPhase(state) {
+    this.hideAllViews();
+
+    const endView = document.getElementById('end-view');
+    if (endView) {
+      endView.style.display = 'block';
+    }
+
+    // Show winner
+    this.showWinner(state);
+
+    // Render final leaderboard
+    this.renderFinalLeaderboard(state.standings || state.final_standings);
+
+    // Show game stats if available
+    if (state.game_stats) {
+      this.showGameStats(state.game_stats);
+    }
+
+    console.log('[Player] End phase displayed');
+  }
+
+  /**
+   * Show winner display (Story 6.7: AC1)
+   * @param {Object} state - Game state with winner info
+   */
+  showWinner(state) {
+    const nameEl = document.getElementById('winner-name');
+    const scoreEl = document.getElementById('winner-score');
+    const winnerCard = document.getElementById('winner-display');
+
+    if (!nameEl || !state.winner) return;
+
+    nameEl.textContent = this.escapeHtml(state.winner.name);
+
+    if (scoreEl) {
+      scoreEl.textContent = `${state.winner.score} points`;
+    }
+
+    // Highlight if current player won
+    if (winnerCard && state.winner.name === this.playerName) {
+      winnerCard.classList.add('winner-card--self');
+    }
+
+    // Handle tie (Story 6.7: AC2)
+    if (state.winner.is_tie) {
+      nameEl.textContent = state.winner.tied_players
+        .map(p => this.escapeHtml(p))
+        .join(' & ');
+      if (winnerCard) {
+        winnerCard.classList.add('winner-card--tie');
+      }
+    }
+  }
+
+  /**
+   * Render final leaderboard (Story 6.7)
+   * @param {Array} standings - Final standings array
+   */
+  renderFinalLeaderboard(standings) {
+    const list = document.getElementById('final-leaderboard-list');
+    if (!list || !standings) return;
+
+    list.innerHTML = '';
+
+    standings.forEach((player, index) => {
+      const rank = index + 1;
+      const item = document.createElement('div');
+      item.className = `leaderboard-item ${player.is_self ? 'leaderboard-item--self' : ''}`;
+
+      // Top 3 styling
+      if (rank <= 3) {
+        item.classList.add(`leaderboard-item--rank-${rank}`);
+      }
+
+      item.innerHTML = `
+        <span class="leaderboard-rank">${rank}</span>
+        <span class="leaderboard-name">${this.escapeHtml(player.name)}</span>
+        <span class="leaderboard-score">${player.score}</span>
+      `;
+
+      list.appendChild(item);
+    });
+  }
+
+  /**
+   * Show game statistics (Story 6.7: optional)
+   * @param {Object} stats - Game statistics
+   */
+  showGameStats(stats) {
+    const statsContainer = document.getElementById('game-stats');
+    const statsContent = document.getElementById('game-stats-content');
+
+    if (!statsContainer || !statsContent) return;
+
+    statsContainer.style.display = 'block';
+
+    const statsHTML = [];
+
+    if (stats.total_rounds) {
+      statsHTML.push(`<div class="stat-item">Rounds played: ${stats.total_rounds}</div>`);
+    }
+    if (stats.spies_caught !== undefined) {
+      statsHTML.push(`<div class="stat-item">Spies caught: ${stats.spies_caught}</div>`);
+    }
+    if (stats.perfect_guesses !== undefined) {
+      statsHTML.push(`<div class="stat-item">Perfect spy guesses: ${stats.perfect_guesses}</div>`);
+    }
+
+    statsContent.innerHTML = statsHTML.join('');
   }
 
   /**
