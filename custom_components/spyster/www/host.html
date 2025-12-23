@@ -13,9 +13,20 @@
             <h1>Spyster</h1>
             <div class="session-info">
                 <span id="session-id-display" aria-live="polite"></span>
-                <span id="phase-display" class="phase-badge" aria-live="polite"></span>
+                <!-- Phase Indicator Component (Story 7.2) -->
+                <div id="phase-indicator" class="phase-indicator" data-phase="LOBBY" aria-live="polite">
+                    <span id="phase-name" class="phase-name">LOBBY</span>
+                    <span id="phase-info" class="phase-info"></span>
+                </div>
             </div>
         </header>
+
+        <!-- Phase Transition Overlay (Story 7.2) -->
+        <div id="phase-transition-overlay" class="phase-transition-overlay hidden" role="alert" aria-live="assertive">
+            <div class="phase-transition-content">
+                <span id="phase-transition-text" class="phase-transition-text"></span>
+            </div>
+        </div>
 
         <!-- Main Content Area -->
         <main role="main" class="main-content">
@@ -161,14 +172,62 @@
                 </div>
             </section>
 
+            <!-- Voting Phase (Story 7.4) -->
             <section id="vote-section" class="phase-section hidden" role="region" aria-labelledby="vote-heading">
-                <h2 id="vote-heading">Voting Phase</h2>
-                <p>Players are voting...</p>
+                <div class="phase-header">
+                    <h2 id="vote-heading">Voting Phase</h2>
+                    <div id="vote-timer-host" class="timer-display large" role="timer" aria-live="polite">
+                        <span class="timer-value">60</span>
+                    </div>
+                </div>
+
+                <!-- Submission Tracker (Task 1) -->
+                <div class="submission-tracker" aria-live="polite">
+                    <div class="tracker-ring-container">
+                        <svg class="progress-ring" viewBox="0 0 120 120" aria-hidden="true">
+                            <circle class="progress-ring-bg" cx="60" cy="60" r="52" />
+                            <circle id="progress-ring-fill" class="progress-ring-fill" cx="60" cy="60" r="52" />
+                        </svg>
+                        <div class="tracker-count">
+                            <span id="vote-count" class="count-current">0</span>
+                            <span class="count-separator">/</span>
+                            <span id="vote-total" class="count-total">0</span>
+                        </div>
+                    </div>
+                    <span class="tracker-label">players voted</span>
+                </div>
+
+                <!-- Voting Status Message -->
+                <div id="vote-status-message" class="status-message" aria-live="polite">
+                    Waiting for all players to submit their votes...
+                </div>
             </section>
 
+            <!-- Reveal Phase (Story 7.4) -->
             <section id="reveal-section" class="phase-section hidden" role="region" aria-labelledby="reveal-heading">
-                <h2 id="reveal-heading">Reveal</h2>
-                <p>Revealing results...</p>
+                <h2 id="reveal-heading" class="sr-only">Reveal Phase</h2>
+
+                <!-- Reveal Stage Text -->
+                <div id="reveal-stage-text" class="reveal-stage-text" aria-live="assertive">
+                    Votes are in...
+                </div>
+
+                <!-- Vote Cards Grid (Task 2) -->
+                <div id="vote-cards-grid" class="vote-cards-grid" role="list" aria-label="Player votes">
+                    <!-- Vote cards populated by JavaScript -->
+                </div>
+
+                <!-- Conviction Overlay (Task 4) -->
+                <div id="conviction-overlay" class="conviction-overlay hidden" role="alert" aria-live="assertive">
+                    <div class="conviction-content">
+                        <div id="conviction-verdict" class="conviction-verdict"></div>
+                        <div id="conviction-details" class="conviction-details"></div>
+                        <div id="spy-reveal" class="spy-reveal hidden">
+                            <span class="spy-label">THE SPY WAS</span>
+                            <span id="spy-name" class="spy-name"></span>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <section id="scoring-section" class="phase-section hidden" role="region" aria-labelledby="scoring-heading">
@@ -189,6 +248,48 @@
                 <span id="status-text" aria-live="polite">Connecting...</span>
             </div>
         </footer>
+
+        <!-- Admin Bar (Story 7.5) -->
+        <div id="admin-bar" class="admin-bar collapsed" role="toolbar" aria-label="Game admin controls">
+            <button id="admin-toggle" class="admin-toggle" aria-label="Toggle admin controls" aria-expanded="false">
+                <span class="toggle-icon" aria-hidden="true">⚙</span>
+            </button>
+            <div class="admin-controls">
+                <button id="btn-skip-vote" class="admin-btn" data-phases="QUESTIONING" aria-label="Skip to voting phase">
+                    SKIP TO VOTE
+                </button>
+                <button id="btn-next-round" class="admin-btn" data-phases="SCORING" aria-label="Start next round">
+                    NEXT ROUND
+                </button>
+                <button id="btn-pause" class="admin-btn" data-phases="QUESTIONING,VOTE" aria-label="Pause game">
+                    PAUSE
+                </button>
+                <button id="btn-end-game" class="admin-btn danger" data-phases="*" aria-label="End game">
+                    END GAME
+                </button>
+            </div>
+        </div>
+
+        <!-- Paused Overlay (Story 7.5) -->
+        <div id="paused-overlay" class="paused-overlay hidden" role="alert" aria-live="assertive">
+            <div class="paused-content">
+                <span class="paused-text">PAUSED</span>
+                <span class="paused-hint">Host can resume the game</span>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal (Story 7.5) -->
+        <div id="confirm-modal" class="confirm-modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="modal-backdrop"></div>
+            <div class="modal-content">
+                <h3 id="modal-title" class="modal-title">End Game?</h3>
+                <p id="modal-message" class="modal-message">Current scores will be final. Are you sure?</p>
+                <div class="modal-actions">
+                    <button id="modal-cancel" class="btn-secondary" aria-label="Cancel">Cancel</button>
+                    <button id="modal-confirm" class="btn-danger" aria-label="Confirm end game">End Game</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- JavaScript -->

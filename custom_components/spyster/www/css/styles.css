@@ -3220,3 +3220,2391 @@ p {
     }
 }
 
+/* ============================================================================
+   STORY 7.1: HOST DISPLAY TV OPTIMIZATION
+   Epic 7: Host Display Experience
+
+   TV-optimized layout for room displays where content must be readable from
+   across the room (2-3x scale per UX-16). Uses landscape orientation with
+   centered, prominent key information.
+   ============================================================================ */
+
+/* -----------------------------------------------------------------------------
+   TASK 4: Host-Specific CSS Custom Properties
+   These variables control scaling for TV/large screen displays.
+   Applied via media queries to progressively scale up content.
+   ----------------------------------------------------------------------------- */
+
+/* Base host display - uses existing styles, add scaling variables */
+.host-display {
+    /* Scale factors - default (mobile/small tablet) */
+    --host-scale-factor: 1;
+
+    /* Host typography scale - based on scale factor */
+    --host-font-size-hero: calc(72px * var(--host-scale-factor));
+    --host-font-size-timer: calc(64px * var(--host-scale-factor));
+    --host-font-size-title: calc(32px * var(--host-scale-factor));
+    --host-font-size-heading: calc(24px * var(--host-scale-factor));
+    --host-font-size-body: calc(16px * var(--host-scale-factor));
+    --host-font-size-small: calc(14px * var(--host-scale-factor));
+
+    /* Host spacing scale */
+    --host-space-xs: calc(4px * var(--host-scale-factor));
+    --host-space-sm: calc(8px * var(--host-scale-factor));
+    --host-space-md: calc(16px * var(--host-scale-factor));
+    --host-space-lg: calc(24px * var(--host-scale-factor));
+    --host-space-xl: calc(32px * var(--host-scale-factor));
+    --host-space-2xl: calc(48px * var(--host-scale-factor));
+    --host-space-3xl: calc(64px * var(--host-scale-factor));
+}
+
+/* -----------------------------------------------------------------------------
+   TASK 1 & 4: Responsive Breakpoints with TV Optimization
+   768px+ = Tablet/Small TV (1.5x scale)
+   1024px+ = Medium TV (2x scale)
+   1440px+ = Large TV (2.5x-3x scale)
+   ----------------------------------------------------------------------------- */
+
+/* Tablet / Small TV - 768px+ (1.5x scale) */
+@media (min-width: 768px) {
+    .host-display {
+        --host-scale-factor: 1.5;
+
+        /* Ensure timer meets 96px minimum per AC#3 */
+        --host-font-size-timer: 96px;
+    }
+
+    /* Apply scaled typography */
+    .host-display h1 {
+        font-size: var(--host-font-size-hero);
+    }
+
+    .host-display h2 {
+        font-size: var(--host-font-size-title);
+    }
+
+    .host-display h3 {
+        font-size: var(--host-font-size-heading);
+    }
+
+    .host-display p,
+    .host-display .help-text {
+        font-size: var(--host-font-size-body);
+    }
+
+    /* Timer at 96px minimum (AC#3) */
+    .host-display .timer-value {
+        font-size: clamp(96px, 15vw, 144px);
+    }
+
+    /* Increase spacing for readability at distance */
+    .host-display .container {
+        padding: var(--host-space-xl);
+    }
+
+    .host-display .header {
+        padding: var(--host-space-lg) var(--host-space-xl);
+    }
+
+    .host-display .main-content {
+        padding: var(--host-space-2xl);
+    }
+
+    .host-display .phase-section {
+        max-width: 1200px;
+    }
+}
+
+/* Medium TV - 1024px+ (2x scale) */
+@media (min-width: 1024px) {
+    .host-display {
+        --host-scale-factor: 2;
+
+        /* Timer at 120px for medium screens */
+        --host-font-size-timer: 120px;
+    }
+
+    .host-display .timer-value {
+        font-size: clamp(120px, 12vw, 144px);
+    }
+
+    .host-display .phase-section {
+        max-width: 1400px;
+    }
+
+    /* Larger player cards for TV viewing */
+    .host-display .player-card {
+        padding: var(--host-space-md) var(--host-space-lg);
+        font-size: var(--host-font-size-body);
+    }
+
+    .host-display .player-name {
+        font-size: var(--host-font-size-heading);
+    }
+
+    .host-display .host-badge {
+        font-size: 14px;
+        padding: 4px 10px;
+    }
+}
+
+/* Large TV / Maximum Scale - 1440px+ (2.5-3x scale) */
+@media (min-width: 1440px) {
+    .host-display {
+        --host-scale-factor: 2.5;
+
+        /* Timer at maximum 144px (AC#3) */
+        --host-font-size-timer: 144px;
+    }
+
+    .host-display .container {
+        max-width: 1920px;
+        padding: var(--host-space-2xl);
+    }
+
+    .host-display .timer-value {
+        font-size: 144px;
+    }
+
+    .host-display .phase-section {
+        max-width: 1600px;
+    }
+
+    /* QR code larger for far viewing */
+    .host-display #qr-code-image {
+        width: 600px;
+        height: 600px;
+    }
+
+    /* Player cards even larger */
+    .host-display .player-card {
+        padding: var(--host-space-lg) var(--host-space-xl);
+    }
+
+    .host-display .player-name {
+        font-size: 32px;
+    }
+
+    .host-display .host-badge {
+        font-size: 16px;
+        padding: 6px 14px;
+    }
+
+    .host-display .player-name-large {
+        font-size: 4.5rem;
+    }
+
+    .host-display .turn-arrow {
+        font-size: 5rem;
+    }
+}
+
+/* Ultra-wide / 4K TV - 1920px+ (3x scale) */
+@media (min-width: 1920px) {
+    .host-display {
+        --host-scale-factor: 3;
+    }
+
+    .host-display .phase-section {
+        max-width: 1800px;
+    }
+
+    .host-display .player-name-large {
+        font-size: 6rem;
+    }
+
+    .host-display .turn-arrow {
+        font-size: 6rem;
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   TASK 2: Landscape-Optimized Grid Layout
+   Centers key information and uses horizontal layouts for TV viewing.
+   ----------------------------------------------------------------------------- */
+
+/* Landscape main content grid */
+@media (min-width: 768px) and (orientation: landscape) {
+    .host-display .main-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 200px);
+    }
+
+    .host-display .phase-section {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* Horizontal player grid for lobby (AC#2) */
+@media (min-width: 768px) {
+    .host-display .player-list-section {
+        width: 100%;
+        max-width: 1200px;
+        margin-top: var(--host-space-xl);
+    }
+
+    .host-display #player-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: var(--host-space-md);
+    }
+
+    .host-display .player-card {
+        justify-content: flex-start;
+    }
+}
+
+@media (min-width: 1024px) {
+    .host-display #player-list {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: var(--host-space-lg);
+    }
+}
+
+@media (min-width: 1440px) {
+    .host-display #player-list {
+        grid-template-columns: repeat(5, 1fr);
+        gap: var(--host-space-xl);
+    }
+}
+
+/* Max-width constraints for ultra-wide screens */
+@media (min-width: 2560px) {
+    .host-display .container {
+        max-width: 2200px;
+    }
+
+    .host-display .phase-section {
+        max-width: 2000px;
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   TASK 3: Phase-Specific Host Layouts
+   Each phase has optimized layout for TV display with centered key info.
+   ----------------------------------------------------------------------------- */
+
+/* === LOBBY PHASE: QR Code Prominent Center, Player List Horizontal === */
+@media (min-width: 768px) {
+    .host-display #lobby-section .qr-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--host-space-lg);
+    }
+
+    .host-display #lobby-section .qr-container h2 {
+        font-size: var(--host-font-size-title);
+        margin-bottom: var(--host-space-md);
+    }
+
+    .host-display #lobby-section .player-count {
+        font-size: var(--host-font-size-heading);
+        margin-top: var(--host-space-lg);
+    }
+
+    .host-display #lobby-section #current-player-count {
+        font-size: calc(var(--host-font-size-heading) * 1.2);
+    }
+
+    /* Config panel scaling */
+    .host-display .config-panel {
+        max-width: 800px;
+        margin: var(--host-space-lg) auto;
+    }
+
+    .host-display .config-panel h2 {
+        font-size: var(--host-font-size-heading);
+    }
+
+    .host-display .game-controls {
+        margin-top: var(--host-space-xl);
+        padding-top: var(--host-space-lg);
+    }
+
+    .host-display .btn-large {
+        font-size: var(--host-font-size-heading);
+        padding: var(--host-space-lg) var(--host-space-2xl);
+        max-width: 500px;
+    }
+}
+
+/* === QUESTIONING PHASE: Timer Center-Top, Q&A Pair Prominent === */
+@media (min-width: 768px) {
+    .host-display #questioning-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .host-display #questioning-section .phase-header {
+        width: 100%;
+        text-align: center;
+        margin-bottom: var(--host-space-xl);
+    }
+
+    .host-display #questioning-section .phase-header h2 {
+        font-size: var(--host-font-size-title);
+    }
+
+    /* Timer prominent at top-center */
+    .host-display #round-timer-host {
+        margin: var(--host-space-lg) auto;
+    }
+
+    .host-display #round-timer-host .timer-value {
+        font-size: var(--host-font-size-timer);
+        text-shadow: 0 0 40px rgba(0, 245, 255, 0.6);
+    }
+
+    /* Turn display large and centered */
+    .host-display #turn-display {
+        width: 100%;
+        max-width: 1200px;
+        padding: var(--host-space-xl);
+        margin: var(--host-space-lg) auto;
+    }
+
+    .host-display #turn-display .turn-label {
+        font-size: var(--host-font-size-body);
+        margin-bottom: var(--host-space-md);
+    }
+
+    .host-display #turn-display .turn-info {
+        gap: var(--host-space-2xl);
+    }
+
+    .host-display #turn-display .questioner-box,
+    .host-display #turn-display .answerer-box {
+        max-width: 400px;
+        min-width: 300px;
+    }
+
+    .host-display #turn-display .role-label {
+        font-size: var(--host-font-size-small);
+        margin-bottom: var(--host-space-sm);
+    }
+
+    .host-display #turn-display .player-name-large {
+        font-size: var(--host-font-size-title);
+    }
+
+    /* Player status grid centered below */
+    .host-display #player-status-grid {
+        width: 100%;
+        max-width: 1400px;
+        margin: var(--host-space-xl) auto;
+    }
+
+    /* Host controls (NEXT TURN button) */
+    .host-display .host-controls {
+        margin-top: var(--host-space-2xl);
+    }
+
+    .host-display .host-controls .btn-large {
+        font-size: var(--host-font-size-heading);
+    }
+}
+
+/* === VOTING PHASE: Submission Tracker Large === */
+@media (min-width: 768px) {
+    .host-display #vote-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+    }
+
+    .host-display #vote-section h2 {
+        font-size: var(--host-font-size-title);
+        margin-bottom: var(--host-space-xl);
+    }
+
+    .host-display #vote-section .submission-tracker {
+        font-size: var(--host-font-size-heading);
+        padding: var(--host-space-xl);
+    }
+
+    .host-display #vote-section .submission-tracker-count {
+        font-size: var(--host-font-size-timer);
+    }
+}
+
+/* === REVEAL PHASE: Full-Screen Results === */
+@media (min-width: 768px) {
+    .host-display #reveal-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        min-height: 80vh;
+        width: 100%;
+    }
+
+    .host-display #reveal-section h2 {
+        font-size: var(--host-font-size-hero);
+        margin-bottom: var(--host-space-2xl);
+    }
+}
+
+/* === SCORING PHASE: Full-Screen Leaderboard === */
+@media (min-width: 768px) {
+    .host-display #scoring-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+    }
+
+    .host-display #scoring-section h2 {
+        font-size: var(--host-font-size-title);
+        margin-bottom: var(--host-space-xl);
+    }
+
+    /* Leaderboard scaling */
+    .host-display .leaderboard {
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .host-display .leaderboard-entry {
+        padding: var(--host-space-md) var(--host-space-lg);
+        font-size: var(--host-font-size-body);
+    }
+
+    .host-display .leaderboard-entry .player-name {
+        font-size: var(--host-font-size-heading);
+    }
+
+    .host-display .leaderboard-entry .player-score {
+        font-size: var(--host-font-size-heading);
+    }
+}
+
+/* === END PHASE: Full-Screen Final Results === */
+@media (min-width: 768px) {
+    .host-display #end-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        min-height: 80vh;
+        width: 100%;
+    }
+
+    .host-display #end-section h2 {
+        font-size: var(--host-font-size-hero);
+        margin-bottom: var(--host-space-2xl);
+    }
+
+    .host-display .winner-card {
+        padding: var(--host-space-2xl);
+    }
+
+    .host-display .winner-card .winner-name {
+        font-size: var(--host-font-size-title);
+    }
+
+    .host-display .winner-card .winner-score {
+        font-size: var(--host-font-size-heading);
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   TASK 1.5: Accessibility - WCAG AA Contrast (4.5:1 minimum)
+   The existing color palette meets WCAG AA requirements:
+   - Primary text (#ffffff) on bg (#0a0a12) = 18.3:1 ✓
+   - Secondary text (#a0a0a8) on bg (#0a0a12) = 7.6:1 ✓
+   - Accent pink (#ff2d6a) on bg = 5.1:1 ✓
+   - Accent cyan (#00f5ff) on bg = 10.8:1 ✓
+
+   For TV viewing, we add enhanced text shadows for better readability.
+   ----------------------------------------------------------------------------- */
+
+@media (min-width: 768px) {
+    .host-display h1,
+    .host-display h2,
+    .host-display h3 {
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .host-display .timer-value {
+        text-shadow:
+            0 0 40px rgba(0, 245, 255, 0.6),
+            0 4px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .host-display .player-name-large {
+        text-shadow:
+            0 0 20px rgba(255, 45, 106, 0.4),
+            0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* Reduced motion support for host display */
+@media (min-width: 768px) and (prefers-reduced-motion: reduce) {
+    .host-display .timer-value {
+        animation: none;
+    }
+
+    .host-display .turn-arrow {
+        animation: none;
+    }
+
+    .host-display * {
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================================================================
+   STORY 7.2: PHASE INDICATORS
+   Epic 7: Host Display Experience
+
+   Clear phase indicators with phase-specific colors and transition animations.
+   Helps viewers understand the current game state at a glance.
+   ============================================================================ */
+
+/* -----------------------------------------------------------------------------
+   TASK 1: Phase Indicator Component
+   Large, visible badge with phase name and secondary info slot.
+   ----------------------------------------------------------------------------- */
+
+.phase-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-secondary);
+    border: 2px solid var(--phase-color, var(--color-accent-secondary));
+    transition: all var(--transition-normal);
+}
+
+.phase-name {
+    font-family: var(--font-display);
+    font-size: var(--text-heading);
+    font-weight: var(--font-weight-bold);
+    color: var(--phase-color, var(--color-accent-secondary));
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-shadow: 0 0 10px var(--phase-glow, rgba(0, 245, 255, 0.5));
+}
+
+.phase-info {
+    font-size: var(--text-small);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+}
+
+.phase-info:empty {
+    display: none;
+}
+
+/* Phase-specific colors (Task 1.3) */
+.phase-indicator[data-phase="LOBBY"] {
+    --phase-color: var(--color-accent-secondary); /* Cyan */
+    --phase-glow: rgba(0, 245, 255, 0.5);
+}
+
+.phase-indicator[data-phase="ROLES"] {
+    --phase-color: #9945ff; /* Purple */
+    --phase-glow: rgba(153, 69, 255, 0.5);
+}
+
+.phase-indicator[data-phase="QUESTIONING"] {
+    --phase-color: var(--color-accent-primary); /* Pink */
+    --phase-glow: rgba(255, 45, 106, 0.5);
+}
+
+.phase-indicator[data-phase="VOTE"] {
+    --phase-color: var(--color-all-in); /* Gold */
+    --phase-glow: rgba(255, 215, 0, 0.5);
+}
+
+.phase-indicator[data-phase="REVEAL"] {
+    --phase-color: var(--color-text-primary); /* White */
+    --phase-glow: rgba(255, 255, 255, 0.3);
+}
+
+.phase-indicator[data-phase="SCORING"] {
+    --phase-color: var(--color-success); /* Green */
+    --phase-glow: rgba(57, 255, 20, 0.5);
+}
+
+.phase-indicator[data-phase="END"] {
+    --phase-color: var(--color-accent-primary); /* Pink */
+    --phase-glow: rgba(255, 45, 106, 0.5);
+}
+
+.phase-indicator[data-phase="PAUSED"] {
+    --phase-color: #ff6b00; /* Orange */
+    --phase-glow: rgba(255, 107, 0, 0.5);
+    animation: pulse-paused 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-paused {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* Host display scaling for phase indicator */
+@media (min-width: 768px) {
+    .host-display .phase-indicator {
+        padding: var(--host-space-sm) var(--host-space-lg);
+        gap: var(--host-space-xs);
+    }
+
+    .host-display .phase-name {
+        font-size: var(--host-font-size-heading);
+        letter-spacing: 0.15em;
+    }
+
+    .host-display .phase-info {
+        font-size: var(--host-font-size-small);
+    }
+}
+
+@media (min-width: 1024px) {
+    .host-display .phase-indicator {
+        padding: var(--host-space-md) var(--host-space-xl);
+    }
+
+    .host-display .phase-name {
+        font-size: calc(var(--host-font-size-heading) * 1.2);
+    }
+}
+
+@media (min-width: 1440px) {
+    .host-display .phase-name {
+        font-size: calc(var(--host-font-size-heading) * 1.5);
+        text-shadow: 0 0 20px var(--phase-glow);
+    }
+
+    .host-display .phase-info {
+        font-size: var(--host-font-size-body);
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   TASK 3: Phase Transition Overlay
+   Full-screen overlay with dramatic animation for phase changes.
+   ----------------------------------------------------------------------------- */
+
+.phase-transition-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 10, 18, 0.95);
+    z-index: var(--z-modal);
+    pointer-events: none;
+}
+
+.phase-transition-overlay.hidden {
+    display: none;
+}
+
+.phase-transition-overlay.active {
+    animation: overlay-fade 2.5s ease-out forwards;
+}
+
+.phase-transition-content {
+    text-align: center;
+    transform: scale(0.8);
+    opacity: 0;
+}
+
+.phase-transition-overlay.active .phase-transition-content {
+    animation: content-reveal 2.5s ease-out forwards;
+}
+
+.phase-transition-text {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 15vw, 144px);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-shadow:
+        0 0 40px rgba(255, 45, 106, 0.8),
+        0 0 80px rgba(255, 45, 106, 0.4);
+    white-space: nowrap;
+}
+
+/* Transition type-specific colors */
+.phase-transition-overlay[data-type="round"] .phase-transition-text {
+    color: var(--color-accent-secondary);
+    text-shadow:
+        0 0 40px rgba(0, 245, 255, 0.8),
+        0 0 80px rgba(0, 245, 255, 0.4);
+}
+
+.phase-transition-overlay[data-type="vote"] .phase-transition-text {
+    color: var(--color-all-in);
+    text-shadow:
+        0 0 40px rgba(255, 215, 0, 0.8),
+        0 0 80px rgba(255, 215, 0, 0.4);
+}
+
+.phase-transition-overlay[data-type="reveal"] .phase-transition-text {
+    color: var(--color-text-primary);
+    text-shadow:
+        0 0 40px rgba(255, 255, 255, 0.6),
+        0 0 80px rgba(255, 255, 255, 0.3);
+}
+
+.phase-transition-overlay[data-type="spy-caught"] .phase-transition-text {
+    color: var(--color-success);
+    text-shadow:
+        0 0 40px rgba(57, 255, 20, 0.8),
+        0 0 80px rgba(57, 255, 20, 0.4);
+}
+
+.phase-transition-overlay[data-type="innocent"] .phase-transition-text {
+    color: var(--color-error);
+    text-shadow:
+        0 0 40px rgba(255, 0, 64, 0.8),
+        0 0 80px rgba(255, 0, 64, 0.4);
+}
+
+.phase-transition-overlay[data-type="end"] .phase-transition-text {
+    color: var(--color-accent-primary);
+    text-shadow:
+        0 0 40px rgba(255, 45, 106, 0.8),
+        0 0 80px rgba(255, 45, 106, 0.4);
+}
+
+/* Overlay animation keyframes */
+@keyframes overlay-fade {
+    0% { opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes content-reveal {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    15% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    25% {
+        transform: scale(1);
+    }
+    75% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.1);
+    }
+}
+
+/* Reduced motion support (Task 3.5) */
+@media (prefers-reduced-motion: reduce) {
+    .phase-transition-overlay.active {
+        animation: overlay-fade-simple 2s ease-out forwards;
+    }
+
+    .phase-transition-overlay.active .phase-transition-content {
+        animation: content-reveal-simple 2s ease-out forwards;
+    }
+
+    @keyframes overlay-fade-simple {
+        0% { opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+
+    @keyframes content-reveal-simple {
+        0% { opacity: 0; transform: scale(1); }
+        10% { opacity: 1; transform: scale(1); }
+        90% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(1); }
+    }
+
+    .phase-indicator[data-phase="PAUSED"] {
+        animation: none;
+    }
+}
+
+/* ============================================================================
+   STORY 7.3: PLAYER STATUS DISPLAY
+   Epic 7: Host Display Experience
+
+   Enhanced player status display with TV-optimized cards, connection status
+   indicators, and smooth real-time update animations.
+   ============================================================================ */
+
+/* -----------------------------------------------------------------------------
+   TASK 1: Enhanced Lobby Player Display
+   Large, readable player cards with status indicators for TV viewing.
+   ----------------------------------------------------------------------------- */
+
+/* Enhanced player card for host display */
+.host-display .player-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 2px solid transparent;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.host-display .player-card:hover {
+    background: var(--color-bg-tertiary);
+    border-color: var(--color-accent-primary);
+}
+
+/* Player avatar with status ring (Task 1.2) */
+.player-avatar {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.avatar-initial {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: var(--color-bg-tertiary);
+    border-radius: 50%;
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    text-transform: uppercase;
+}
+
+.status-ring {
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    pointer-events: none;
+}
+
+/* Connected status - Green glow (Task 1.2) */
+.player-card[data-connected="true"] .status-ring,
+.player-card.connected .status-indicator {
+    border-color: var(--color-success);
+    box-shadow: 0 0 12px var(--color-success);
+}
+
+.player-card[data-connected="true"] .avatar-initial {
+    border: 2px solid var(--color-success);
+}
+
+/* Disconnected status - Yellow glow (Task 1.2) */
+.player-card[data-connected="false"] .status-ring,
+.player-card.disconnected .status-indicator {
+    border-color: #ffcc00;
+    box-shadow: 0 0 12px rgba(255, 204, 0, 0.7);
+    animation: pulse-disconnected 1.5s ease-in-out infinite;
+}
+
+.player-card[data-connected="false"] .avatar-initial {
+    border: 2px solid #ffcc00;
+    opacity: 0.7;
+}
+
+@keyframes pulse-disconnected {
+    0%, 100% {
+        box-shadow: 0 0 12px rgba(255, 204, 0, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(255, 204, 0, 0.9);
+    }
+}
+
+/* Player info section (Task 1.3) */
+.host-display .player-card .player-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1;
+    min-width: 0;
+}
+
+.host-display .player-card .player-name {
+    font-family: var(--font-display);
+    font-size: var(--text-body);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Host badge (Task 1.4) */
+.host-display .player-card .host-badge {
+    font-size: 10px;
+    font-weight: var(--font-weight-bold);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--color-accent-primary);
+    color: var(--color-bg-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: fit-content;
+}
+
+/* Status indicator dot (simple version) */
+.host-display .player-card .status-indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.host-display .player-card .status-indicator.status-connected {
+    background: var(--color-success);
+    box-shadow: 0 0 10px var(--color-success);
+}
+
+.host-display .player-card .status-indicator.status-disconnected {
+    background: #ffcc00;
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+    animation: pulse-disconnected 1.5s ease-in-out infinite;
+}
+
+/* Horizontal grid layout for TV (Task 1.5) */
+@media (min-width: 768px) {
+    .host-display #player-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: var(--host-space-md);
+    }
+
+    .host-display .player-card {
+        padding: var(--host-space-md) var(--host-space-lg);
+    }
+
+    .host-display .player-avatar {
+        width: 56px;
+        height: 56px;
+    }
+
+    .host-display .avatar-initial {
+        font-size: 24px;
+    }
+
+    .host-display .player-card .player-name {
+        font-size: var(--host-font-size-body);
+    }
+
+    .host-display .player-card .host-badge {
+        font-size: 12px;
+        padding: 4px 10px;
+    }
+
+    .host-display .player-card .status-indicator {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .host-display #player-list {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: var(--host-space-lg);
+    }
+
+    .host-display .player-avatar {
+        width: 64px;
+        height: 64px;
+    }
+
+    .host-display .avatar-initial {
+        font-size: 28px;
+    }
+}
+
+@media (min-width: 1440px) {
+    .host-display #player-list {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    .host-display .player-avatar {
+        width: 72px;
+        height: 72px;
+    }
+
+    .host-display .avatar-initial {
+        font-size: 32px;
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   TASK 2: Compact Gameplay Player Status
+   Non-intrusive status strip during gameplay phases.
+   ----------------------------------------------------------------------------- */
+
+.player-status-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    justify-content: center;
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(10, 10, 18, 0.85);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-bg-tertiary);
+    max-width: 100%;
+}
+
+/* Compact player item in strip */
+.player-status-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.player-status-item .player-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.player-status-item .player-dot.online {
+    background: var(--color-success);
+    box-shadow: 0 0 6px var(--color-success);
+}
+
+.player-status-item .player-dot.offline {
+    background: #ffcc00;
+    box-shadow: 0 0 6px rgba(255, 204, 0, 0.7);
+    animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.player-status-item .player-name-compact {
+    font-size: 12px;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-status-item.disconnected .player-name-compact {
+    opacity: 0.6;
+}
+
+/* Host display scaling for compact strip */
+@media (min-width: 768px) {
+    .host-display .player-status-strip {
+        gap: var(--host-space-sm);
+        padding: var(--host-space-sm) var(--host-space-md);
+    }
+
+    .host-display .player-status-item {
+        padding: var(--host-space-xs) var(--host-space-sm);
+    }
+
+    .host-display .player-status-item .player-dot {
+        width: 14px;
+        height: 14px;
+    }
+
+    .host-display .player-status-item .player-name-compact {
+        font-size: var(--host-font-size-small);
+        max-width: 120px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .host-display .player-status-item .player-dot {
+        width: 16px;
+        height: 16px;
+    }
+
+    .host-display .player-status-item .player-name-compact {
+        max-width: 150px;
+    }
+}
+
+/* Enhanced player-status-card for questioning phase grid */
+.host-display .player-status-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    border: 2px solid transparent;
+    transition: all var(--transition-normal);
+}
+
+.host-display .player-status-card.connected {
+    border-color: rgba(57, 255, 20, 0.3);
+}
+
+.host-display .player-status-card.disconnected {
+    border-color: rgba(255, 204, 0, 0.3);
+    opacity: 0.7;
+}
+
+.host-display .player-status-card .connection-dot {
+    width: 16px;
+    height: 16px;
+}
+
+@media (min-width: 768px) {
+    .host-display .player-status-card {
+        padding: var(--host-space-md) var(--host-space-lg);
+    }
+
+    .host-display .player-status-card .player-name {
+        font-size: var(--host-font-size-body);
+    }
+
+    .host-display .player-status-card .connection-dot {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   TASK 3: Real-time Update Animations
+   Smooth animations for player join, leave, and status changes.
+   ----------------------------------------------------------------------------- */
+
+/* Entry animation for new players (Task 3.1) */
+.player-card.entering,
+.player-status-card.entering,
+.player-status-item.entering {
+    animation: player-enter 0.4s ease-out forwards;
+}
+
+@keyframes player-enter {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Status change animation (Task 3.2) */
+.player-card.status-changed,
+.player-status-card.status-changed,
+.player-status-item.status-changed {
+    animation: status-pulse 0.6s ease-out;
+}
+
+@keyframes status-pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.7);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 8px rgba(255, 204, 0, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 204, 0, 0);
+    }
+}
+
+/* Exit animation for removed players (Task 3.3) */
+.player-card.exiting,
+.player-status-card.exiting,
+.player-status-item.exiting {
+    animation: player-exit 0.3s ease-in forwards;
+}
+
+@keyframes player-exit {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.9) translateX(20px);
+    }
+}
+
+/* Connected animation - green pulse */
+.player-card.just-connected .status-indicator,
+.player-card.just-connected .status-ring {
+    animation: connect-pulse 0.8s ease-out;
+}
+
+@keyframes connect-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.8);
+    }
+    50% {
+        box-shadow: 0 0 0 15px rgba(57, 255, 20, 0);
+    }
+    100% {
+        box-shadow: 0 0 10px var(--color-success);
+    }
+}
+
+/* Disconnected animation - yellow pulse */
+.player-card.just-disconnected .status-indicator,
+.player-card.just-disconnected .status-ring {
+    animation: disconnect-pulse 0.8s ease-out;
+}
+
+@keyframes disconnect-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.8);
+    }
+    50% {
+        box-shadow: 0 0 0 15px rgba(255, 204, 0, 0);
+    }
+    100% {
+        box-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+    }
+}
+
+/* Reduced motion support (Task 3.4) */
+@media (prefers-reduced-motion: reduce) {
+    .player-card.entering,
+    .player-status-card.entering,
+    .player-status-item.entering {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+
+    .player-card.status-changed,
+    .player-status-card.status-changed,
+    .player-status-item.status-changed {
+        animation: none;
+    }
+
+    .player-card.exiting,
+    .player-status-card.exiting,
+    .player-status-item.exiting {
+        animation: none;
+        opacity: 0;
+    }
+
+    .player-card.just-connected .status-indicator,
+    .player-card.just-connected .status-ring,
+    .player-card.just-disconnected .status-indicator,
+    .player-card.just-disconnected .status-ring {
+        animation: none;
+    }
+
+    .player-card[data-connected="false"] .status-ring,
+    .player-card.disconnected .status-indicator,
+    .player-status-item .player-dot.offline {
+        animation: none;
+    }
+}
+
+/* ============================================================================
+   STORY 7.4: VOTE RESULTS VISUALIZATION
+   Epic 7: Host Display Experience
+
+   Dramatic vote reveal sequence with submission tracker, vote cards,
+   staged animations, and conviction result display.
+   ============================================================================ */
+
+/* -----------------------------------------------------------------------------
+   TASK 1: Vote Submission Tracker
+   Large, animated progress indicator for voting phase.
+   ----------------------------------------------------------------------------- */
+
+.submission-tracker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-lg);
+    margin: var(--space-2xl) 0;
+}
+
+.tracker-ring-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+
+.progress-ring {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.progress-ring-bg {
+    fill: none;
+    stroke: var(--color-bg-tertiary);
+    stroke-width: 8;
+}
+
+.progress-ring-fill {
+    fill: none;
+    stroke: var(--color-accent-primary);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 326.73;
+    stroke-dashoffset: 326.73;
+    transition: stroke-dashoffset 0.5s ease-out;
+}
+
+.progress-ring-fill.complete {
+    stroke: var(--color-success);
+}
+
+.tracker-count {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+}
+
+.count-current {
+    color: var(--color-accent-primary);
+}
+
+.count-current.pulse {
+    animation: count-pulse 0.4s ease-out;
+}
+
+@keyframes count-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); color: var(--color-success); }
+    100% { transform: scale(1); }
+}
+
+.count-separator {
+    margin: 0 4px;
+    opacity: 0.5;
+}
+
+.count-total {
+    opacity: 0.7;
+}
+
+.tracker-label {
+    font-family: var(--font-display);
+    font-size: var(--text-body);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.status-message {
+    font-size: var(--text-body);
+    color: var(--color-text-secondary);
+    text-align: center;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Host display scaling */
+@media (min-width: 768px) {
+    .host-display .tracker-ring-container {
+        width: 200px;
+        height: 200px;
+    }
+
+    .host-display .tracker-count {
+        font-size: 48px;
+    }
+
+    .host-display .tracker-label {
+        font-size: var(--host-font-size-body);
+    }
+
+    .host-display .progress-ring-bg,
+    .host-display .progress-ring-fill {
+        stroke-width: 10;
+    }
+}
+
+@media (min-width: 1024px) {
+    .host-display .tracker-ring-container {
+        width: 240px;
+        height: 240px;
+    }
+
+    .host-display .tracker-count {
+        font-size: 56px;
+    }
+
+    .host-display .progress-ring-bg,
+    .host-display .progress-ring-fill {
+        stroke-width: 12;
+    }
+}
+
+@media (min-width: 1440px) {
+    .host-display .tracker-ring-container {
+        width: 280px;
+        height: 280px;
+    }
+
+    .host-display .tracker-count {
+        font-size: 64px;
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   TASK 2: Vote Reveal Grid Layout
+   Grid of vote cards showing voter → target with confidence.
+   ----------------------------------------------------------------------------- */
+
+.vote-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-lg);
+    padding: var(--space-xl);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.vote-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--color-bg-tertiary);
+    transform-style: preserve-3d;
+    transition: all var(--transition-normal);
+}
+
+.vote-card:hover {
+    border-color: var(--color-accent-primary);
+    transform: translateY(-2px);
+}
+
+.vote-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.voter-name {
+    font-family: var(--font-display);
+    font-size: var(--text-body);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+.vote-arrow {
+    font-size: 24px;
+    color: var(--color-accent-primary);
+    opacity: 0.7;
+}
+
+.vote-target-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+}
+
+.target-name {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+    opacity: 0;
+    transform: rotateY(-90deg);
+    transition: all 0.6s ease-out;
+}
+
+.vote-card[data-vote-revealed="true"] .target-name {
+    opacity: 1;
+    transform: rotateY(0);
+}
+
+.target-placeholder {
+    font-size: var(--text-body);
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+.vote-card[data-vote-revealed="true"] .target-placeholder {
+    display: none;
+}
+
+/* Confidence Badge */
+.confidence-badge {
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.4s ease-out 0.2s;
+}
+
+.vote-card[data-bet-revealed="true"] .confidence-badge {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Confidence levels */
+.confidence-badge[data-level="1"] {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-text-secondary);
+}
+
+.confidence-badge[data-level="2"] {
+    background: rgba(255, 45, 106, 0.2);
+    color: var(--color-accent-primary);
+    border: 1px solid var(--color-accent-primary);
+}
+
+.confidence-badge[data-level="3"] {
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #000;
+    border: none;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    animation: all-in-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes all-in-glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 0 0 60px rgba(255, 215, 0, 0.3);
+    }
+}
+
+/* Abstain styling */
+.vote-card.abstained {
+    opacity: 0.6;
+    border-color: var(--color-text-secondary);
+}
+
+.vote-card.abstained .target-name {
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+/* Host display scaling for vote cards */
+@media (min-width: 768px) {
+    .host-display .vote-cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: var(--host-space-lg);
+        padding: var(--host-space-xl);
+    }
+
+    .host-display .vote-card {
+        padding: var(--host-space-lg);
+    }
+
+    .host-display .voter-name {
+        font-size: var(--host-font-size-body);
+    }
+
+    .host-display .vote-arrow {
+        font-size: 32px;
+    }
+
+    .host-display .target-name {
+        font-size: var(--host-font-size-lg);
+    }
+
+    .host-display .confidence-badge {
+        font-size: 14px;
+        padding: var(--host-space-xs) var(--host-space-sm);
+    }
+}
+
+@media (min-width: 1024px) {
+    .host-display .vote-cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1440px) {
+    .host-display .vote-cards-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .host-display .vote-arrow {
+        font-size: 36px;
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   TASK 3: Staged Reveal Animation
+   Dramatic reveal sequence with staggered card flips.
+   ----------------------------------------------------------------------------- */
+
+.reveal-stage-text {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin-bottom: var(--space-2xl);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease-out;
+}
+
+.reveal-stage-text.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reveal-stage-text.fade-out {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+/* Vote card flip animation */
+.vote-card.revealing .target-name {
+    animation: vote-flip-reveal 0.6s ease-out forwards;
+}
+
+@keyframes vote-flip-reveal {
+    0% {
+        opacity: 0;
+        transform: rotateY(-90deg);
+    }
+    100% {
+        opacity: 1;
+        transform: rotateY(0);
+    }
+}
+
+/* Bet reveal animation */
+.vote-card.bet-revealing .confidence-badge {
+    animation: bet-pop-reveal 0.4s ease-out forwards;
+}
+
+@keyframes bet-pop-reveal {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    60% {
+        transform: scale(1.2);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Staggered delay for cards */
+.vote-card:nth-child(1) { --stagger-delay: 0s; }
+.vote-card:nth-child(2) { --stagger-delay: 0.5s; }
+.vote-card:nth-child(3) { --stagger-delay: 1s; }
+.vote-card:nth-child(4) { --stagger-delay: 1.5s; }
+.vote-card:nth-child(5) { --stagger-delay: 2s; }
+.vote-card:nth-child(6) { --stagger-delay: 2.5s; }
+.vote-card:nth-child(7) { --stagger-delay: 3s; }
+.vote-card:nth-child(8) { --stagger-delay: 3.5s; }
+.vote-card:nth-child(9) { --stagger-delay: 4s; }
+.vote-card:nth-child(10) { --stagger-delay: 4.5s; }
+
+/* Host display scaling for reveal text */
+@media (min-width: 768px) {
+    .host-display .reveal-stage-text {
+        font-size: var(--host-font-size-2xl);
+        letter-spacing: 6px;
+        margin-bottom: var(--host-space-2xl);
+    }
+}
+
+@media (min-width: 1024px) {
+    .host-display .reveal-stage-text {
+        font-size: calc(var(--host-font-size-2xl) * 1.2);
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   TASK 4: Conviction Result Display
+   Full-screen overlay for dramatic verdict announcement.
+   ----------------------------------------------------------------------------- */
+
+.conviction-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+}
+
+.conviction-overlay.visible {
+    opacity: 1;
+}
+
+.conviction-overlay.hidden {
+    display: none;
+}
+
+.conviction-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xl);
+    text-align: center;
+    padding: var(--space-2xl);
+    max-width: 90vw;
+}
+
+.conviction-verdict {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 12vw, 120px);
+    font-weight: var(--font-weight-black);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    opacity: 0;
+    transform: scale(0.5);
+    animation: verdict-entrance 1s ease-out forwards;
+}
+
+@keyframes verdict-entrance {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* SPY CAUGHT - Green celebration */
+.conviction-overlay.spy-caught .conviction-verdict {
+    color: var(--color-success);
+    text-shadow: 0 0 40px var(--color-success), 0 0 80px rgba(57, 255, 20, 0.5);
+}
+
+.conviction-overlay.spy-caught {
+    animation: celebration-bg 2s ease-out;
+}
+
+@keyframes celebration-bg {
+    0% {
+        background: rgba(0, 0, 0, 0.95);
+    }
+    20% {
+        background: rgba(57, 255, 20, 0.2);
+    }
+    100% {
+        background: rgba(0, 0, 0, 0.95);
+    }
+}
+
+/* INNOCENT - Red/Pink failure */
+.conviction-overlay.innocent .conviction-verdict {
+    color: var(--color-accent-primary);
+    text-shadow: 0 0 40px var(--color-accent-primary), 0 0 80px rgba(255, 45, 106, 0.5);
+}
+
+.conviction-overlay.innocent {
+    animation: failure-bg 2s ease-out;
+}
+
+@keyframes failure-bg {
+    0% {
+        background: rgba(0, 0, 0, 0.95);
+    }
+    20% {
+        background: rgba(255, 45, 106, 0.2);
+    }
+    100% {
+        background: rgba(0, 0, 0, 0.95);
+    }
+}
+
+/* TIE - Yellow/Gold */
+.conviction-overlay.tie .conviction-verdict {
+    color: var(--color-all-in);
+    text-shadow: 0 0 40px var(--color-all-in), 0 0 80px rgba(255, 215, 0, 0.5);
+}
+
+/* SPY WINS - location guessed */
+.conviction-overlay.spy-wins .conviction-verdict {
+    color: var(--color-accent-primary);
+    text-shadow: 0 0 40px var(--color-accent-primary);
+}
+
+.conviction-details {
+    font-family: var(--font-display);
+    font-size: clamp(18px, 4vw, 32px);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    opacity: 0;
+    animation: details-fade 0.5s ease-out 0.8s forwards;
+}
+
+@keyframes details-fade {
+    to { opacity: 1; }
+}
+
+/* Spy Reveal */
+.spy-reveal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: spy-reveal-entrance 0.8s ease-out 1.5s forwards;
+}
+
+.spy-reveal.visible {
+    opacity: 1;
+}
+
+@keyframes spy-reveal-entrance {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.spy-label {
+    font-size: clamp(14px, 3vw, 24px);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.spy-name {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 8vw, 72px);
+    font-weight: var(--font-weight-black);
+    color: var(--color-accent-primary);
+    text-shadow: 0 0 30px var(--color-accent-primary);
+}
+
+/* Host display scaling for conviction */
+@media (min-width: 768px) {
+    .host-display .conviction-verdict {
+        font-size: clamp(72px, 15vw, 160px);
+        letter-spacing: 8px;
+    }
+
+    .host-display .conviction-details {
+        font-size: clamp(24px, 5vw, 48px);
+    }
+
+    .host-display .spy-label {
+        font-size: clamp(20px, 4vw, 36px);
+    }
+
+    .host-display .spy-name {
+        font-size: clamp(48px, 10vw, 96px);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .count-current.pulse {
+        animation: none;
+    }
+
+    .confidence-badge[data-level="3"] {
+        animation: none;
+    }
+
+    .reveal-stage-text {
+        transition: opacity 0.2s ease-out;
+        transform: none;
+    }
+
+    .vote-card.revealing .target-name,
+    .vote-card.bet-revealing .confidence-badge {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+
+    .conviction-verdict {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+
+    .conviction-details,
+    .spy-reveal {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+
+    .conviction-overlay.spy-caught,
+    .conviction-overlay.innocent {
+        animation: none;
+    }
+}
+
+/* ============================================================================
+   STORY 7.5: HOST ADMIN CONTROLS
+   Epic 7: Host Display Experience
+
+   Floating admin bar with phase-specific controls, pause/resume functionality,
+   and confirmation modal for ending games.
+   ============================================================================ */
+
+/* -----------------------------------------------------------------------------
+   TASK 1: Floating Admin Bar Component
+   Non-intrusive, collapsible control bar at bottom-right.
+   ----------------------------------------------------------------------------- */
+
+.admin-bar {
+    position: fixed;
+    bottom: var(--space-lg);
+    right: var(--space-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: rgba(10, 10, 18, 0.95);
+    border: 2px solid var(--color-accent-primary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-sm);
+    z-index: 1100;
+    transition: all var(--transition-normal);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.admin-bar:hover {
+    box-shadow: 0 4px 30px rgba(255, 45, 106, 0.3);
+}
+
+/* Toggle button */
+.admin-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--color-bg-tertiary);
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.admin-toggle:hover {
+    background: var(--color-accent-primary);
+}
+
+.admin-toggle:focus-visible {
+    outline: 2px solid var(--color-accent-secondary);
+    outline-offset: 2px;
+}
+
+.toggle-icon {
+    font-size: 24px;
+    transition: transform var(--transition-normal);
+}
+
+.admin-bar:not(.collapsed) .toggle-icon {
+    transform: rotate(90deg);
+}
+
+/* Admin controls container */
+.admin-controls {
+    display: flex;
+    gap: var(--space-sm);
+    overflow: hidden;
+    max-width: 500px;
+    transition: all var(--transition-normal);
+}
+
+.admin-bar.collapsed .admin-controls {
+    max-width: 0;
+    opacity: 0;
+    padding: 0;
+}
+
+/* Admin buttons */
+.admin-btn {
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg-secondary);
+    border: 2px solid var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--transition-fast);
+}
+
+.admin-btn:hover {
+    background: var(--color-bg-tertiary);
+    border-color: var(--color-accent-primary);
+    transform: translateY(-2px);
+}
+
+.admin-btn:focus-visible {
+    outline: 2px solid var(--color-accent-secondary);
+    outline-offset: 2px;
+}
+
+.admin-btn:active {
+    transform: translateY(0);
+}
+
+/* Danger button (End Game) */
+.admin-btn.danger {
+    border-color: #ff4444;
+    color: #ff4444;
+}
+
+.admin-btn.danger:hover {
+    background: rgba(255, 68, 68, 0.2);
+    border-color: #ff6666;
+}
+
+/* Resume button state */
+.admin-btn.resume {
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+.admin-btn.resume:hover {
+    background: rgba(57, 255, 20, 0.2);
+}
+
+/* Hidden buttons (phase-specific) */
+.admin-btn.hidden {
+    display: none;
+}
+
+/* Host display scaling */
+@media (min-width: 768px) {
+    .admin-bar {
+        bottom: var(--host-space-lg);
+        right: var(--host-space-lg);
+        padding: var(--host-space-sm);
+        gap: var(--host-space-sm);
+    }
+
+    .admin-toggle {
+        width: 56px;
+        height: 56px;
+    }
+
+    .toggle-icon {
+        font-size: 28px;
+    }
+
+    .admin-btn {
+        padding: var(--host-space-sm) var(--host-space-md);
+        font-size: 16px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .admin-toggle {
+        width: 64px;
+        height: 64px;
+    }
+
+    .toggle-icon {
+        font-size: 32px;
+    }
+
+    .admin-btn {
+        font-size: 18px;
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   TASK 3: Paused Overlay
+   Full-screen dimmed overlay when game is paused.
+   ----------------------------------------------------------------------------- */
+
+.paused-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-lg);
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+
+.paused-overlay.visible {
+    opacity: 1;
+}
+
+.paused-overlay.hidden {
+    display: none;
+}
+
+.paused-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    text-align: center;
+}
+
+.paused-text {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 12vw, 120px);
+    font-weight: var(--font-weight-black);
+    color: var(--color-accent-secondary);
+    text-transform: uppercase;
+    letter-spacing: 8px;
+    text-shadow: 0 0 40px var(--color-accent-secondary);
+    animation: paused-pulse 2s ease-in-out infinite;
+}
+
+@keyframes paused-pulse {
+    0%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 40px var(--color-accent-secondary);
+    }
+    50% {
+        opacity: 0.7;
+        text-shadow: 0 0 60px var(--color-accent-secondary), 0 0 100px rgba(0, 255, 255, 0.3);
+    }
+}
+
+.paused-hint {
+    font-size: var(--text-body);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Host display scaling for paused overlay */
+@media (min-width: 768px) {
+    .host-display .paused-text {
+        font-size: clamp(72px, 15vw, 160px);
+        letter-spacing: 12px;
+    }
+
+    .host-display .paused-hint {
+        font-size: var(--host-font-size-body);
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   TASK 4: Confirmation Modal
+   Dark-themed modal for confirming destructive actions.
+   ----------------------------------------------------------------------------- */
+
+.confirm-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+
+.confirm-modal.visible {
+    opacity: 1;
+}
+
+.confirm-modal.hidden {
+    display: none;
+}
+
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    padding: var(--space-2xl);
+    background: var(--color-bg-secondary);
+    border: 2px solid var(--color-bg-tertiary);
+    border-radius: var(--radius-xl);
+    max-width: 90vw;
+    width: 400px;
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.3s ease-out;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+}
+
+.confirm-modal.visible .modal-content {
+    transform: scale(1);
+}
+
+.modal-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.modal-message {
+    font-size: var(--text-body);
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+    margin-top: var(--space-md);
+}
+
+.modal-actions button {
+    padding: var(--space-sm) var(--space-xl);
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-size: var(--text-body);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.modal-actions .btn-secondary {
+    background: transparent;
+    border: 2px solid var(--color-text-secondary);
+    color: var(--color-text-secondary);
+}
+
+.modal-actions .btn-secondary:hover {
+    border-color: var(--color-text-primary);
+    color: var(--color-text-primary);
+}
+
+.modal-actions .btn-danger {
+    background: #ff4444;
+    border: none;
+    color: #fff;
+}
+
+.modal-actions .btn-danger:hover {
+    background: #ff6666;
+    transform: translateY(-2px);
+}
+
+.modal-actions button:focus-visible {
+    outline: 2px solid var(--color-accent-secondary);
+    outline-offset: 2px;
+}
+
+/* Host display scaling for modal */
+@media (min-width: 768px) {
+    .host-display .modal-content {
+        width: 500px;
+        padding: var(--host-space-2xl);
+    }
+
+    .host-display .modal-title {
+        font-size: var(--host-font-size-xl);
+    }
+
+    .host-display .modal-message {
+        font-size: var(--host-font-size-body);
+    }
+
+    .host-display .modal-actions button {
+        padding: var(--host-space-sm) var(--host-space-xl);
+        font-size: var(--host-font-size-body);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .admin-bar,
+    .admin-controls,
+    .toggle-icon,
+    .admin-btn {
+        transition: none;
+    }
+
+    .paused-text {
+        animation: none;
+    }
+
+    .paused-overlay,
+    .confirm-modal,
+    .modal-content {
+        transition: none;
+    }
+}
+
