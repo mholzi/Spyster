@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Spyster",
+        "description": "Spyster is a Spyfall-style party game for Home Assistant. Click submit to add the integration."
+      }
+    },
+    "abort": {
+      "already_configured": "Spyster is already configured."
+    }
+  }
+}

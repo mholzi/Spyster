@@ -132,56 +132,191 @@
                 </div>
             </div>
 
-            <!-- Voting View (placeholder) -->
-            <div id="voting-view" style="display: none;">
-                <h2 class="text-center text-secondary" style="margin-bottom: var(--space-lg);">
-                    Who's the Spy?
-                </h2>
+            <!-- Vote Phase View (Story 5.1) -->
+            <div id="vote-view" class="phase-view" style="display: none;">
+                <!-- Vote notification banner -->
+                <div id="vote-notification" class="vote-notification" style="display: none;"></div>
 
-                <!-- Player Grid (placeholder) -->
-                <div id="vote-grid" class="flex flex-col gap-sm" style="margin-bottom: var(--space-xl);">
-                    <!-- Player cards will be inserted here -->
+                <!-- Vote header with timer and tracker -->
+                <div class="vote-header">
+                    <div class="timer-display">
+                        <span id="vote-timer" role="timer" aria-live="polite">1:00</span>
+                    </div>
+                    <div id="vote-tracker" role="progressbar" aria-valuenow="0" aria-valuemax="7">
+                        0/0 voted
+                    </div>
                 </div>
 
-                <!-- Bet Selector (placeholder) -->
-                <div id="bet-selector" class="card" style="margin-bottom: var(--space-lg); display: none;">
-                    <h3 class="text-center text-primary" style="margin-bottom: var(--space-md);">
-                        Confidence Bet
-                    </h3>
-                    <div class="flex gap-md" role="radiogroup" aria-label="Confidence bet selection">
-                        <button class="btn btn-secondary" data-bet="1" style="flex: 1;">
-                            1
+                <!-- Spy Mode Toggle (Story 5.4) - Hidden for non-spy -->
+                <div id="spy-mode-toggle" class="spy-mode-toggle" style="display: none;">
+                    <div class="spy-mode-options" role="tablist">
+                        <button
+                            type="button"
+                            id="spy-vote-tab"
+                            class="spy-mode-tab spy-mode-tab--active"
+                            role="tab"
+                            aria-selected="true"
+                            aria-controls="vote-panel"
+                        >
+                            Vote
                         </button>
-                        <button class="btn btn-secondary" data-bet="2" style="flex: 1;">
-                            2
-                        </button>
-                        <button class="btn btn-all-in" data-bet="3" style="flex: 1;">
-                            ALL IN
+                        <button
+                            type="button"
+                            id="spy-guess-tab"
+                            class="spy-mode-tab"
+                            role="tab"
+                            aria-selected="false"
+                            aria-controls="guess-panel"
+                        >
+                            Guess Location
                         </button>
                     </div>
                 </div>
 
-                <!-- Lock Vote Button -->
-                <button id="lock-vote-btn" class="btn btn-primary" style="width: 100%; display: none;" disabled>
-                    LOCK IT IN
-                </button>
+                <!-- Player selection grid (Vote panel) -->
+                <div id="vote-panel" class="vote-section">
+                    <h2 class="vote-section-title">Select the Spy</h2>
+                    <div id="player-cards-grid" class="player-cards-grid" role="radiogroup" aria-label="Select a player to vote for">
+                        <!-- Player cards injected dynamically -->
+                    </div>
+                </div>
 
-                <!-- Submission Status -->
-                <div id="vote-submitted" class="text-center text-success" style="display: none; margin-top: var(--space-lg);">
-                    Vote submitted! Waiting for others...
+                <!-- Location Guess Panel (Story 5.4) - Hidden by default -->
+                <div id="guess-panel" class="vote-section" style="display: none;" role="tabpanel">
+                    <h2 class="vote-section-title">Where do you think they are?</h2>
+                    <div id="location-list" class="location-list" role="radiogroup" aria-label="Select a location">
+                        <!-- Location items injected dynamically -->
+                    </div>
+                    <div class="vote-actions">
+                        <button id="submit-guess-btn" type="button" class="btn btn-primary btn-large" disabled>
+                            SELECT A LOCATION
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Confidence betting section (Story 5.2) -->
+                <div id="confidence-section" class="vote-section confidence-section">
+                    <h2 class="vote-section-title">How confident are you?</h2>
+
+                    <div class="confidence-buttons" role="radiogroup" aria-label="Select your confidence level">
+                        <!-- Low confidence -->
+                        <button
+                            type="button"
+                            class="confidence-btn confidence-btn--selected"
+                            data-confidence="1"
+                            role="radio"
+                            aria-checked="true"
+                            aria-label="Low confidence: win 2, lose 1"
+                        >
+                            <span class="confidence-value">1</span>
+                            <span class="confidence-label">SAFE</span>
+                            <span class="confidence-reward">+2 / -1</span>
+                        </button>
+
+                        <!-- Medium confidence -->
+                        <button
+                            type="button"
+                            class="confidence-btn"
+                            data-confidence="2"
+                            role="radio"
+                            aria-checked="false"
+                            aria-label="Medium confidence: win 4, lose 2"
+                        >
+                            <span class="confidence-value">2</span>
+                            <span class="confidence-label">BOLD</span>
+                            <span class="confidence-reward">+4 / -2</span>
+                        </button>
+
+                        <!-- ALL IN (High confidence) -->
+                        <button
+                            type="button"
+                            class="confidence-btn confidence-btn--all-in"
+                            data-confidence="3"
+                            role="radio"
+                            aria-checked="false"
+                            aria-label="All in: win 6, lose 3"
+                        >
+                            <span class="confidence-value">3</span>
+                            <span class="confidence-label">ALL IN</span>
+                            <span class="confidence-reward">+6 / -3</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Submit button -->
+                <div class="vote-actions">
+                    <button id="submit-vote-btn" class="btn btn-primary btn-large" disabled>
+                        SELECT A PLAYER
+                    </button>
                 </div>
             </div>
 
-            <!-- Reveal View (placeholder) -->
-            <div id="reveal-view" class="card text-center" style="display: none; padding: var(--space-xl);">
-                <h2 class="text-secondary" style="margin-bottom: var(--space-lg);">
-                    The Reveal
-                </h2>
-                <div id="reveal-result" style="font-size: var(--text-heading);">
-                    <!-- Reveal animation and results will appear here -->
+            <!-- Screen reader live region -->
+            <div id="sr-announcer" aria-live="assertive" aria-atomic="true" class="sr-only"></div>
+
+            <!-- Reveal Phase View (Story 5.6, 5.7) -->
+            <div id="reveal-view" class="phase-view" style="display: none;">
+                <!-- Reveal header -->
+                <div class="reveal-header">
+                    <h1 class="reveal-title">The Votes Are In!</h1>
                 </div>
-                <div id="points-change" style="font-size: var(--text-title); margin-top: var(--space-lg);">
-                    <!-- Points earned/lost will appear here -->
+
+                <!-- Conviction Banner (Story 5.7) -->
+                <div id="conviction-banner" class="conviction-banner" style="display: none;">
+                    <div class="conviction-result">
+                        <div id="conviction-message" class="conviction-message"></div>
+                        <div id="conviction-detail" class="conviction-detail"></div>
+                    </div>
+                    <div id="score-change" class="score-change"></div>
+                </div>
+
+                <!-- Spy guess result (if applicable) -->
+                <div id="spy-guess-result" class="reveal-section" style="display: none;">
+                    <div class="reveal-card reveal-card--spy">
+                        <h2 class="reveal-card-title">Spy's Location Guess</h2>
+                        <div id="spy-guess-location" class="reveal-highlight"></div>
+                        <div id="spy-guess-outcome" class="reveal-outcome"></div>
+                    </div>
+                </div>
+
+                <!-- Vote results grid -->
+                <div class="reveal-section">
+                    <h2 class="reveal-section-title">Who Voted For Whom</h2>
+                    <div id="reveal-votes-grid" class="reveal-votes-grid">
+                        <!-- Vote cards injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- Convicted player -->
+                <div id="conviction-result" class="reveal-section">
+                    <div class="reveal-card reveal-card--convicted">
+                        <h2 class="reveal-card-title">Most Votes</h2>
+                        <div id="convicted-player" class="reveal-highlight"></div>
+                        <div id="conviction-count" class="reveal-subtext"></div>
+                    </div>
+                </div>
+
+                <!-- Actual spy reveal -->
+                <div class="reveal-section">
+                    <div class="reveal-card reveal-card--spy-identity">
+                        <h2 class="reveal-card-title">The Spy Was...</h2>
+                        <div id="actual-spy" class="reveal-highlight reveal-spy-name"></div>
+                    </div>
+                </div>
+
+                <!-- Location reveal -->
+                <div class="reveal-section">
+                    <div class="reveal-card reveal-card--location">
+                        <h2 class="reveal-card-title">The Location Was</h2>
+                        <div id="actual-location" class="reveal-highlight"></div>
+                    </div>
+                </div>
+
+                <!-- Continue to scoring -->
+                <div class="reveal-actions">
+                    <div id="reveal-countdown" class="reveal-countdown">
+                        Scoring in <span id="scoring-countdown">5</span>...
+                    </div>
                 </div>
             </div>
 

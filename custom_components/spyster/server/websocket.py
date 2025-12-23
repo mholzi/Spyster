@@ -259,6 +259,16 @@ class WebSocketHandler:
             await self._handle_call_vote(ws, message)
             return
 
+        # Story 5.3: Handle vote submission
+        if message_type == "vote":
+            await self._handle_vote(ws, message)
+            return
+
+        # Story 5.4: Handle spy location guess
+        if message_type == "spy_guess":
+            await self._handle_spy_guess(ws, message)
+            return
+
         # TODO: Route to other specific handlers based on message_type
         # For now, just acknowledge receipt
         await ws.send_json({"type": "ack", "received": message_type})
@@ -694,5 +704,129 @@ class WebSocketHandler:
             return
 
         # Broadcast updated state to all clients (ARCH-14)
+        await self.broadcast_state()
+
+    async def _handle_vote(self, ws: web.WebSocketResponse, data: dict) -> None:
+        """Handle vote submission (Story 5.3).
+
+        Args:
+            ws: Player's WebSocket connection
+            data: Message payload {target, confidence}
+        """
+        from ..const import (
+            ERR_NOT_IN_GAME,
+            ERR_NO_TARGET_SELECTED,
+            ERROR_MESSAGES,
+        )
+        from ..game.state import GamePhase
+
+        # Verify player is in game
+        if ws not in self._ws_to_player:
+            await ws.send_json({
+                "type": "error",
+                "code": ERR_NOT_IN_GAME,
+                "message": ERROR_MESSAGES[ERR_NOT_IN_GAME]
+            })
+            return
+
+        player = self._ws_to_player[ws]
+
+        # Extract vote data
+        target = data.get("target")
+        confidence = data.get("confidence", 1)
+
+        # Validate target provided
+        if not target:
+            await ws.send_json({
+                "type": "error",
+                "code": ERR_NO_TARGET_SELECTED,
+                "message": ERROR_MESSAGES[ERR_NO_TARGET_SELECTED]
+            })
+            return
+
+        # Record vote
+        success, error_code = self.game_state.record_vote(player.name, target, confidence)
+
+        if not success:
+            await ws.send_json({
+                "type": "error",
+                "code": error_code,
+                "message": ERROR_MESSAGES.get(error_code, "Could not record vote.")
+            })
+            return
+
+        _LOGGER.info("Vote submitted: %s -> %s (confidence: %d)", player.name, target, confidence)
+
+        # Broadcast updated state (includes vote count)
+        await self.broadcast_state()
+
+        # Check if all votes submitted - trigger reveal
+        if self.game_state._all_votes_submitted():
+            await self._trigger_reveal()
+
+    async def _trigger_reveal(self) -> None:
+        """Trigger transition to REVEAL phase (Story 5.3)."""
+        from ..game.state import GamePhase
+
+        if self.game_state.phase != GamePhase.VOTE:
+            return
+
+        _LOGGER.info("Transitioning to REVEAL phase (all votes in)")
+        self.game_state.phase = GamePhase.REVEAL
+
+        # Broadcast the phase change
+        await self.broadcast_state()
+
+    async def _handle_spy_guess(self, ws: web.WebSocketResponse, data: dict) -> None:
+        """Handle spy location guess (Story 5.4).
+
+        Args:
+            ws: Player's WebSocket connection
+            data: Message payload {location_id}
+        """
+        from ..const import (
+            ERR_NOT_IN_GAME,
+            ERR_INVALID_LOCATION,
+            ERROR_MESSAGES,
+        )
+        from ..game.state import GamePhase
+
+        # Verify player is in game
+        if ws not in self._ws_to_player:
+            await ws.send_json({
+                "type": "error",
+                "code": ERR_NOT_IN_GAME,
+                "message": ERROR_MESSAGES[ERR_NOT_IN_GAME]
+            })
+            return
+
+        player = self._ws_to_player[ws]
+        location_id = data.get("location_id")
+
+        if not location_id:
+            await ws.send_json({
+                "type": "error",
+                "code": ERR_INVALID_LOCATION,
+                "message": ERROR_MESSAGES[ERR_INVALID_LOCATION]
+            })
+            return
+
+        # Record spy guess
+        success, error_code = self.game_state.record_spy_guess(player.name, location_id)
+
+        if not success:
+            await ws.send_json({
+                "type": "error",
+                "code": error_code,
+                "message": ERROR_MESSAGES.get(error_code, "Could not record guess.")
+            })
+            return
+
+        _LOGGER.info("Spy guess submitted: %s -> %s", player.name, location_id)
+
+        # Spy guess triggers immediate transition to REVEAL
+        self.game_state.phase = GamePhase.REVEAL
+
+        # Broadcast state (spy guess ends voting)
         await self.broadcast_state()
 

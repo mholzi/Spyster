@@ -1829,3 +1829,1056 @@ p {
     margin-top: 2rem;
 }
 
+/* ============================================================================
+   STORY 5.1: VOTE PHASE UI - Player Cards Grid & Styling
+   ============================================================================ */
+
+/* Vote View Layout */
+#vote-view {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: var(--space-md);
+    gap: var(--space-lg);
+}
+
+/* Vote Notification Banner */
+.vote-notification {
+    background: var(--color-accent-primary);
+    color: var(--color-text-primary);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-weight: var(--font-weight-bold);
+    animation: slideInDown 0.3s ease-out;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Vote Header with Timer and Tracker */
+.vote-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-bg-tertiary);
+}
+
+.vote-header .timer-display {
+    text-align: left;
+}
+
+.vote-header #vote-timer {
+    font-family: 'Courier New', monospace;
+    font-size: 32px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent-secondary);
+    text-shadow: var(--glow-secondary);
+}
+
+.vote-header #vote-timer.warning {
+    color: var(--color-all-in);
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.vote-header #vote-timer.critical {
+    color: var(--color-error);
+    text-shadow: var(--glow-error);
+    animation: pulse-critical 0.5s ease-in-out infinite;
+}
+
+#vote-tracker {
+    font-size: var(--text-body);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+}
+
+/* Vote Section */
+.vote-section {
+    flex: 1;
+}
+
+.vote-section-title {
+    font-size: 18px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-md);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Player Cards Grid - AC4: Responsive Grid Layout */
+.player-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+    padding: var(--space-sm);
+}
+
+@media (min-width: 480px) {
+    .player-cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    .player-cards-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Player Card Component - Story 5.1: AC5 Visual States */
+#vote-view .player-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md);
+    min-height: 100px;
+    min-width: 100px;
+    background: var(--color-bg-secondary);
+    border: 2px solid var(--color-border, var(--color-bg-tertiary));
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    /* AC4: Touch target minimum 48px */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* AC5: Hover state (desktop) */
+#vote-view .player-card:hover:not(:disabled) {
+    border-color: var(--color-accent-secondary);
+    background: var(--color-bg-tertiary);
+    transform: translateY(-2px);
+}
+
+/* Focus state for accessibility */
+#vote-view .player-card:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.4);
+}
+
+/* AC5: Selected state (pink accent, glow) */
+#vote-view .player-card--selected {
+    border-color: var(--color-accent-primary);
+    background: rgba(255, 45, 106, 0.15);
+    box-shadow: var(--glow-primary);
+}
+
+#vote-view .player-card--selected .player-card-avatar {
+    background: var(--color-accent-primary);
+}
+
+/* AC5: Disabled state (greyed out) */
+#vote-view .player-card--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(50%);
+}
+
+#vote-view .player-card--disabled:hover {
+    transform: none;
+    border-color: var(--color-bg-tertiary);
+    background: var(--color-bg-secondary);
+}
+
+/* Player Card Avatar */
+.player-card-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-sm);
+    transition: background 0.2s ease;
+}
+
+.player-initial {
+    font-size: 20px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+.player-card-name {
+    font-size: 14px;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    text-align: center;
+    word-break: break-word;
+    max-width: 100%;
+}
+
+/* Vote Actions Section */
+.vote-actions {
+    padding: var(--space-md);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    margin-top: auto;
+}
+
+.vote-actions .btn-large {
+    width: 100%;
+    min-height: 56px;
+    font-size: 18px;
+    font-weight: var(--font-weight-bold);
+}
+
+/* ============================================================================
+   STORY 5.2: CONFIDENCE BETTING SECTION
+   ============================================================================ */
+
+/* Confidence Section Container */
+.confidence-section {
+    padding: var(--space-md);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    margin-top: var(--space-lg);
+}
+
+.confidence-buttons {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+}
+
+/* Confidence Button Component */
+.confidence-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md);
+    min-width: 90px;
+    min-height: 90px;
+    background: var(--color-bg-tertiary);
+    border: 2px solid var(--color-bg-tertiary);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--color-text-primary);
+
+    /* Touch target */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.confidence-btn:hover:not(:disabled) {
+    border-color: var(--color-accent-secondary);
+    transform: translateY(-2px);
+}
+
+.confidence-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.4);
+}
+
+/* Selected state */
+.confidence-btn--selected {
+    border-color: var(--color-accent-primary);
+    background: rgba(255, 45, 106, 0.15);
+    box-shadow: 0 0 15px rgba(255, 45, 106, 0.3);
+}
+
+/* Value display */
+.confidence-value {
+    font-size: 28px;
+    font-weight: var(--font-weight-black);
+    color: var(--color-text-primary);
+    line-height: 1;
+}
+
+/* Label (SAFE, BOLD, ALL IN) */
+.confidence-label {
+    font-size: 12px;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: var(--space-xs);
+}
+
+/* Reward display */
+.confidence-reward {
+    font-size: 11px;
+    color: var(--color-text-tertiary);
+    margin-top: var(--space-xs);
+}
+
+/* =================================
+   ALL IN SPECIAL STYLING (UX-3)
+   ================================= */
+
+.confidence-btn--all-in {
+    min-width: 100px;
+    min-height: 100px; /* Larger touch target - 56px+ with padding */
+    border-color: var(--color-all-in);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 215, 0, 0.1) 0%,
+        rgba(255, 215, 0, 0.05) 100%
+    );
+}
+
+.confidence-btn--all-in .confidence-value {
+    color: var(--color-all-in);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.confidence-btn--all-in .confidence-label {
+    color: var(--color-all-in);
+}
+
+.confidence-btn--all-in:hover:not(:disabled) {
+    border-color: var(--color-all-in);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+/* ALL IN selected state */
+.confidence-btn--all-in.confidence-btn--selected {
+    border-color: var(--color-all-in);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 215, 0, 0.25) 0%,
+        rgba(255, 215, 0, 0.15) 100%
+    );
+    box-shadow:
+        0 0 25px rgba(255, 215, 0, 0.4),
+        inset 0 0 15px rgba(255, 215, 0, 0.1);
+}
+
+.confidence-btn--all-in.confidence-btn--selected .confidence-value {
+    text-shadow:
+        0 0 15px rgba(255, 215, 0, 0.8),
+        0 0 30px rgba(255, 215, 0, 0.4);
+}
+
+/* Confidence Responsive - Smaller screens */
+@media (max-width: 360px) {
+    .confidence-buttons {
+        gap: var(--space-sm);
+    }
+
+    .confidence-btn {
+        min-width: 80px;
+        min-height: 80px;
+        padding: var(--space-sm);
+    }
+
+    .confidence-btn--all-in {
+        min-width: 85px;
+        min-height: 85px;
+    }
+
+    .confidence-value {
+        font-size: 24px;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    #vote-view .player-card {
+        transition: none;
+    }
+
+    #vote-view .player-card:hover:not(:disabled) {
+        transform: none;
+    }
+
+    .vote-notification {
+        animation: none;
+    }
+
+    .confidence-btn {
+        transition: none;
+    }
+
+    .confidence-btn:hover:not(:disabled) {
+        transform: none;
+    }
+
+    .confidence-btn--all-in .confidence-value {
+        text-shadow: none;
+    }
+
+    .confidence-btn--all-in.confidence-btn--selected {
+        box-shadow: 0 0 0 3px var(--color-all-in);
+    }
+}
+
+/* ============================================================================
+   STORY 5.3: VOTE SUBMISSION & TRACKING
+   ============================================================================ */
+
+/* Locked Vote State */
+.btn-locked {
+    background: var(--color-success) !important;
+    border-color: var(--color-success) !important;
+    cursor: not-allowed;
+}
+
+.player-card--locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.confidence-btn--locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Vote Tracker Styling */
+#vote-tracker {
+    font-size: 16px;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+}
+
+.vote-tracker--complete {
+    color: var(--color-success);
+    background: rgba(57, 255, 20, 0.1);
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+}
+
+/* ============================================================================
+   STORY 5.4: SPY MODE TOGGLE & LOCATION GUESS
+   ============================================================================ */
+
+/* Spy Mode Toggle Container */
+.spy-mode-toggle {
+    margin-bottom: var(--space-lg);
+}
+
+.spy-mode-options {
+    display: flex;
+    gap: var(--space-xs);
+    background: var(--color-bg-secondary);
+    padding: var(--space-xs);
+    border-radius: var(--radius-lg);
+}
+
+/* Spy Mode Tab Buttons */
+.spy-mode-tab {
+    flex: 1;
+    padding: var(--space-md);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    font-weight: var(--font-weight-bold);
+    font-family: var(--font-display);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: var(--touch-minimum);
+}
+
+.spy-mode-tab:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.spy-mode-tab--active {
+    background: var(--color-accent-primary);
+    color: var(--color-text-primary);
+    box-shadow: var(--glow-primary);
+}
+
+.spy-mode-tab:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 45, 106, 0.4);
+}
+
+.spy-mode-tab:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Location List Container */
+#guess-panel .location-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    max-height: 320px;
+    overflow-y: auto;
+    padding: var(--space-sm);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent-primary) var(--color-bg-tertiary);
+}
+
+#guess-panel .location-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+#guess-panel .location-list::-webkit-scrollbar-track {
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-sm);
+}
+
+#guess-panel .location-list::-webkit-scrollbar-thumb {
+    background: var(--color-accent-primary);
+    border-radius: var(--radius-sm);
+}
+
+/* Location Item Button */
+.location-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-bg-secondary);
+    border: 2px solid var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+    min-height: var(--touch-minimum);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+}
+
+.location-item:hover:not(:disabled) {
+    border-color: var(--color-accent-secondary);
+    background: var(--color-bg-tertiary);
+}
+
+.location-item:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.4);
+}
+
+/* Location Item Selected State */
+.location-item--selected {
+    border-color: var(--color-accent-primary);
+    background: rgba(255, 45, 106, 0.15);
+    box-shadow: var(--glow-primary);
+}
+
+/* Location Item Locked State */
+.location-item--locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Location Name Text */
+.location-item .location-name {
+    font-size: 16px;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+/* Guess Panel Actions */
+#guess-panel .vote-actions {
+    margin-top: var(--space-lg);
+}
+
+/* Reduced Motion Support for Spy Mode */
+@media (prefers-reduced-motion: reduce) {
+    .spy-mode-tab {
+        transition: none;
+    }
+
+    .location-item {
+        transition: none;
+    }
+}
+
+/* ============================================================================
+   STORY 5.5: VOTE TIMER URGENCY STATES
+   ============================================================================ */
+
+/* Timer Normal State (> 20s) */
+.timer-normal {
+    border-color: var(--color-bg-tertiary);
+    background: var(--color-bg-secondary);
+}
+
+/* Timer Warning State (10-20s) - Yellow */
+.timer-warning {
+    border-color: var(--color-all-in) !important;
+    background: rgba(255, 215, 0, 0.1) !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
+}
+
+.timer-warning #vote-timer,
+.timer-warning .timer-value {
+    color: var(--color-all-in) !important;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+
+/* Timer Urgent State (< 10s) - Red with pulse (UX-8) */
+.timer-urgent {
+    border-color: var(--color-error) !important;
+    background: rgba(255, 0, 64, 0.15) !important;
+    box-shadow: 0 0 20px rgba(255, 0, 64, 0.4) !important;
+    animation: pulse-timer-urgent 0.5s ease-in-out infinite;
+}
+
+.timer-urgent #vote-timer,
+.timer-urgent .timer-value {
+    color: var(--color-error) !important;
+    text-shadow: 0 0 20px rgba(255, 0, 64, 0.7);
+    animation: pulse-timer-text 0.5s ease-in-out infinite;
+}
+
+@keyframes pulse-timer-urgent {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(255, 0, 64, 0.4);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(255, 0, 64, 0.6);
+        transform: scale(1.02);
+    }
+}
+
+@keyframes pulse-timer-text {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Abstain/Warning Notification */
+.notification--warning {
+    border-color: var(--color-all-in);
+    background: rgba(255, 215, 0, 0.15);
+    color: var(--color-all-in);
+}
+
+/* Reduced Motion Support for Timer Urgency */
+@media (prefers-reduced-motion: reduce) {
+    .timer-urgent {
+        animation: none;
+        box-shadow: 0 0 20px rgba(255, 0, 64, 0.4);
+    }
+
+    .timer-urgent #vote-timer,
+    .timer-urgent .timer-value {
+        animation: none;
+    }
+}
+
+/* ============================================================================
+   STORY 5.6: REVEAL PHASE STYLES
+   ============================================================================ */
+
+/* Reveal Phase Layout */
+#reveal-view {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: var(--space-lg);
+    gap: var(--space-lg);
+    animation: reveal-fadeIn 0.5s ease-out;
+}
+
+.reveal-header {
+    text-align: center;
+    padding: var(--space-lg);
+}
+
+.reveal-title {
+    font-size: 28px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    animation: reveal-slideDown 0.5s ease-out;
+    font-family: var(--font-display);
+}
+
+.reveal-section {
+    animation: reveal-fadeIn 0.5s ease-out;
+    animation-fill-mode: both;
+}
+
+.reveal-section:nth-child(2) { animation-delay: 0.2s; }
+.reveal-section:nth-child(3) { animation-delay: 0.4s; }
+.reveal-section:nth-child(4) { animation-delay: 0.6s; }
+.reveal-section:nth-child(5) { animation-delay: 0.8s; }
+.reveal-section:nth-child(6) { animation-delay: 1.0s; }
+
+.reveal-section-title {
+    font-size: 16px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-md);
+    text-align: center;
+}
+
+/* Reveal Cards */
+.reveal-card {
+    padding: var(--space-lg);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    border: 2px solid var(--color-bg-tertiary);
+}
+
+.reveal-card-title {
+    font-size: 14px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-sm);
+}
+
+.reveal-highlight {
+    font-size: 24px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+.reveal-subtext {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin-top: var(--space-xs);
+}
+
+/* Spy Identity Card */
+.reveal-card--spy-identity {
+    border-color: var(--color-accent-primary);
+    background: rgba(255, 45, 106, 0.1);
+}
+
+.reveal-spy-name {
+    color: var(--color-accent-primary);
+}
+
+.reveal-spy-name--self {
+    animation: reveal-pulse-glow 1s infinite;
+}
+
+/* Location Card */
+.reveal-card--location {
+    border-color: var(--color-accent-secondary);
+    background: rgba(0, 245, 255, 0.1);
+}
+
+.reveal-card--location .reveal-highlight {
+    color: var(--color-accent-secondary);
+}
+
+/* Convicted Card */
+.reveal-card--convicted {
+    border-color: var(--color-all-in);
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.reveal-card--convicted .reveal-highlight {
+    color: var(--color-all-in);
+}
+
+/* Vote Cards Grid */
+.reveal-votes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-md);
+}
+
+.reveal-vote-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--color-bg-tertiary);
+}
+
+.reveal-vote-card .vote-voter {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    min-width: 60px;
+}
+
+.reveal-vote-card .vote-arrow {
+    color: var(--color-text-secondary);
+}
+
+.reveal-vote-card .vote-target {
+    flex: 1;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+}
+
+.reveal-vote-card .vote-abstained {
+    font-style: italic;
+    color: var(--color-text-secondary);
+}
+
+.reveal-vote-card .vote-confidence {
+    font-size: 12px;
+    font-weight: var(--font-weight-bold);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-secondary);
+    color: var(--color-text-secondary);
+}
+
+/* Confidence Styling for Vote Cards */
+.reveal-vote-card.confidence-1 { border-left-color: var(--color-text-secondary); }
+.reveal-vote-card.confidence-2 { border-left-color: var(--color-accent-secondary); }
+.reveal-vote-card.confidence-all-in {
+    border-left-color: var(--color-all-in);
+}
+.reveal-vote-card.confidence-all-in .vote-confidence {
+    background: var(--color-all-in);
+    color: var(--color-bg-primary);
+}
+
+.reveal-vote-card--abstained {
+    opacity: 0.6;
+    border-left-color: var(--color-text-secondary);
+}
+
+/* Spy Guess Result */
+.reveal-card--spy {
+    border-color: var(--color-accent-primary);
+}
+
+.reveal-outcome {
+    font-size: 18px;
+    font-weight: var(--font-weight-bold);
+    margin-top: var(--space-sm);
+}
+
+.reveal-outcome--correct {
+    color: var(--color-success);
+    text-shadow: var(--glow-secondary);
+}
+
+.reveal-outcome--wrong {
+    color: var(--color-error);
+}
+
+/* Scoring Countdown */
+.reveal-countdown {
+    text-align: center;
+    font-size: 16px;
+    color: var(--color-text-secondary);
+    padding: var(--space-lg);
+}
+
+#scoring-countdown {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent-secondary);
+}
+
+/* Reveal Animations */
+@keyframes reveal-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes reveal-slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes reveal-pulse-glow {
+    0%, 100% {
+        text-shadow: 0 0 10px rgba(255, 45, 106, 0.5);
+    }
+    50% {
+        text-shadow: 0 0 20px rgba(255, 45, 106, 0.8);
+    }
+}
+
+/* Reduced Motion for Reveal Phase */
+@media (prefers-reduced-motion: reduce) {
+    #reveal-view,
+    .reveal-section,
+    .reveal-title {
+        animation: none;
+    }
+
+    .reveal-spy-name--self {
+        animation: none;
+        text-shadow: 0 0 10px rgba(255, 45, 106, 0.5);
+    }
+}
+
+/* ============================================================================
+   STORY 5.7: CONVICTION BANNER
+   ============================================================================ */
+
+/* Conviction Banner Container */
+.conviction-banner {
+    display: none;
+    padding: var(--space-lg);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-lg);
+    text-align: center;
+    border: 2px solid var(--color-bg-tertiary);
+    background: var(--color-bg-secondary);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.conviction-banner--visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Conviction Result Content */
+.conviction-result {
+    margin-bottom: var(--space-md);
+}
+
+.conviction-message {
+    font-size: 24px;
+    font-weight: var(--font-weight-bold);
+    font-family: var(--font-display);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-xs);
+}
+
+.conviction-detail {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+}
+
+/* Conviction Banner Variants */
+
+/* AC1: Spy Caught - Green success styling */
+.conviction-banner--caught {
+    border-color: var(--color-success);
+    background: rgba(0, 255, 136, 0.1);
+}
+
+.conviction-banner--caught .conviction-message {
+    color: var(--color-success);
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+/* AC2: Innocent Convicted - Red warning styling */
+.conviction-banner--innocent {
+    border-color: var(--color-error);
+    background: rgba(255, 85, 85, 0.1);
+}
+
+.conviction-banner--innocent .conviction-message {
+    color: var(--color-error);
+    text-shadow: 0 0 10px rgba(255, 85, 85, 0.5);
+}
+
+/* AC4: Spy Guess Case - Pink accent styling */
+.conviction-banner--spy-guess {
+    border-color: var(--color-accent-primary);
+    background: rgba(255, 45, 106, 0.1);
+}
+
+.conviction-banner--spy-guess .conviction-message {
+    color: var(--color-accent-primary);
+    text-shadow: 0 0 10px rgba(255, 45, 106, 0.5);
+}
+
+/* AC5: No Conviction - Neutral styling */
+.conviction-banner--none {
+    border-color: var(--color-text-secondary);
+    background: var(--color-bg-tertiary);
+}
+
+.conviction-banner--none .conviction-message {
+    color: var(--color-text-secondary);
+}
+
+/* Score Change Display (AC3) */
+.score-change {
+    font-size: 32px;
+    font-weight: var(--font-weight-black);
+    font-family: var(--font-display);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-tertiary);
+    display: inline-block;
+    min-width: 80px;
+}
+
+/* Positive Score - Green with glow */
+.score-positive {
+    color: var(--color-success);
+    text-shadow: 0 0 15px rgba(0, 255, 136, 0.6);
+    background: rgba(0, 255, 136, 0.15);
+}
+
+/* Negative Score - Red with subtle glow */
+.score-negative {
+    color: var(--color-error);
+    text-shadow: 0 0 15px rgba(255, 85, 85, 0.6);
+    background: rgba(255, 85, 85, 0.15);
+}
+
+/* Neutral Score (0) */
+.score-neutral {
+    color: var(--color-text-secondary);
+}
+
+/* Score Change Animation */
+.score-change {
+    animation: score-pop 0.5s ease-out;
+}
+
+@keyframes score-pop {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Reduced Motion for Conviction Banner */
+@media (prefers-reduced-motion: reduce) {
+    .conviction-banner {
+        transition: none;
+    }
+
+    .score-change {
+        animation: none;
+    }
+}
+

@@ -29,6 +29,20 @@ class PlayerClient {
 
     // Story 4.4: Timer state
     this.timerInterval = null;
+
+    // Story 5.1: Vote state
+    this.selectedVoteTarget = null;
+
+    // Story 5.2: Confidence betting state (default to 1 per AC4)
+    this.selectedConfidence = 1;
+
+    // Story 5.3: Vote submission state
+    this.hasVoted = false;
+
+    // Story 5.4: Spy location guess state
+    this.isSpy = false;
+    this.selectedLocation = null;
+    this.spyActionTaken = false;
   }
 
   /**
@@ -304,7 +318,15 @@ class PlayerClient {
       }
     }
 
-    // TODO: Handle other phases in future stories
+    // Story 5.1: Handle VOTE phase
+    if (state.phase === 'VOTE') {
+      this.handleVotePhase(state);
+    }
+
+    // Story 5.6: Handle REVEAL phase
+    if (state.phase === 'REVEAL') {
+      this.handleRevealPhase(state);
+    }
   }
 
   /**
@@ -669,6 +691,988 @@ class PlayerClient {
     this.sendMessage({
       type: 'call_vote'
     });
+  }
+
+  /**
+   * Handle VOTE phase state update (Story 5.1)
+   * @param {Object} state - Game state with players and vote data
+   */
+  handleVotePhase(state) {
+    // Hide all other views
+    const views = ['join-view', 'lobby-view', 'roles-loading-view', 'role-view', 'questioning-view', 'reveal-view', 'scoring-view'];
+    views.forEach(viewId => {
+      const view = document.getElementById(viewId);
+      if (view) view.style.display = 'none';
+    });
+
+    // Show vote view
+    const voteView = document.getElementById('vote-view');
+    if (voteView) {
+      voteView.style.display = 'flex';
+    }
+
+    // Show vote caller notification if available (from Story 4.5)
+    if (state.vote_caller) {
+      this.showVoteCallerNotification(state.vote_caller);
+    }
+
+    // Render player cards (AC1: Display grid of player cards)
+    this.renderPlayerCards(state);
+
+    // Update timer display
+    if (state.timer) {
+      this.updateVoteTimer(state.timer.remaining);
+    }
+
+    // Update vote tracker
+    if (state.votes_submitted !== undefined && state.total_voters !== undefined) {
+      this.updateVoteTracker(state.votes_submitted, state.total_voters);
+    }
+
+    // Story 5.2: Setup confidence betting
+    this.setupConfidenceListeners();
+    this.resetConfidence(); // Default to 1 per AC4
+
+    // Story 5.3: Setup vote submission
+    this.setupSubmitVoteListener();
+    this.hasVoted = false;
+    this.selectedVoteTarget = null;
+
+    // Story 5.3: Check if player already voted (reconnect scenario)
+    if (state.has_voted) {
+      this.lockVoteUI();
+    }
+
+    // Story 5.4: Setup spy mode if player is spy (AC1, AC4)
+    this.isSpy = state.is_spy || false;
+    this.spyActionTaken = state.can_guess_location === false;
+
+    const spyToggle = document.getElementById('spy-mode-toggle');
+    if (spyToggle) {
+      // AC4: Only spy sees the toggle
+      spyToggle.style.display = this.isSpy ? 'block' : 'none';
+    }
+
+    // AC2: Render location list for spy
+    if (this.isSpy && state.location_list) {
+      this.renderLocationList(state.location_list);
+      this.setupSpyModeListeners();
+      this.setupSubmitGuessListener();
+    }
+  }
+
+  /**
+   * Show vote caller notification (Story 5.1)
+   * @param {string} callerName - Name of player who called vote
+   */
+  showVoteCallerNotification(callerName) {
+    const notification = document.getElementById('vote-notification');
+    if (!notification) return;
+
+    notification.textContent = `${this.escapeHtml(callerName)} called a vote!`;
+    notification.style.display = 'block';
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      notification.style.display = 'none';
+    }, 3000);
+  }
+
+  /**
+   * Render player cards grid (Story 5.1: AC1, AC2, AC3)
+   * @param {Object} state - Game state with players array
+   */
+  renderPlayerCards(state) {
+    const grid = document.getElementById('player-cards-grid');
+    if (!grid) return;
+
+    // Clear existing cards
+    grid.innerHTML = '';
+
+    // Get players from state (AC1: excluding themselves)
+    const players = state.players || [];
+    const selfName = this.playerName;
+
+    players.forEach(player => {
+      // Skip self - player cannot vote for themselves
+      if (player.name === selfName) return;
+
+      const card = this.createPlayerCard(player);
+      grid.appendChild(card);
+    });
+
+    // Restore selection if player was previously selected
+    if (this.selectedVoteTarget) {
+      const selectedCard = grid.querySelector(`[data-player-name="${this.selectedVoteTarget}"]`);
+      if (selectedCard && !selectedCard.disabled) {
+        selectedCard.classList.add('player-card--selected');
+        selectedCard.setAttribute('aria-checked', 'true');
+      } else {
+        // Clear selection if target no longer valid
+        this.selectedVoteTarget = null;
+        this.updateSubmitButton();
+      }
+    }
+  }
+
+  /**
+   * Create a player card element (Story 5.1: AC1, AC5)
+   * @param {Object} player - Player data {name, connected}
+   * @returns {HTMLElement} Button element for player card
+   */
+  createPlayerCard(player) {
+    const card = document.createElement('button');
+    card.className = 'player-card';
+    card.setAttribute('type', 'button');
+    card.setAttribute('role', 'radio');
+    card.setAttribute('aria-checked', 'false');
+    card.setAttribute('data-player-name', player.name);
+
+    // Card content with avatar and name
+    const initial = player.name.charAt(0).toUpperCase();
+    card.innerHTML = `
+      <div class="player-card-avatar">
+        <span class="player-initial">${this.escapeHtml(initial)}</span>
+      </div>
+      <div class="player-card-name">${this.escapeHtml(player.name)}</div>
+    `;
+
+    // Click handler for selection (AC2: tap to select)
+    card.addEventListener('click', () => this.selectVoteTarget(player.name));
+
+    // Handle disconnected players (AC5: disabled state)
+    if (!player.connected) {
+      card.classList.add('player-card--disabled');
+      card.disabled = true;
+      card.setAttribute('aria-disabled', 'true');
+    }
+
+    return card;
+  }
+
+  /**
+   * Select a vote target (Story 5.1: AC2, AC3)
+   * @param {string} playerName - Name of player to vote for
+   */
+  selectVoteTarget(playerName) {
+    // AC3: Clear previous selection
+    document.querySelectorAll('.player-card').forEach(card => {
+      card.classList.remove('player-card--selected');
+      card.setAttribute('aria-checked', 'false');
+    });
+
+    // AC2: Select new target
+    const selectedCard = document.querySelector(`[data-player-name="${playerName}"]`);
+    if (selectedCard) {
+      selectedCard.classList.add('player-card--selected');
+      selectedCard.setAttribute('aria-checked', 'true');
+    }
+
+    this.selectedVoteTarget = playerName;
+
+    // Update submit button state
+    this.updateSubmitButton();
+
+    // Announce selection for screen readers
+    this.announceSelection(playerName);
+
+    console.log('[Player] Vote target selected:', playerName);
+  }
+
+  /**
+   * Update submit button based on selection (Story 5.1)
+   */
+  updateSubmitButton() {
+    const submitBtn = document.getElementById('submit-vote-btn');
+    if (!submitBtn) return;
+
+    if (this.selectedVoteTarget) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'LOCK IT IN';
+    } else {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'SELECT A PLAYER';
+    }
+  }
+
+  /**
+   * Announce selection to screen readers (Story 5.1: Accessibility)
+   * @param {string} playerName - Selected player name
+   */
+  announceSelection(playerName) {
+    const announcer = document.getElementById('sr-announcer');
+    if (announcer) {
+      announcer.textContent = `Selected ${playerName}`;
+    }
+  }
+
+  /**
+   * Select confidence level (Story 5.2: AC3, AC4, AC5)
+   * @param {number} confidence - Confidence level (1, 2, or 3)
+   */
+  selectConfidence(confidence) {
+    // Validate confidence value
+    if (![1, 2, 3].includes(confidence)) {
+      console.error('[Player] Invalid confidence value:', confidence);
+      return;
+    }
+
+    // Update all buttons (radio group single-select behavior)
+    document.querySelectorAll('.confidence-btn').forEach(btn => {
+      const btnConfidence = parseInt(btn.dataset.confidence, 10);
+      const isSelected = btnConfidence === confidence;
+
+      btn.classList.toggle('confidence-btn--selected', isSelected);
+      btn.setAttribute('aria-checked', isSelected.toString());
+    });
+
+    this.selectedConfidence = confidence;
+    console.log('[Player] Confidence selected:', confidence);
+
+    // Announce selection for screen readers
+    const labels = { 1: 'Safe', 2: 'Bold', 3: 'All In' };
+    const announcer = document.getElementById('sr-announcer');
+    if (announcer) {
+      announcer.textContent = `Confidence set to ${labels[confidence]}`;
+    }
+
+    // Provide haptic feedback on mobile (if available)
+    if (navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+  }
+
+  /**
+   * Reset confidence selection to default (Story 5.2: AC4)
+   */
+  resetConfidence() {
+    this.selectConfidence(1);
+  }
+
+  /**
+   * Get current vote data for submission (Story 5.2)
+   * @returns {Object} Vote data with target and confidence
+   */
+  getVoteData() {
+    return {
+      target: this.selectedVoteTarget,
+      confidence: this.selectedConfidence
+    };
+  }
+
+  /**
+   * Setup confidence button event listeners (Story 5.2)
+   */
+  setupConfidenceListeners() {
+    document.querySelectorAll('.confidence-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const confidence = parseInt(e.currentTarget.dataset.confidence, 10);
+        this.selectConfidence(confidence);
+      });
+    });
+  }
+
+  /**
+   * Setup submit vote button listener (Story 5.3)
+   */
+  setupSubmitVoteListener() {
+    const submitBtn = document.getElementById('submit-vote-btn');
+    if (submitBtn && !submitBtn._hasListener) {
+      submitBtn.addEventListener('click', () => this.submitVote());
+      submitBtn._hasListener = true;
+    }
+  }
+
+  /**
+   * Submit vote to server (Story 5.3: AC1)
+   */
+  submitVote() {
+    // Prevent double submission
+    if (this.hasVoted) {
+      console.log('[Player] Already voted');
+      return;
+    }
+
+    // Validate selection
+    if (!this.selectedVoteTarget) {
+      console.warn('[Player] No vote target selected');
+      return;
+    }
+
+    // Send vote message
+    const voteData = {
+      type: 'vote',
+      target: this.selectedVoteTarget,
+      confidence: this.selectedConfidence || 1
+    };
+
+    this.sendMessage(voteData);
+    console.log('[Player] Vote submitted:', voteData);
+
+    // Update UI immediately (optimistic)
+    this.lockVoteUI();
+  }
+
+  /**
+   * Lock vote UI after submission (Story 5.3: AC1)
+   */
+  lockVoteUI() {
+    this.hasVoted = true;
+
+    // Disable submit button and show locked state
+    const submitBtn = document.getElementById('submit-vote-btn');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'LOCKED ✓';
+      submitBtn.classList.add('btn-locked');
+    }
+
+    // Disable player cards
+    document.querySelectorAll('.player-card').forEach(card => {
+      card.classList.add('player-card--locked');
+      card.disabled = true;
+    });
+
+    // Disable confidence buttons
+    document.querySelectorAll('.confidence-btn').forEach(btn => {
+      btn.classList.add('confidence-btn--locked');
+      btn.disabled = true;
+    });
+
+    // Announce for screen readers
+    const announcer = document.getElementById('sr-announcer');
+    if (announcer) {
+      announcer.textContent = 'Vote locked in';
+    }
+
+    console.log('[Player] Vote UI locked');
+  }
+
+  /**
+   * Setup spy mode tab listeners (Story 5.4: AC1)
+   */
+  setupSpyModeListeners() {
+    const voteTab = document.getElementById('spy-vote-tab');
+    const guessTab = document.getElementById('spy-guess-tab');
+
+    if (voteTab && !voteTab._hasListener) {
+      voteTab.addEventListener('click', () => this.setSpyMode('vote'));
+      voteTab._hasListener = true;
+    }
+
+    if (guessTab && !guessTab._hasListener) {
+      guessTab.addEventListener('click', () => this.setSpyMode('guess'));
+      guessTab._hasListener = true;
+    }
+  }
+
+  /**
+   * Switch between vote and guess panels (Story 5.4: AC1, AC2)
+   * @param {string} mode - 'vote' or 'guess'
+   */
+  setSpyMode(mode) {
+    const voteTab = document.getElementById('spy-vote-tab');
+    const guessTab = document.getElementById('spy-guess-tab');
+    const votePanel = document.getElementById('vote-panel');
+    const guessPanel = document.getElementById('guess-panel');
+    const confidenceSection = document.getElementById('confidence-section');
+    const voteActions = document.querySelector('#vote-view > .vote-actions');
+
+    if (mode === 'vote') {
+      // Update tabs
+      voteTab?.classList.add('spy-mode-tab--active');
+      voteTab?.setAttribute('aria-selected', 'true');
+      guessTab?.classList.remove('spy-mode-tab--active');
+      guessTab?.setAttribute('aria-selected', 'false');
+
+      // Show vote panel, hide guess panel
+      if (votePanel) votePanel.style.display = 'block';
+      if (guessPanel) guessPanel.style.display = 'none';
+      if (confidenceSection) confidenceSection.style.display = 'block';
+      if (voteActions) voteActions.style.display = 'block';
+    } else if (mode === 'guess') {
+      // Update tabs
+      guessTab?.classList.add('spy-mode-tab--active');
+      guessTab?.setAttribute('aria-selected', 'true');
+      voteTab?.classList.remove('spy-mode-tab--active');
+      voteTab?.setAttribute('aria-selected', 'false');
+
+      // Show guess panel, hide vote panel
+      if (votePanel) votePanel.style.display = 'none';
+      if (guessPanel) guessPanel.style.display = 'block';
+      if (confidenceSection) confidenceSection.style.display = 'none';
+      if (voteActions) voteActions.style.display = 'none';
+    }
+
+    console.log('[Player] Spy mode set to:', mode);
+  }
+
+  /**
+   * Render location list for spy (Story 5.4: AC2)
+   * @param {Array} locations - Array of {id, name} objects
+   */
+  renderLocationList(locations) {
+    const list = document.getElementById('location-list');
+    if (!list) return;
+
+    list.innerHTML = '';
+
+    locations.forEach(location => {
+      const item = document.createElement('button');
+      item.className = 'location-item';
+      item.setAttribute('type', 'button');
+      item.setAttribute('role', 'radio');
+      item.setAttribute('aria-checked', 'false');
+      item.setAttribute('data-location-id', location.id);
+
+      item.innerHTML = `<span class="location-name">${this.escapeHtml(location.name)}</span>`;
+
+      item.addEventListener('click', () => this.selectLocation(location.id));
+      list.appendChild(item);
+    });
+
+    console.log('[Player] Location list rendered:', locations.length, 'locations');
+  }
+
+  /**
+   * Select a location for spy guess (Story 5.4: AC2)
+   * @param {string} locationId - Location ID to select
+   */
+  selectLocation(locationId) {
+    // Clear previous selection
+    document.querySelectorAll('.location-item').forEach(item => {
+      item.classList.remove('location-item--selected');
+      item.setAttribute('aria-checked', 'false');
+    });
+
+    // Select new location
+    const selectedItem = document.querySelector(`[data-location-id="${locationId}"]`);
+    if (selectedItem) {
+      selectedItem.classList.add('location-item--selected');
+      selectedItem.setAttribute('aria-checked', 'true');
+    }
+
+    this.selectedLocation = locationId;
+
+    // Update submit button
+    this.updateGuessButton();
+
+    // Announce for screen readers
+    const announcer = document.getElementById('sr-announcer');
+    if (announcer) {
+      const locationName = selectedItem?.textContent || locationId;
+      announcer.textContent = `Selected ${locationName}`;
+    }
+
+    console.log('[Player] Location selected:', locationId);
+  }
+
+  /**
+   * Update guess button based on selection (Story 5.4)
+   */
+  updateGuessButton() {
+    const submitBtn = document.getElementById('submit-guess-btn');
+    if (!submitBtn) return;
+
+    if (this.selectedLocation) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'CONFIRM GUESS';
+    } else {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'SELECT A LOCATION';
+    }
+  }
+
+  /**
+   * Setup submit guess button listener (Story 5.4)
+   */
+  setupSubmitGuessListener() {
+    const submitBtn = document.getElementById('submit-guess-btn');
+    if (submitBtn && !submitBtn._hasListener) {
+      submitBtn.addEventListener('click', () => this.submitLocationGuess());
+      submitBtn._hasListener = true;
+    }
+  }
+
+  /**
+   * Submit location guess (Story 5.4: AC3)
+   */
+  submitLocationGuess() {
+    // Prevent double submission or submission without selection
+    if (!this.selectedLocation || this.spyActionTaken) {
+      console.log('[Player] Cannot submit guess - no selection or already acted');
+      return;
+    }
+
+    // Send spy_guess message
+    this.sendMessage({
+      type: 'spy_guess',
+      location_id: this.selectedLocation
+    });
+
+    console.log('[Player] Spy guess submitted:', this.selectedLocation);
+
+    // Lock UI (AC5: mutual exclusivity)
+    this.lockSpyGuessUI();
+  }
+
+  /**
+   * Lock spy guess UI after submission (Story 5.4: AC3, AC5)
+   */
+  lockSpyGuessUI() {
+    this.spyActionTaken = true;
+
+    // Disable submit button
+    const submitBtn = document.getElementById('submit-guess-btn');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'GUESS LOCKED ✓';
+      submitBtn.classList.add('btn-locked');
+    }
+
+    // Disable location items
+    document.querySelectorAll('.location-item').forEach(item => {
+      item.disabled = true;
+      item.classList.add('location-item--locked');
+    });
+
+    // Disable spy mode tabs
+    const voteTab = document.getElementById('spy-vote-tab');
+    const guessTab = document.getElementById('spy-guess-tab');
+    if (voteTab) voteTab.disabled = true;
+    if (guessTab) guessTab.disabled = true;
+
+    // Announce for screen readers
+    const announcer = document.getElementById('sr-announcer');
+    if (announcer) {
+      announcer.textContent = 'Location guess locked in';
+    }
+
+    console.log('[Player] Spy guess UI locked');
+  }
+
+  /**
+   * Update vote tracker display (Story 5.3: AC2)
+   * @param {number} submitted - Votes submitted count
+   * @param {number} total - Total voters count
+   */
+  updateVoteTrackerSubmissions(submitted, total) {
+    const tracker = document.getElementById('vote-tracker');
+    if (!tracker) return;
+
+    tracker.textContent = `${submitted}/${total} voted`;
+    tracker.setAttribute('aria-valuenow', submitted);
+    tracker.setAttribute('aria-valuemax', total);
+
+    // Visual feedback when all voted
+    if (submitted >= total) {
+      tracker.classList.add('vote-tracker--complete');
+    } else {
+      tracker.classList.remove('vote-tracker--complete');
+    }
+  }
+
+  /**
+   * Update vote timer display with urgency states (Story 5.1 + 5.5)
+   * @param {number} seconds - Remaining seconds
+   */
+  updateVoteTimer(seconds) {
+    const timerElement = document.getElementById('vote-timer');
+    if (!timerElement) return;
+
+    // Format as M:SS
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    timerElement.textContent = `${minutes}:${secs.toString().padStart(2, '0')}`;
+
+    // Update ARIA for screen readers
+    timerElement.setAttribute('aria-valuenow', seconds);
+
+    // Get timer container for styling
+    const timerDisplay = timerElement.closest('.timer-display') || timerElement.parentElement;
+
+    // Remove all urgency classes first
+    timerElement.classList.remove('warning', 'critical');
+    if (timerDisplay) {
+      timerDisplay.classList.remove('timer-normal', 'timer-warning', 'timer-urgent');
+    }
+
+    // Apply urgency state (Story 5.5: AC2)
+    if (seconds > 20) {
+      if (timerDisplay) timerDisplay.classList.add('timer-normal');
+    } else if (seconds > 10) {
+      timerElement.classList.add('warning');
+      if (timerDisplay) timerDisplay.classList.add('timer-warning');
+    } else {
+      timerElement.classList.add('critical');
+      if (timerDisplay) timerDisplay.classList.add('timer-urgent');
+    }
+
+    // Announce urgency changes for screen readers (Story 5.5: AC6)
+    if (seconds === 20 && !this._announced20) {
+      this.announceToScreenReader('20 seconds remaining');
+      this._announced20 = true;
+    } else if (seconds === 10 && !this._announced10) {
+      this.announceToScreenReader('10 seconds remaining - hurry!');
+      this._announced10 = true;
+    } else if (seconds === 5 && !this._announced5) {
+      this.announceToScreenReader('5 seconds!');
+      this._announced5 = true;
+    }
+
+    // Reset announcement flags on new vote phase
+    if (seconds > 55) {
+      this._announced20 = false;
+      this._announced10 = false;
+      this._announced5 = false;
+    }
+
+    // Handle timer expiry notification (Story 5.5: AC3, AC4)
+    if (seconds <= 0 && !this.hasVoted && !this.spyActionTaken) {
+      this.showAbstainNotification();
+    }
+  }
+
+  /**
+   * Announce message to screen readers (Story 5.5)
+   * @param {string} message - Message to announce
+   */
+  announceToScreenReader(message) {
+    const announcer = document.getElementById('sr-announcer');
+    if (announcer) {
+      announcer.textContent = message;
+    }
+  }
+
+  /**
+   * Show abstain notification when timer expires (Story 5.5: AC3)
+   */
+  showAbstainNotification() {
+    const notification = document.getElementById('vote-notification');
+    if (notification) {
+      notification.textContent = 'Time expired - you abstained from voting';
+      notification.classList.add('notification--warning');
+      notification.style.display = 'block';
+    }
+  }
+
+  // ==========================================================================
+  // STORY 5.6 & 5.7: REVEAL PHASE METHODS
+  // ==========================================================================
+
+  /**
+   * Hide all game views (Story 5.6)
+   */
+  hideAllViews() {
+    const views = [
+      'join-view', 'lobby-view', 'roles-loading-view', 'role-view',
+      'questioning-view', 'vote-view', 'reveal-view', 'scoring-view'
+    ];
+    views.forEach(viewId => {
+      const view = document.getElementById(viewId);
+      if (view) view.style.display = 'none';
+    });
+  }
+
+  /**
+   * Handle reveal phase (Story 5.6)
+   * @param {Object} state - Game state object
+   */
+  handleRevealPhase(state) {
+    // Hide all other views
+    this.hideAllViews();
+
+    const revealView = document.getElementById('reveal-view');
+    if (revealView) {
+      revealView.style.display = 'block';
+    }
+
+    // Story 5.7: Show conviction banner with score change
+    this.showConvictionBanner(state);
+
+    // Render vote cards
+    if (state.votes) {
+      this.renderVoteCards(state.votes);
+    }
+
+    // Show spy guess result if applicable
+    if (state.spy_guess && state.spy_guess.guessed) {
+      this.renderSpyGuessResult(state.spy_guess);
+    }
+
+    // Show convicted player
+    if (state.vote_results) {
+      this.renderConvictionResult(state.vote_results);
+    }
+
+    // Show actual spy
+    if (state.actual_spy) {
+      const spyEl = document.getElementById('actual-spy');
+      if (spyEl) {
+        spyEl.textContent = this.escapeHtml(state.actual_spy);
+
+        // Highlight if current player is spy
+        if (state.actual_spy === this.playerName) {
+          spyEl.classList.add('reveal-spy-name--self');
+        }
+      }
+    }
+
+    // Show location
+    if (state.location) {
+      const locationEl = document.getElementById('actual-location');
+      if (locationEl) {
+        const locationName = typeof state.location === 'object'
+          ? state.location.name
+          : state.location;
+        locationEl.textContent = this.escapeHtml(locationName || 'Unknown');
+      }
+    }
+
+    // Start auto-transition countdown
+    this.startScoringCountdown();
+
+    console.log('[Player] Reveal phase displayed');
+  }
+
+  /**
+   * Show conviction banner with outcome and score change (Story 5.7)
+   * @param {Object} state - Game state with spy_caught, round_scores, etc.
+   */
+  showConvictionBanner(state) {
+    const banner = document.getElementById('conviction-banner');
+    const messageEl = document.getElementById('conviction-message');
+    const detailEl = document.getElementById('conviction-detail');
+    const scoreEl = document.getElementById('score-change');
+
+    if (!banner) return;
+
+    // Determine conviction outcome
+    const convicted = state.vote_results?.convicted;
+    const actualSpy = state.actual_spy;
+    const spyCaught = state.spy_caught;
+
+    // Remove existing variant classes
+    banner.classList.remove(
+      'conviction-banner--caught',
+      'conviction-banner--innocent',
+      'conviction-banner--none',
+      'conviction-banner--spy-guess'
+    );
+
+    // Handle spy guess case (Story 5.7: AC4)
+    if (state.spy_guess?.guessed) {
+      banner.classList.add('conviction-banner--spy-guess');
+      if (state.spy_guess.correct) {
+        messageEl.textContent = 'Spy Guessed Correctly!';
+        detailEl.textContent = `${this.escapeHtml(actualSpy)} identified the location`;
+      } else {
+        messageEl.textContent = 'Spy Guessed Wrong!';
+        detailEl.textContent = `${this.escapeHtml(actualSpy)} failed to identify the location`;
+      }
+    } else if (convicted) {
+      // Conviction case
+      if (spyCaught) {
+        // AC1: Spy was caught
+        banner.classList.add('conviction-banner--caught');
+        messageEl.textContent = 'Spy Caught!';
+        detailEl.textContent = `${this.escapeHtml(convicted)} was the spy`;
+      } else {
+        // AC2: Innocent convicted
+        banner.classList.add('conviction-banner--innocent');
+        messageEl.textContent = 'Wrong Person!';
+        detailEl.textContent = `${this.escapeHtml(convicted)} was innocent`;
+      }
+    } else {
+      // AC5: No conviction (tie or no votes)
+      banner.classList.add('conviction-banner--none');
+      messageEl.textContent = 'No Conviction';
+      detailEl.textContent = 'The vote was tied or no votes cast';
+    }
+
+    // Show player's score change (AC3)
+    if (state.round_scores && this.playerName) {
+      const myScore = state.round_scores[this.playerName];
+      if (myScore) {
+        const points = myScore.points || 0;
+        if (points > 0) {
+          scoreEl.textContent = `+${points}`;
+          scoreEl.className = 'score-change score-positive';
+        } else if (points < 0) {
+          scoreEl.textContent = `${points}`;
+          scoreEl.className = 'score-change score-negative';
+        } else {
+          scoreEl.textContent = '0';
+          scoreEl.className = 'score-change score-neutral';
+        }
+
+        // Show breakdown details for debugging
+        if (myScore.breakdown && myScore.breakdown.length > 0) {
+          const breakdownText = myScore.breakdown
+            .map(b => {
+              if (b.type === 'vote') {
+                return b.correct ? 'Correct vote' : 'Wrong vote';
+              } else if (b.type === 'double_agent') {
+                return 'Double Agent Bonus!';
+              } else if (b.type === 'location_guess') {
+                return b.correct ? 'Correct guess' : 'Wrong guess';
+              }
+              return b.type;
+            })
+            .join(', ');
+          console.log('[Player] Score breakdown:', breakdownText);
+        }
+      } else {
+        scoreEl.textContent = '';
+        scoreEl.className = 'score-change';
+      }
+    }
+
+    // Show banner with animation
+    banner.style.display = 'block';
+    banner.classList.add('conviction-banner--visible');
+
+    // Announce for screen readers
+    this.announceToScreenReader(messageEl.textContent);
+
+    console.log('[Player] Conviction banner displayed:', {
+      convicted,
+      spyCaught,
+      myScore: state.round_scores?.[this.playerName]
+    });
+  }
+
+  /**
+   * Render vote cards grid (Story 5.6: AC2)
+   * @param {Array} votes - Array of vote objects
+   */
+  renderVoteCards(votes) {
+    const grid = document.getElementById('reveal-votes-grid');
+    if (!grid) return;
+
+    grid.innerHTML = '';
+
+    votes.forEach(vote => {
+      const card = document.createElement('div');
+      card.className = 'reveal-vote-card';
+
+      if (vote.abstained) {
+        card.classList.add('reveal-vote-card--abstained');
+        card.innerHTML = `
+          <div class="vote-voter">${this.escapeHtml(vote.voter)}</div>
+          <div class="vote-arrow">→</div>
+          <div class="vote-target vote-abstained">Abstained</div>
+        `;
+      } else {
+        // Add confidence styling
+        const confidenceClass = vote.confidence === 3
+          ? 'confidence-all-in'
+          : `confidence-${vote.confidence}`;
+        card.classList.add(confidenceClass);
+
+        const confidenceLabel = vote.confidence === 3 ? 'ALL IN' : vote.confidence;
+
+        card.innerHTML = `
+          <div class="vote-voter">${this.escapeHtml(vote.voter)}</div>
+          <div class="vote-arrow">→</div>
+          <div class="vote-target">${this.escapeHtml(vote.target || 'No target')}</div>
+          <div class="vote-confidence">${confidenceLabel}</div>
+        `;
+      }
+
+      grid.appendChild(card);
+    });
+
+    console.log('[Player] Vote cards rendered:', votes.length);
+  }
+
+  /**
+   * Render spy guess result (Story 5.6: AC3)
+   * @param {Object} spyGuess - Spy guess data
+   */
+  renderSpyGuessResult(spyGuess) {
+    const container = document.getElementById('spy-guess-result');
+    if (!container) return;
+
+    container.style.display = 'block';
+
+    const locationEl = document.getElementById('spy-guess-location');
+    const outcomeEl = document.getElementById('spy-guess-outcome');
+
+    if (locationEl) {
+      locationEl.textContent = spyGuess.location_id;
+    }
+
+    if (outcomeEl) {
+      if (spyGuess.correct) {
+        outcomeEl.textContent = 'CORRECT!';
+        outcomeEl.className = 'reveal-outcome reveal-outcome--correct';
+      } else {
+        outcomeEl.textContent = 'WRONG!';
+        outcomeEl.className = 'reveal-outcome reveal-outcome--wrong';
+      }
+    }
+  }
+
+  /**
+   * Render conviction result (Story 5.6: AC4)
+   * @param {Object} voteResults - Vote results data
+   */
+  renderConvictionResult(voteResults) {
+    const playerEl = document.getElementById('convicted-player');
+    const countEl = document.getElementById('conviction-count');
+
+    if (playerEl) {
+      if (voteResults.convicted) {
+        playerEl.textContent = this.escapeHtml(voteResults.convicted);
+      } else {
+        playerEl.textContent = 'No one convicted';
+      }
+    }
+
+    if (countEl && voteResults.max_votes > 0) {
+      countEl.textContent = `${voteResults.max_votes} vote${voteResults.max_votes > 1 ? 's' : ''}`;
+    }
+  }
+
+  /**
+   * Start countdown to scoring phase (Story 5.6)
+   */
+  startScoringCountdown() {
+    const countdownEl = document.getElementById('scoring-countdown');
+    let seconds = 5;
+
+    // Clear any existing countdown
+    if (this._scoringCountdownInterval) {
+      clearInterval(this._scoringCountdownInterval);
+    }
+
+    this._scoringCountdownInterval = setInterval(() => {
+      seconds--;
+      if (countdownEl) {
+        countdownEl.textContent = seconds.toString();
+      }
+
+      if (seconds <= 0) {
+        clearInterval(this._scoringCountdownInterval);
+        this._scoringCountdownInterval = null;
+        // Server will transition to SCORING
+      }
+    }, 1000);
+  }
+
+  /**
+   * Update vote tracker display (Story 5.1)
+   * @param {number} submitted - Votes submitted count
+   * @param {number} total - Total voters count
+   */
+  updateVoteTracker(submitted, total) {
+    const tracker = document.getElementById('vote-tracker');
+    if (!tracker) return;
+
+    tracker.textContent = `${submitted}/${total} voted`;
+    tracker.setAttribute('aria-valuenow', submitted);
+    tracker.setAttribute('aria-valuemax', total);
   }
 
   /**

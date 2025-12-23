@@ -2165,17 +2165,188 @@ async def test_get_state_includes_questioning_timer():
     state = GameState()
     state.phase = GamePhase.QUESTIONING
     state.config.round_duration_minutes = 5
-    
+
     # Start round timer
     await state.start_round_timer()
-    
+
     # Get state
     game_state = state.get_state()
-    
+
     assert game_state["phase"] == "QUESTIONING"
     assert "timer" in game_state
     assert game_state["timer"]["name"] == "round"
     assert game_state["timer"]["remaining"] > 0
-    
+
     # Cleanup
     state.cancel_timer("round")
+
+
+# ============================================================================
+# Story 5.1: Vote Phase UI - State Tests
+# ============================================================================
+
+
+def test_vote_phase_includes_players_list():
+    """Test VOTE phase state includes players list for UI rendering (Story 5.1)."""
+    from custom_components.spyster.game.player import PlayerSession
+
+    state = GameState()
+    state.create_session("host")
+    state.phase = GamePhase.VOTE
+
+    # Add players
+    for i in range(4):
+        player = PlayerSession.create_new(f"Player{i+1}", is_host=(i == 0))
+        player.connected = True
+        state.players[player.name] = player
+
+    game_state = state.get_state()
+
+    assert "players" in game_state
+    assert len(game_state["players"]) == 4
+
+    # Verify each player has name and connected fields
+    for player_data in game_state["players"]:
+        assert "name" in player_data
+        assert "connected" in player_data
+
+
+def test_vote_phase_players_excludes_role_data():
+    """Test VOTE phase player list excludes sensitive role data (Story 5.1)."""
+    from custom_components.spyster.game.player import PlayerSession
+
+    state = GameState()
+    state.create_session("host")
+    state.phase = GamePhase.VOTE
+    state.spy_name = "Player1"
+    state.current_location = {"name": "Beach", "id": "beach"}
+
+    # Add players with role data
+    for i in range(4):
+        player = PlayerSession.create_new(f"Player{i+1}", is_host=(i == 0))
+        player.connected = True
+        player.role = f"Role{i+1}"  # Add role data
+        state.players[player.name] = player
+
+    game_state = state.get_state()
+
+    # Verify player list does NOT include role, location, is_spy etc.
+    for player_data in game_state["players"]:
+        assert "role" not in player_data
+        assert "is_spy" not in player_data
+        assert "location" not in player_data
+        # Only name and connected should be present
+        assert set(player_data.keys()) == {"name", "connected"}
+
+
+def test_vote_phase_includes_total_voters():
+    """Test VOTE phase state includes total_voters count (Story 5.1)."""
+    from custom_components.spyster.game.player import PlayerSession
+
+    state = GameState()
+    state.create_session("host")
+    state.phase = GamePhase.VOTE
+
+    # Add 5 players
+    for i in range(5):
+        player = PlayerSession.create_new(f"Player{i+1}", is_host=(i == 0))
+        player.connected = True
+        state.players[player.name] = player
+
+    game_state = state.get_state()
+
+    assert "total_voters" in game_state
+    assert game_state["total_voters"] == 5
+
+
+def test_vote_phase_includes_votes_submitted():
+    """Test VOTE phase state includes votes_submitted count (Story 5.1)."""
+    from custom_components.spyster.game.player import PlayerSession
+
+    state = GameState()
+    state.create_session("host")
+    state.phase = GamePhase.VOTE
+    state.votes = {"Player1": {"target": "Player2", "confidence": 1}}
+
+    # Add players
+    for i in range(4):
+        player = PlayerSession.create_new(f"Player{i+1}", is_host=(i == 0))
+        player.connected = True
+        state.players[player.name] = player
+
+    game_state = state.get_state()
+
+    assert "votes_submitted" in game_state
+    assert game_state["votes_submitted"] == 1
+
+
+def test_vote_phase_includes_disconnected_status():
+    """Test VOTE phase player list shows disconnected players (Story 5.1: AC5)."""
+    from custom_components.spyster.game.player import PlayerSession
+
+    state = GameState()
+    state.create_session("host")
+    state.phase = GamePhase.VOTE
+
+    # Add connected and disconnected players
+    player1 = PlayerSession.create_new("Connected1", is_host=True)
+    player1.connected = True
+    state.players["Connected1"] = player1
+
+    player2 = PlayerSession.create_new("Disconnected1", is_host=False)
+    player2.connected = False
+    state.players["Disconnected1"] = player2
+
+    game_state = state.get_state()
+
+    connected_player = next(
+        p for p in game_state["players"] if p["name"] == "Connected1"
+    )
+    disconnected_player = next(
+        p for p in game_state["players"] if p["name"] == "Disconnected1"
+    )
+
+    assert connected_player["connected"] is True
+    assert disconnected_player["connected"] is False
+
+
+def test_vote_phase_for_player_filtering():
+    """Test VOTE phase filtering for specific player (Story 5.1)."""
+    from custom_components.spyster.game.player import PlayerSession
+
+    state = GameState()
+    state.create_session("host")
+    state.phase = GamePhase.VOTE
+    state.spy_name = "Alice"
+    state.current_location = {"name": "Beach", "id": "beach"}
+    state.location_pack = {
+        "locations": [
+            {"name": "Beach", "id": "beach"},
+            {"name": "Hospital", "id": "hospital"}
+        ]
+    }
+
+    # Add players
+    alice = PlayerSession.create_new("Alice", is_host=False)
+    alice.connected = True
+    state.players["Alice"] = alice
+
+    bob = PlayerSession.create_new("Bob", is_host=False)
+    bob.connected = True
+    bob.role = "Lifeguard"
+    state.players["Bob"] = bob
+
+    # Test spy sees location list
+    alice_state = state.get_state(for_player="Alice")
+    assert alice_state["is_spy"] is True
+    assert "locations" in alice_state
+
+    # Test non-spy sees location and role
+    bob_state = state.get_state(for_player="Bob")
+    assert bob_state["is_spy"] is False
+    assert bob_state["location"] == "Beach"
+    assert bob_state["role"] == "Lifeguard"
+
+    # Both should have players list
+    assert "players" in alice_state
+    assert "players" in bob_state

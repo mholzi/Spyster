@@ -144,6 +144,19 @@ class PlayerSession:
 
         return is_valid
 
+    def add_score(self, points: int) -> None:
+        """Add points to player's score (Story 5.7).
+
+        Args:
+            points: Points to add (can be negative)
+        """
+        self.score += points
+        _LOGGER.debug("Player %s score updated: %+d (total: %d)", self.name, points, self.score)
+
+    def reset_score(self) -> None:
+        """Reset player's score to 0 (for new game)."""
+        self.score = 0
+
     def to_dict(self) -> dict:
         """Return public player info (no sensitive data).
 

@@ -73,6 +73,21 @@ class GameState:
         self.vote_caller: str | None = None
         self.vote_duration: int = DEFAULT_VOTE_DURATION
 
+        # Story 5.3: Vote tracking
+        self.votes: dict[str, dict] = {}  # {player_name: {target, confidence, timestamp}}
+
+        # Story 5.4: Spy action tracking
+        self.spy_guess: dict | None = None  # {location_id, correct, timestamp}
+        self.spy_action_taken: bool = False  # True if spy voted or guessed
+
+        # Story 5.6: Reveal tracking
+        self.convicted_player: str | None = None  # Most voted player
+        self.vote_results: dict = {}  # Aggregated vote results
+
+        # Story 5.7: Round resolution
+        self.round_scores: dict[str, dict] = {}  # Per-player scores for round
+        self.spy_caught: bool = False  # Whether spy was convicted
+
         # Story 3.1: Add GameConfig instance (location_pack stored in config.location_pack)
         self.config = GameConfig()
 
@@ -564,29 +579,99 @@ class GameState:
                     except ValueError as err:
                         _LOGGER.warning("Failed to get role data for %s: %s", for_player, err)
 
+            # Story 5.1: Include player list for vote UI (excluding role data)
+            state["players"] = [
+                {
+                    "name": p.name,
+                    "connected": p.connected,
+                }
+                for p in self.players.values()
+            ]
+
             state["votes_submitted"] = len(getattr(self, "votes", {}))
-            state["total_players"] = len(self.players)
+            state["total_voters"] = len(self.players)
             # Story 4.5: AC6 - Include vote caller for attribution
             state["vote_caller"] = self.vote_caller
 
+            # Story 5.3: Include if current player has voted (for UI state)
+            if for_player:
+                state["has_voted"] = for_player in self.votes
+
+            # Story 5.4: Include spy-specific data
+            if for_player and for_player == self._spy_name:
+                state["is_spy"] = True
+                state["can_guess_location"] = not self.spy_action_taken
+                state["location_list"] = [
+                    {"id": loc.get("id"), "name": loc.get("name")}
+                    for loc in self._get_location_list()
+                ]
+            elif for_player:
+                state["is_spy"] = False
+
+            # Track if spy has guessed (for reveal logic)
+            state["spy_has_guessed"] = self.spy_guess is not None
+
         elif self.phase == GamePhase.REVEAL:
-            # Reveal phase - all votes visible
-            votes_dict = getattr(self, "votes", {})
+            # Story 5.6: REVEAL phase - all votes visible (FR37)
+            # Include all votes with full data
             state["votes"] = [
-                {"player": p, "target": v.get("target"), "confidence": v.get("confidence")}
-                for p, v in votes_dict.items()
+                {
+                    "voter": voter_name,
+                    "target": vote_data.get("target"),
+                    "confidence": vote_data.get("confidence", 0),
+                    "abstained": vote_data.get("abstained", False),
+                }
+                for voter_name, vote_data in self.votes.items()
             ]
-            convicted = getattr(self, "convicted_player", None)
-            spy_name = getattr(self, "spy_name", None)
-            current_loc = getattr(self, "current_location", {})
-            state["convicted"] = convicted
-            state["actual_spy"] = spy_name
-            state["location"] = current_loc.get("name", "Unknown")
+
+            # Vote results summary
+            if not self.vote_results:
+                self.calculate_vote_results()
+            state["vote_results"] = self.vote_results
+            state["convicted"] = self.convicted_player
+
+            # Actual spy identity (revealed after voting)
+            state["actual_spy"] = self._spy_name
+
+            # Location reveal
+            state["location"] = {
+                "id": self._current_location.get("id") if self._current_location else None,
+                "name": self._current_location.get("name") if self._current_location else "Unknown",
+            }
+
+            # Spy guess result (if applicable) - Story 5.4/5.6
+            if self.spy_guess:
+                state["spy_guess"] = {
+                    "guessed": True,
+                    "location_id": self.spy_guess.get("location_id"),
+                    "correct": self.spy_guess.get("correct"),
+                }
+            else:
+                state["spy_guess"] = {"guessed": False}
+
+            # Story 5.7: Conviction result
+            state["spy_caught"] = self.spy_caught
+            state["round_scores"] = self.round_scores
 
         elif self.phase == GamePhase.SCORING:
+            # Story 5.7: Scoring phase state
+            state["spy_caught"] = self.spy_caught
+            state["convicted"] = self.convicted_player
+            state["actual_spy"] = self._spy_name
+            state["round_scores"] = self.round_scores
+
+            # Current scores
             state["scores"] = {p.name: p.score for p in self.players.values()}
-            state["actual_spy"] = getattr(self, "spy_name", None)
-            state["convicted"] = getattr(self, "convicted_player", None)
+
+            # Standings (sorted by score)
+            state["standings"] = sorted(
+                [
+                    {"name": p.name, "score": p.score}
+                    for p in self.players.values()
+                ],
+                key=lambda x: x["score"],
+                reverse=True
+            )
 
         return state
 
@@ -620,6 +705,326 @@ class GameState:
         remaining = max(0.0, duration - elapsed)
 
         return remaining
+
+    def record_vote(
+        self,
+        player_name: str,
+        target: str,
+        confidence: int
+    ) -> tuple[bool, str | None]:
+        """Record a player's vote (Story 5.3).
+
+        Args:
+            player_name: Name of player casting vote
+            target: Name of player being voted for
+            confidence: Confidence level (1, 2, or 3)
+
+        Returns:
+            (success: bool, error_code: str | None)
+        """
+        import time
+        from ..const import (
+            ERR_INVALID_PHASE,
+            ERR_ALREADY_VOTED,
+            ERR_INVALID_TARGET,
+            ERR_PLAYER_NOT_FOUND,
+        )
+
+        # Phase guard (ARCH-17)
+        if self.phase != GamePhase.VOTE:
+            _LOGGER.warning(
+                "Cannot record vote - invalid phase: %s (player: %s)",
+                self.phase,
+                player_name
+            )
+            return False, ERR_INVALID_PHASE
+
+        # Verify voter exists and is connected
+        if player_name not in self.players:
+            _LOGGER.warning("Vote from unknown player: %s", player_name)
+            return False, ERR_PLAYER_NOT_FOUND
+
+        voter = self.players[player_name]
+        if not voter.connected:
+            _LOGGER.warning("Vote from disconnected player: %s", player_name)
+            return False, ERR_PLAYER_NOT_FOUND
+
+        # Check for duplicate vote (AC3)
+        if player_name in self.votes:
+            _LOGGER.warning("Duplicate vote attempt: %s", player_name)
+            return False, ERR_ALREADY_VOTED
+
+        # Validate target exists and is not self
+        if target not in self.players:
+            _LOGGER.warning("Vote for invalid target: %s -> %s", player_name, target)
+            return False, ERR_INVALID_TARGET
+
+        if target == player_name:
+            _LOGGER.warning("Player tried to vote for self: %s", player_name)
+            return False, ERR_INVALID_TARGET
+
+        # Validate confidence (1, 2, or 3)
+        if confidence not in [1, 2, 3]:
+            confidence = 1  # Default to 1 if invalid
+
+        # Record vote (AC4)
+        self.votes[player_name] = {
+            "target": target,
+            "confidence": confidence,
+            "timestamp": time.time(),
+        }
+
+        _LOGGER.info(
+            "Vote recorded: %s -> %s (confidence: %d, total: %d/%d)",
+            player_name,
+            target,
+            confidence,
+            len(self.votes),
+            len([p for p in self.players.values() if p.connected])
+        )
+
+        # Check if all votes are in (AC5)
+        if self._all_votes_submitted():
+            _LOGGER.info("All votes submitted - ready for REVEAL transition")
+            # Cancel vote timer
+            self.cancel_timer("vote")
+
+        return True, None
+
+    def _all_votes_submitted(self) -> bool:
+        """Check if all connected players have voted (Story 5.3)."""
+        connected_players = [
+            p.name for p in self.players.values() if p.connected
+        ]
+        return all(name in self.votes for name in connected_players)
+
+    def get_vote_stats(self) -> dict:
+        """Get vote submission statistics for tracker (Story 5.3)."""
+        connected_count = len([p for p in self.players.values() if p.connected])
+        voted_count = len(self.votes)
+        return {
+            "votes_submitted": voted_count,
+            "total_voters": connected_count,
+            "all_voted": voted_count >= connected_count,
+        }
+
+    def reset_votes(self) -> None:
+        """Reset votes for new round (Story 5.3, 5.6, 5.7)."""
+        self.votes = {}
+        self.spy_guess = None
+        self.spy_action_taken = False
+        # Story 5.6: Reset reveal data
+        self.convicted_player = None
+        self.vote_results = {}
+        # Story 5.7: Reset conviction data
+        self.round_scores = {}
+        self.spy_caught = False
+        _LOGGER.debug("Votes, reveal, and conviction data reset")
+
+    def record_spy_guess(
+        self,
+        player_name: str,
+        location_id: str
+    ) -> tuple[bool, str | None]:
+        """Record spy's location guess (Story 5.4).
+
+        Args:
+            player_name: Name of player making guess (must be spy)
+            location_id: ID of guessed location
+
+        Returns:
+            (success: bool, error_code: str | None)
+        """
+        import time
+        from ..const import (
+            ERR_INVALID_PHASE,
+            ERR_NOT_SPY,
+            ERR_SPY_ALREADY_ACTED,
+            ERR_INVALID_LOCATION,
+        )
+
+        # Phase guard (ARCH-17)
+        if self.phase != GamePhase.VOTE:
+            _LOGGER.warning(
+                "Cannot record spy guess - invalid phase: %s",
+                self.phase
+            )
+            return False, ERR_INVALID_PHASE
+
+        # Verify player is the spy (AC4)
+        if player_name != self._spy_name:
+            _LOGGER.warning(
+                "Non-spy tried to guess location: %s (spy is: %s)",
+                player_name,
+                self._spy_name
+            )
+            return False, ERR_NOT_SPY
+
+        # Check if spy already acted (AC5)
+        if self.spy_action_taken:
+            _LOGGER.warning("Spy already acted: %s", player_name)
+            return False, ERR_SPY_ALREADY_ACTED
+
+        if player_name in self.votes:
+            _LOGGER.warning("Spy already voted: %s", player_name)
+            return False, ERR_SPY_ALREADY_ACTED
+
+        # Validate location exists
+        location_list = self._get_location_list()
+        if location_id not in [loc.get("id") for loc in location_list]:
+            _LOGGER.warning("Invalid location guess: %s", location_id)
+            return False, ERR_INVALID_LOCATION
+
+        # Check if guess is correct
+        correct = (location_id == self._current_location.get("id"))
+
+        # Record the guess
+        self.spy_guess = {
+            "location_id": location_id,
+            "correct": correct,
+            "timestamp": time.time(),
+        }
+        self.spy_action_taken = True
+
+        _LOGGER.info(
+            "Spy guess recorded: %s guessed '%s' (correct: %s)",
+            player_name,
+            location_id,
+            correct
+        )
+
+        # Spy guess ends voting immediately - cancel timer
+        self.cancel_timer("vote")
+
+        return True, None
+
+    def _get_location_list(self) -> list[dict]:
+        """Get list of possible locations for spy (Story 5.4)."""
+        try:
+            from .content import get_location_pack
+            pack = get_location_pack(self.config.location_pack)
+            return pack.get("locations", [])
+        except Exception as err:
+            _LOGGER.warning("Failed to get location pack: %s", err)
+            return []
+
+    def calculate_vote_results(self) -> dict:
+        """
+        Calculate vote results for reveal (Story 5.6).
+
+        Counts votes per target and determines convicted player.
+        Ties are broken alphabetically (first alphabetically wins).
+
+        Returns:
+            dict with vote_counts, convicted, max_votes, total_votes, abstentions
+        """
+        # Count votes per target
+        vote_counts: dict[str, int] = {}
+        for voter_name, vote_data in self.votes.items():
+            target = vote_data.get("target")
+            if target:  # Ignore abstentions
+                vote_counts[target] = vote_counts.get(target, 0) + 1
+
+        # Find most voted (convicted) - ties go to first alphabetically
+        convicted = None
+        max_votes = 0
+        for target, count in sorted(vote_counts.items()):
+            if count > max_votes:
+                max_votes = count
+                convicted = target
+
+        self.convicted_player = convicted
+        self.vote_results = {
+            "vote_counts": vote_counts,
+            "convicted": convicted,
+            "max_votes": max_votes,
+            "total_votes": len([v for v in self.votes.values() if v.get("target")]),
+            "abstentions": len([v for v in self.votes.values() if v.get("abstained")]),
+        }
+
+        _LOGGER.info(
+            "Vote results calculated: convicted=%s (%d votes), %d abstentions",
+            convicted,
+            max_votes,
+            self.vote_results["abstentions"]
+        )
+
+        return self.vote_results
+
+    def process_conviction(self) -> tuple[bool, str | None]:
+        """
+        Process conviction and calculate scores (Story 5.7).
+
+        Returns:
+            (success: bool, error_code: str | None)
+        """
+        from ..const import ERR_INVALID_PHASE
+        from .scoring import calculate_round_scores
+
+        # Phase guard
+        if self.phase != GamePhase.REVEAL:
+            return False, ERR_INVALID_PHASE
+
+        # Calculate vote results if not done
+        if not self.vote_results:
+            self.calculate_vote_results()
+
+        # Determine if spy was caught (AC2, AC3)
+        self.spy_caught = self.convicted_player == self._spy_name
+
+        if self.spy_caught:
+            _LOGGER.info("Spy caught! %s was the spy.", self.convicted_player)
+        elif self.convicted_player:
+            _LOGGER.info("Innocent convicted! %s was NOT the spy.", self.convicted_player)
+        else:
+            _LOGGER.info("No conviction this round.")
+
+        # Calculate scores
+        self.round_scores = calculate_round_scores(self)
+
+        # Apply scores to players
+        for player_name, score_data in self.round_scores.items():
+            if player_name in self.players:
+                player = self.players[player_name]
+                player.add_score(score_data["points"])
+                _LOGGER.debug(
+                    "Score applied: %s %+d (total: %d)",
+                    player_name,
+                    score_data["points"],
+                    player.score
+                )
+
+        return True, None
+
+    def transition_to_scoring(self) -> tuple[bool, str | None]:
+        """
+        Transition from REVEAL to SCORING phase (Story 5.7: AC6).
+
+        Processes conviction and calculates scores.
+
+        Returns:
+            (success: bool, error_code: str | None)
+        """
+        from ..const import ERR_INVALID_PHASE
+
+        if self.phase != GamePhase.REVEAL:
+            return False, ERR_INVALID_PHASE
+
+        # Process conviction and scores
+        success, error = self.process_conviction()
+        if not success:
+            return False, error
+
+        # Transition to SCORING
+        self.phase = GamePhase.SCORING
+
+        _LOGGER.info(
+            "Transitioned to SCORING: spy_caught=%s, convicted=%s",
+            self.spy_caught,
+            self.convicted_player
+        )
+
+        return True, None
 
     def remove_player(self, player_name: str, requester_name: str | None = None) -> tuple[bool, str | None]:
         """Remove a disconnected player from the lobby (Story 2.6).
@@ -1085,29 +1490,51 @@ class GameState:
 
     async def _on_vote_timeout(self, timer_name: str) -> None:
         """
-        Handle vote timer expiration.
+        Handle vote timer expiration (Story 5.5 enhancement).
 
-        Non-voters are counted as abstain (FR30).
-        Transition to REVEAL phase.
+        Non-voters are automatically marked as abstain (AC3, FR36).
+        Transition to REVEAL phase (AC5).
 
         Args:
             timer_name: Name of the expired timer (ignored)
         """
-        votes_count = len(getattr(self, 'votes', {}))
-        _LOGGER.info(
-            "Vote timer expired - %d/%d players voted",
-            votes_count,
-            len(self.players)
-        )
+        import time
 
-        # Transition to REVEAL (Story 5.6 will implement reveal logic)
-        self.phase = GamePhase.REVEAL
+        _LOGGER.info("Vote timer expired - processing abstentions")
+
+        # Mark non-voters as abstain (AC3)
+        connected_players = [
+            name for name, player in self.players.items() if player.connected
+        ]
+
+        for player_name in connected_players:
+            if player_name not in self.votes:
+                # Check if this is the spy who guessed (Story 5.4)
+                if self.spy_guess and player_name == self._spy_name:
+                    continue  # Spy guessed location, not abstaining
+
+                self.votes[player_name] = {
+                    "target": None,
+                    "confidence": 0,
+                    "abstained": True,
+                    "timestamp": time.time(),
+                }
+                _LOGGER.info("Player %s abstained (timeout)", player_name)
+
+        votes_cast = len([v for v in self.votes.values() if not v.get("abstained")])
+        abstentions = len([v for v in self.votes.values() if v.get("abstained")])
+
+        _LOGGER.info(
+            "Vote phase complete: %d voted, %d abstained",
+            votes_cast,
+            abstentions
+        )
 
         # Cancel vote timer
         self.cancel_timer("vote")
 
-        # Start reveal timer (Story 5.6)
-        # For now, just transition to REVEAL
+        # Transition to REVEAL (AC5)
+        self.phase = GamePhase.REVEAL
         _LOGGER.info("Transitioning to REVEAL phase")
 
     async def _on_round_timer_expired(self, timer_name: str) -> None:

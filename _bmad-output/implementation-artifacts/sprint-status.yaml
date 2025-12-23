@@ -77,14 +77,14 @@ development_status:
   epic-4-retrospective: optional
 
   # Epic 5: Voting & Confidence Betting
-  epic-5: backlog
-  5-1-voting-phase-ui-with-player-cards: backlog
-  5-2-confidence-betting-selection: backlog
-  5-3-vote-submission-and-tracking: backlog
-  5-4-spy-location-guess-option: backlog
-  5-5-vote-timer-and-abstain-handling: backlog
-  5-6-vote-and-bet-reveal-sequence: backlog
-  5-7-conviction-logic: backlog
+  epic-5: done
+  5-1-voting-phase-ui-with-player-cards: done  # Completed 2025-12-23
+  5-2-confidence-betting-selection: done  # Completed 2025-12-23
+  5-3-vote-submission-and-tracking: done  # Completed 2025-12-23
+  5-4-spy-location-guess-option: done  # Completed 2025-12-23
+  5-5-vote-timer-and-abstain-handling: done  # Completed 2025-12-23
+  5-6-vote-and-bet-reveal-sequence: done  # Completed 2025-12-23
+  5-7-conviction-logic: done  # Completed 2025-12-23
   epic-5-retrospective: optional
 
   # Epic 6: Scoring & Game Progression

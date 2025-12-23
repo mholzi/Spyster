@@ -50,6 +50,16 @@ ERR_CONFIG_GAME_STARTED = "CONFIG_GAME_STARTED"
 # Error codes for call vote (Story 4.5)
 ERR_NOT_CONNECTED = "ERR_NOT_CONNECTED"
 
+# Error codes for voting (Story 5.3)
+ERR_ALREADY_VOTED = "ALREADY_VOTED"
+ERR_INVALID_TARGET = "INVALID_TARGET"
+ERR_NO_TARGET_SELECTED = "NO_TARGET_SELECTED"
+
+# Error codes for spy guess (Story 5.4)
+ERR_NOT_SPY = "NOT_SPY"
+ERR_SPY_ALREADY_ACTED = "SPY_ALREADY_ACTED"
+ERR_INVALID_LOCATION = "INVALID_LOCATION"
+
 # Error codes for phase transitions and timers (Story 4.1)
 ERR_INVALID_PHASE_TRANSITION = "INVALID_PHASE_TRANSITION"
 ERR_TIMER_ALREADY_RUNNING = "TIMER_ALREADY_RUNNING"
@@ -90,6 +100,12 @@ ERROR_MESSAGES = {
     ERR_NO_ROUND_DURATION: "Round duration not configured.",
     ERR_INSUFFICIENT_PLAYERS: "Not enough players to continue.",
     ERR_TURN_NOT_INITIALIZED: "Turn order has not been initialized.",
+    ERR_ALREADY_VOTED: "You've already submitted your vote.",
+    ERR_INVALID_TARGET: "Invalid vote target.",
+    ERR_NO_TARGET_SELECTED: "Please select a player to vote for.",
+    ERR_NOT_SPY: "Only the spy can guess the location.",
+    ERR_SPY_ALREADY_ACTED: "You've already made your choice.",
+    ERR_INVALID_LOCATION: "Invalid location selection.",
 }
 
 # Game configuration defaults
