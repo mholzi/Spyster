@@ -1,8 +1,8 @@
-# generated: 2025-12-22
+# generated: 2025-12-23
 # project: Spyster
 # project_key: spyster
 # tracking_system: file-system
-# story_location: _bmad-output/implementation-artifacts
+# story_location: _bmad-output/implementation-artifacts/stories
 
 # STATUS DEFINITIONS:
 # ==================
@@ -33,11 +33,11 @@
 # - SM typically creates next story after previous one is 'done' to incorporate learnings
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
-generated: 2025-12-22
+generated: 2025-12-23
 project: Spyster
 project_key: spyster
 tracking_system: file-system
-story_location: _bmad-output/implementation-artifacts
+story_location: _bmad-output/implementation-artifacts/stories
 
 development_status:
   # Epic 1: Project Foundation & Game Session
@@ -68,49 +68,49 @@ development_status:
   epic-3-retrospective: optional
 
   # Epic 4: Questioning Phase
-  epic-4: in-progress
-  4-1-transition-to-questioning-phase: review
+  epic-4: done
+  4-1-transition-to-questioning-phase: done
   4-2-round-timer-with-countdown: done
-  4-3-questioner-answerer-turn-management: done  # Story file created 2025-12-23
-  4-4-player-role-view-during-questioning: done  # Story file created 2025-12-23
-  4-5-call-vote-functionality: done  # Story file created 2025-12-23
+  4-3-questioner-answerer-turn-management: done
+  4-4-player-role-view-during-questioning: done
+  4-5-call-vote-functionality: done
   epic-4-retrospective: optional
 
   # Epic 5: Voting & Confidence Betting
   epic-5: done
-  5-1-voting-phase-ui-with-player-cards: done  # Completed 2025-12-23
-  5-2-confidence-betting-selection: done  # Completed 2025-12-23
-  5-3-vote-submission-and-tracking: done  # Completed 2025-12-23
-  5-4-spy-location-guess-option: done  # Completed 2025-12-23
-  5-5-vote-timer-and-abstain-handling: done  # Completed 2025-12-23
-  5-6-vote-and-bet-reveal-sequence: done  # Completed 2025-12-23
-  5-7-conviction-logic: done  # Completed 2025-12-23
+  5-1-voting-phase-ui-with-player-cards: done
+  5-2-confidence-betting-selection: done
+  5-3-vote-submission-and-tracking: done
+  5-4-spy-location-guess-option: done
+  5-5-vote-timer-and-abstain-handling: done
+  5-6-vote-and-bet-reveal-sequence: done
+  5-7-conviction-logic: done
   epic-5-retrospective: optional
 
   # Epic 6: Scoring & Game Progression
   epic-6: done
-  6-1-scoring-module-with-pure-functions: done  # Implemented in Story 5.7 (scoring.py created)
-  6-2-vote-scoring-calculation: done  # Implemented in Story 5.7 (calculate_vote_score)
-  6-3-double-agent-bonus: done  # Implemented in Story 5.7 (calculate_double_agent_bonus)
-  6-4-spy-location-guess-scoring: done  # Implemented in Story 5.7 (calculate_spy_guess_scores)
-  6-5-leaderboard-display: done  # Completed 2025-12-23
-  6-6-round-progression: done  # Completed 2025-12-23
-  6-7-game-end-and-winner-declaration: done  # Completed 2025-12-23
+  6-1-scoring-module-with-pure-functions: done
+  6-2-vote-scoring-calculation: done
+  6-3-double-agent-bonus: done
+  6-4-spy-location-guess-scoring: done
+  6-5-leaderboard-display: done
+  6-6-round-progression: done
+  6-7-game-end-and-winner-declaration: done
   epic-6-retrospective: optional
 
   # Epic 7: Host Display Experience
-  epic-7: done  # All stories complete 2025-12-23
-  7-1-host-display-layout: review  # Implementation complete 2025-12-23
-  7-2-phase-indicators: review  # Implementation complete 2025-12-23
-  7-3-player-status-display: review  # Implementation complete 2025-12-23
-  7-4-vote-results-visualization: review  # Implementation complete 2025-12-23
-  7-5-host-admin-controls: review  # Implementation complete 2025-12-23
+  epic-7: done
+  7-1-host-display-layout: done
+  7-2-phase-indicators: done
+  7-3-player-status-display: done
+  7-4-vote-results-visualization: done
+  7-5-host-admin-controls: done
   epic-7-retrospective: optional
 
   # Epic 8: Content & Polish
-  epic-8: backlog
-  8-1-classic-location-pack-content: backlog
-  8-2-content-loading-and-validation: backlog
-  8-3-accessibility-compliance: backlog
-  8-4-browser-compatibility-and-polish: backlog
+  epic-8: done
+  8-1-classic-location-pack-content: done
+  8-2-content-loading-and-validation: done
+  8-3-accessibility-compliance: done
+  8-4-browser-compatibility-and-polish: done
   epic-8-retrospective: optional

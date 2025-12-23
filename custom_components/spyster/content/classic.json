@@ -1,137 +1,147 @@
 {
   "id": "classic",
   "name": "Classic Locations",
-  "description": "The original Spyfall location pack",
+  "description": "The original Spyfall location pack with 10 diverse settings",
   "version": "1.0.0",
   "locations": [
     {
       "id": "beach",
       "name": "Beach",
-      "flavor": "Sun, sand, and surf",
+      "flavor": "Sandy shores, crashing waves, and sun-soaked relaxation",
       "roles": [
-        {"name": "Lifeguard", "hint": "You watch over swimmers and enforce safety rules"},
-        {"name": "Beach Vendor", "hint": "You sell snacks, drinks, and beach gear"},
-        {"name": "Surfer", "hint": "You ride the waves on your board"},
-        {"name": "Tourist", "hint": "You're on vacation enjoying the sun"},
-        {"name": "Photographer", "hint": "You capture memories for beachgoers"},
-        {"name": "Beach Cleaner", "hint": "You keep the shore clean and tidy"}
+        {"id": "lifeguard", "name": "Lifeguard", "hint": "You watch over swimmers from your elevated chair"},
+        {"id": "beach_vendor", "name": "Beach Vendor", "hint": "You sell snacks, drinks, and beach gear to visitors"},
+        {"id": "surfer", "name": "Surfer", "hint": "You ride the waves on your board"},
+        {"id": "tourist", "name": "Tourist", "hint": "You're on vacation enjoying the sun and sand"},
+        {"id": "photographer", "name": "Photographer", "hint": "You capture memories for beachgoers"},
+        {"id": "beach_cleaner", "name": "Beach Cleaner", "hint": "You keep the shore clean and tidy"},
+        {"id": "ice_cream_vendor", "name": "Ice Cream Vendor", "hint": "You sell frozen treats from your cart"}
       ]
     },
     {
       "id": "airplane",
       "name": "Airplane",
-      "flavor": "30,000 feet above ground",
+      "flavor": "30,000 feet above ground, cruising through the clouds",
       "roles": [
-        {"name": "Pilot", "hint": "You're flying this aircraft"},
-        {"name": "Flight Attendant", "hint": "You serve passengers and ensure their safety"},
-        {"name": "Passenger", "hint": "You're traveling to your destination"},
-        {"name": "Air Marshal", "hint": "You provide security on this flight"},
-        {"name": "Co-Pilot", "hint": "You assist the captain in flying the plane"},
-        {"name": "Mechanic", "hint": "You handle in-flight technical issues"}
+        {"id": "pilot", "name": "Pilot", "hint": "You're flying this aircraft from the cockpit"},
+        {"id": "flight_attendant", "name": "Flight Attendant", "hint": "You serve passengers and ensure their safety"},
+        {"id": "passenger", "name": "Passenger", "hint": "You're traveling to your destination"},
+        {"id": "air_marshal", "name": "Air Marshal", "hint": "You provide undercover security on this flight"},
+        {"id": "co_pilot", "name": "Co-Pilot", "hint": "You assist the captain in flying the plane"},
+        {"id": "mechanic", "name": "Mechanic", "hint": "You handle in-flight technical issues"},
+        {"id": "first_class_passenger", "name": "First Class Passenger", "hint": "You enjoy premium service at the front of the plane"}
       ]
     },
     {
       "id": "casino",
       "name": "Casino",
-      "flavor": "High stakes and bright lights",
+      "flavor": "High stakes and bright lights where fortunes are made and lost",
       "roles": [
-        {"name": "Dealer", "hint": "You manage the card games and payouts"},
-        {"name": "Pit Boss", "hint": "You oversee the gaming floor"},
-        {"name": "Gambler", "hint": "You're here to try your luck"},
-        {"name": "Security Guard", "hint": "You watch for cheaters and troublemakers"},
-        {"name": "Bartender", "hint": "You serve drinks to patrons"},
-        {"name": "Slot Attendant", "hint": "You assist with slot machines and payouts"}
+        {"id": "dealer", "name": "Dealer", "hint": "You manage the card games and payouts at the table"},
+        {"id": "pit_boss", "name": "Pit Boss", "hint": "You oversee the gaming floor and watch for irregularities"},
+        {"id": "gambler", "name": "Gambler", "hint": "You're here to try your luck at the tables"},
+        {"id": "security_guard", "name": "Security Guard", "hint": "You watch for cheaters and troublemakers"},
+        {"id": "bartender", "name": "Bartender", "hint": "You serve complimentary drinks to players"},
+        {"id": "slot_attendant", "name": "Slot Attendant", "hint": "You assist with slot machines and jackpot payouts"},
+        {"id": "high_roller", "name": "High Roller", "hint": "You bet big and get VIP treatment"}
       ]
     },
     {
       "id": "hospital",
       "name": "Hospital",
-      "flavor": "Where healing happens",
+      "flavor": "Where healing happens and lives are saved around the clock",
       "roles": [
-        {"name": "Doctor", "hint": "You diagnose and treat patients"},
-        {"name": "Nurse", "hint": "You provide patient care and assist doctors"},
-        {"name": "Patient", "hint": "You're receiving medical treatment"},
-        {"name": "Surgeon", "hint": "You perform operations"},
-        {"name": "Pharmacist", "hint": "You dispense medications"},
-        {"name": "Paramedic", "hint": "You bring emergency cases to the hospital"}
+        {"id": "doctor", "name": "Doctor", "hint": "You diagnose and treat patients with medical expertise"},
+        {"id": "nurse", "name": "Nurse", "hint": "You provide patient care and assist doctors"},
+        {"id": "patient", "name": "Patient", "hint": "You're receiving medical treatment"},
+        {"id": "surgeon", "name": "Surgeon", "hint": "You perform life-saving operations"},
+        {"id": "pharmacist", "name": "Pharmacist", "hint": "You dispense medications and advise on drug interactions"},
+        {"id": "paramedic", "name": "Paramedic", "hint": "You bring emergency cases to the hospital"},
+        {"id": "receptionist", "name": "Receptionist", "hint": "You check in patients and manage appointments"}
       ]
     },
     {
       "id": "restaurant",
       "name": "Restaurant",
-      "flavor": "Fine dining experience",
+      "flavor": "Fine dining experience with exquisite cuisine and ambiance",
       "roles": [
-        {"name": "Chef", "hint": "You prepare the meals in the kitchen"},
-        {"name": "Waiter", "hint": "You serve food and take orders"},
-        {"name": "Customer", "hint": "You're here to enjoy a meal"},
-        {"name": "Host", "hint": "You greet and seat guests"},
-        {"name": "Dishwasher", "hint": "You clean dishes and utensils"},
-        {"name": "Sommelier", "hint": "You recommend and serve wines"}
+        {"id": "chef", "name": "Chef", "hint": "You prepare the meals in the kitchen with skill"},
+        {"id": "waiter", "name": "Waiter", "hint": "You serve food and take orders from guests"},
+        {"id": "customer", "name": "Customer", "hint": "You're here to enjoy a delicious meal"},
+        {"id": "host", "name": "Host", "hint": "You greet and seat guests as they arrive"},
+        {"id": "dishwasher", "name": "Dishwasher", "hint": "You clean dishes and utensils in the back"},
+        {"id": "sommelier", "name": "Sommelier", "hint": "You recommend and serve fine wines"},
+        {"id": "food_critic", "name": "Food Critic", "hint": "You're secretly evaluating the establishment"}
       ]
     },
     {
       "id": "school",
       "name": "School",
-      "flavor": "Education in session",
+      "flavor": "Education in session where young minds are shaped",
       "roles": [
-        {"name": "Teacher", "hint": "You educate the students"},
-        {"name": "Student", "hint": "You're here to learn"},
-        {"name": "Principal", "hint": "You run the school"},
-        {"name": "Janitor", "hint": "You keep the building clean"},
-        {"name": "Librarian", "hint": "You manage the school library"},
-        {"name": "Gym Coach", "hint": "You teach physical education"}
+        {"id": "teacher", "name": "Teacher", "hint": "You educate the students in your classroom"},
+        {"id": "student", "name": "Student", "hint": "You're here to learn and do homework"},
+        {"id": "principal", "name": "Principal", "hint": "You run the school and maintain discipline"},
+        {"id": "janitor", "name": "Janitor", "hint": "You keep the building clean and maintained"},
+        {"id": "librarian", "name": "Librarian", "hint": "You manage the school library and help with research"},
+        {"id": "gym_coach", "name": "Gym Coach", "hint": "You teach physical education and run drills"},
+        {"id": "cafeteria_worker", "name": "Cafeteria Worker", "hint": "You serve lunch to hungry students"}
       ]
     },
     {
       "id": "theater",
       "name": "Theater",
-      "flavor": "The show must go on",
+      "flavor": "The show must go on in this temple of performing arts",
       "roles": [
-        {"name": "Actor", "hint": "You perform on stage"},
-        {"name": "Director", "hint": "You oversee the production"},
-        {"name": "Audience Member", "hint": "You're watching the show"},
-        {"name": "Stage Hand", "hint": "You manage props and scenery"},
-        {"name": "Usher", "hint": "You help guests find their seats"},
-        {"name": "Costume Designer", "hint": "You create and manage outfits for performers"}
+        {"id": "actor", "name": "Actor", "hint": "You perform on stage bringing characters to life"},
+        {"id": "director", "name": "Director", "hint": "You oversee the production and guide performers"},
+        {"id": "audience_member", "name": "Audience Member", "hint": "You're watching the show from your seat"},
+        {"id": "stage_hand", "name": "Stage Hand", "hint": "You manage props and scenery behind the scenes"},
+        {"id": "usher", "name": "Usher", "hint": "You help guests find their seats and maintain order"},
+        {"id": "costume_designer", "name": "Costume Designer", "hint": "You create and manage outfits for performers"},
+        {"id": "playwright", "name": "Playwright", "hint": "You wrote the script being performed tonight"}
       ]
     },
     {
       "id": "bank",
       "name": "Bank",
-      "flavor": "Where money matters",
+      "flavor": "Where money matters and financial dreams come true",
       "roles": [
-        {"name": "Teller", "hint": "You handle customer transactions"},
-        {"name": "Manager", "hint": "You oversee bank operations"},
-        {"name": "Customer", "hint": "You're managing your finances"},
-        {"name": "Security Guard", "hint": "You protect the bank and its assets"},
-        {"name": "Loan Officer", "hint": "You evaluate and approve loans"},
-        {"name": "Vault Keeper", "hint": "You manage access to the vault"}
+        {"id": "teller", "name": "Teller", "hint": "You handle customer transactions at the window"},
+        {"id": "manager", "name": "Manager", "hint": "You oversee bank operations and staff"},
+        {"id": "customer", "name": "Customer", "hint": "You're here to manage your finances"},
+        {"id": "security_guard", "name": "Security Guard", "hint": "You protect the bank and its assets"},
+        {"id": "loan_officer", "name": "Loan Officer", "hint": "You evaluate and approve loan applications"},
+        {"id": "vault_keeper", "name": "Vault Keeper", "hint": "You manage access to the secure vault"},
+        {"id": "financial_advisor", "name": "Financial Advisor", "hint": "You help clients with investment decisions"}
       ]
     },
     {
       "id": "police_station",
       "name": "Police Station",
-      "flavor": "Law and order headquarters",
+      "flavor": "Law and order headquarters protecting the community",
       "roles": [
-        {"name": "Detective", "hint": "You investigate crimes"},
-        {"name": "Officer", "hint": "You patrol and maintain order"},
-        {"name": "Suspect", "hint": "You're being questioned"},
-        {"name": "Dispatcher", "hint": "You coordinate emergency responses"},
-        {"name": "Lawyer", "hint": "You provide legal representation"},
-        {"name": "Forensic Scientist", "hint": "You analyze evidence"}
+        {"id": "detective", "name": "Detective", "hint": "You investigate crimes and solve cases"},
+        {"id": "officer", "name": "Officer", "hint": "You patrol the streets and maintain order"},
+        {"id": "suspect", "name": "Suspect", "hint": "You're being questioned about a crime"},
+        {"id": "dispatcher", "name": "Dispatcher", "hint": "You coordinate emergency responses by radio"},
+        {"id": "lawyer", "name": "Lawyer", "hint": "You provide legal representation to clients"},
+        {"id": "forensic_scientist", "name": "Forensic Scientist", "hint": "You analyze evidence in the lab"},
+        {"id": "police_chief", "name": "Police Chief", "hint": "You lead the department and set priorities"}
       ]
     },
     {
       "id": "space_station",
       "name": "Space Station",
-      "flavor": "Orbiting above Earth",
+      "flavor": "Orbiting above Earth in the vast frontier of space",
       "roles": [
-        {"name": "Commander", "hint": "You lead the station crew"},
-        {"name": "Astronaut", "hint": "You conduct experiments and maintain the station"},
-        {"name": "Engineer", "hint": "You keep the station's systems running"},
-        {"name": "Scientist", "hint": "You perform research in microgravity"},
-        {"name": "Medical Officer", "hint": "You monitor crew health"},
-        {"name": "Mission Control", "hint": "You communicate with Earth and coordinate operations"}
+        {"id": "commander", "name": "Commander", "hint": "You lead the station crew and make critical decisions"},
+        {"id": "astronaut", "name": "Astronaut", "hint": "You conduct experiments and maintain the station"},
+        {"id": "engineer", "name": "Engineer", "hint": "You keep the station's life support systems running"},
+        {"id": "scientist", "name": "Scientist", "hint": "You perform research in microgravity conditions"},
+        {"id": "medical_officer", "name": "Medical Officer", "hint": "You monitor crew health in the harsh environment"},
+        {"id": "mission_control", "name": "Mission Control", "hint": "You communicate with Earth and coordinate operations"},
+        {"id": "space_tourist", "name": "Space Tourist", "hint": "You paid a fortune to visit space briefly"}
       ]
     }
   ]

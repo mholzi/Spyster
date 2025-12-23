@@ -1,6 +1,6 @@
 # Story 7.5: Host Admin Controls
 
-Status: review
+Status: done
 
 ## Story
 

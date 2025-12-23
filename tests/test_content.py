@@ -1,4 +1,4 @@
-"""Tests for content pack loading (Story 3.3)."""
+"""Tests for content pack loading (Story 3.3, Story 8-2)."""
 import json
 import pytest
 from pathlib import Path
@@ -8,7 +8,13 @@ from custom_components.spyster.game.content import (
     load_location_pack,
     get_random_location,
     get_location_list,
-    preload_location_packs
+    get_roles_for_location,
+    get_location_by_id,
+    assign_roles_for_location,
+    validate_location_pack,
+    clear_cache,
+    preload_location_packs,
+    ContentValidationError,
 )
 
 
@@ -195,9 +201,11 @@ def test_get_location_list(mock_hass):
     location_list = get_location_list("test")
 
     assert len(location_list) == 3
-    assert "Beach" in location_list
-    assert "Airport" in location_list
-    assert "Hospital" in location_list
+    # Now returns list of dicts with id and name
+    names = [loc["name"] for loc in location_list]
+    assert "Beach" in names
+    assert "Airport" in names
+    assert "Hospital" in names
 
 
 def test_get_location_list_pack_not_loaded():
@@ -311,3 +319,331 @@ async def test_preload_location_packs(mock_hass, tmp_path, monkeypatch):
 
     # For now, verify the function exists and can be called
     assert callable(preload_location_packs)
+
+
+# ============================================================================
+# STORY 8-2: Content Loading and Validation Tests
+# ============================================================================
+
+class TestValidateLocationPack:
+    """Tests for validate_location_pack function (Story 8-2: AC2)."""
+
+    def test_valid_pack_no_errors(self):
+        """Valid pack returns empty error list."""
+        pack = {
+            "id": "test",
+            "name": "Test Pack",
+            "version": "1.0.0",
+            "locations": [
+                {
+                    "id": "beach",
+                    "name": "Beach",
+                    "roles": [
+                        {"id": "lifeguard", "name": "Lifeguard", "hint": "Watch swimmers"},
+                        {"id": "tourist", "name": "Tourist", "hint": "On vacation"},
+                        {"id": "vendor", "name": "Vendor", "hint": "Sell items"},
+                        {"id": "surfer", "name": "Surfer", "hint": "Ride waves"},
+                        {"id": "swimmer", "name": "Swimmer", "hint": "In the water"},
+                        {"id": "photographer", "name": "Photographer", "hint": "Take photos"},
+                    ]
+                }
+            ]
+        }
+        errors = validate_location_pack(pack, "test")
+        assert errors == []
+
+    def test_missing_id_field(self):
+        """Missing id field returns error."""
+        pack = {"name": "Test", "locations": []}
+        errors = validate_location_pack(pack, "test")
+        assert any("missing required field: id" in e for e in errors)
+
+    def test_missing_name_field(self):
+        """Missing name field returns error."""
+        pack = {"id": "test", "locations": []}
+        errors = validate_location_pack(pack, "test")
+        assert any("missing required field: name" in e for e in errors)
+
+    def test_missing_locations_field(self):
+        """Missing locations field returns error."""
+        pack = {"id": "test", "name": "Test"}
+        errors = validate_location_pack(pack, "test")
+        assert any("missing required field: locations" in e for e in errors)
+
+    def test_location_missing_id(self):
+        """Location without id returns error."""
+        pack = {
+            "id": "test",
+            "name": "Test",
+            "locations": [{"name": "Beach", "roles": []}]
+        }
+        errors = validate_location_pack(pack, "test")
+        assert any("missing 'id' field" in e for e in errors)
+
+    def test_location_missing_roles(self):
+        """Location without roles returns error."""
+        pack = {
+            "id": "test",
+            "name": "Test",
+            "locations": [{"id": "beach", "name": "Beach"}]
+        }
+        errors = validate_location_pack(pack, "test")
+        assert any("missing 'roles' field" in e for e in errors)
+
+    def test_location_too_few_roles(self):
+        """Location with fewer than 6 roles returns error."""
+        pack = {
+            "id": "test",
+            "name": "Test",
+            "locations": [{
+                "id": "beach",
+                "name": "Beach",
+                "roles": [
+                    {"id": "r1", "name": "Role1", "hint": "h1"},
+                    {"id": "r2", "name": "Role2", "hint": "h2"},
+                ]
+            }]
+        }
+        errors = validate_location_pack(pack, "test")
+        assert any("must have at least 6 roles" in e for e in errors)
+
+    def test_role_missing_hint(self):
+        """Role without hint returns error."""
+        pack = {
+            "id": "test",
+            "name": "Test",
+            "locations": [{
+                "id": "beach",
+                "name": "Beach",
+                "roles": [
+                    {"id": "r1", "name": "Role1"},  # Missing hint
+                    {"id": "r2", "name": "Role2", "hint": "h2"},
+                    {"id": "r3", "name": "Role3", "hint": "h3"},
+                    {"id": "r4", "name": "Role4", "hint": "h4"},
+                    {"id": "r5", "name": "Role5", "hint": "h5"},
+                    {"id": "r6", "name": "Role6", "hint": "h6"},
+                ]
+            }]
+        }
+        errors = validate_location_pack(pack, "test")
+        assert any("missing 'hint' field" in e for e in errors)
+
+    def test_duplicate_location_ids(self):
+        """Duplicate location ids returns error."""
+        pack = {
+            "id": "test",
+            "name": "Test",
+            "locations": [
+                {"id": "beach", "name": "Beach", "roles": []},
+                {"id": "beach", "name": "Beach 2", "roles": []},  # Duplicate
+            ]
+        }
+        errors = validate_location_pack(pack, "test")
+        assert any("duplicate id: beach" in e for e in errors)
+
+    def test_duplicate_role_ids_in_location(self):
+        """Duplicate role ids within location returns error."""
+        pack = {
+            "id": "test",
+            "name": "Test",
+            "locations": [{
+                "id": "beach",
+                "name": "Beach",
+                "roles": [
+                    {"id": "guard", "name": "Lifeguard", "hint": "h1"},
+                    {"id": "guard", "name": "Guard", "hint": "h2"},  # Duplicate
+                    {"id": "r3", "name": "Role3", "hint": "h3"},
+                    {"id": "r4", "name": "Role4", "hint": "h4"},
+                    {"id": "r5", "name": "Role5", "hint": "h5"},
+                    {"id": "r6", "name": "Role6", "hint": "h6"},
+                ]
+            }]
+        }
+        errors = validate_location_pack(pack, "test")
+        assert any("duplicate id: guard" in e for e in errors)
+
+
+class TestGetRolesForLocation:
+    """Tests for get_roles_for_location function (Story 8-2: AC3)."""
+
+    def test_get_roles_success(self):
+        """Returns roles for valid location."""
+        import custom_components.spyster.game.content as content_module
+        content_module._LOADED_PACKS["test"] = {
+            "locations": [{
+                "id": "beach",
+                "name": "Beach",
+                "roles": [
+                    {"id": "guard", "name": "Lifeguard", "hint": "Watch"},
+                    {"id": "tourist", "name": "Tourist", "hint": "Visit"},
+                ]
+            }]
+        }
+
+        roles = get_roles_for_location("test", "beach")
+
+        assert len(roles) == 2
+        assert roles[0]["name"] == "Lifeguard"
+        assert roles[1]["name"] == "Tourist"
+
+    def test_get_roles_location_not_found(self):
+        """Returns empty list for unknown location."""
+        import custom_components.spyster.game.content as content_module
+        content_module._LOADED_PACKS["test"] = {
+            "locations": [{"id": "beach", "name": "Beach", "roles": []}]
+        }
+
+        roles = get_roles_for_location("test", "nonexistent")
+
+        assert roles == []
+
+    def test_get_roles_pack_not_found(self):
+        """Returns empty list for unknown pack."""
+        import custom_components.spyster.game.content as content_module
+        content_module._LOADED_PACKS.clear()
+        content_module._LOADED_PACKS["other"] = {"locations": []}
+
+        roles = get_roles_for_location("nonexistent", "beach")
+
+        assert roles == []
+
+
+class TestGetLocationById:
+    """Tests for get_location_by_id function (Story 8-2: AC5)."""
+
+    def test_get_location_success(self):
+        """Returns location for valid id."""
+        import custom_components.spyster.game.content as content_module
+        content_module._LOADED_PACKS["test"] = {
+            "locations": [
+                {"id": "beach", "name": "Beach", "flavor": "Sandy"},
+                {"id": "airport", "name": "Airport", "flavor": "Busy"},
+            ]
+        }
+
+        location = get_location_by_id("test", "beach")
+
+        assert location is not None
+        assert location["name"] == "Beach"
+        assert location["flavor"] == "Sandy"
+
+    def test_get_location_not_found(self):
+        """Returns None for unknown location."""
+        import custom_components.spyster.game.content as content_module
+        content_module._LOADED_PACKS["test"] = {
+            "locations": [{"id": "beach", "name": "Beach"}]
+        }
+
+        location = get_location_by_id("test", "nonexistent")
+
+        assert location is None
+
+    def test_get_location_pack_not_found(self):
+        """Returns None for unknown pack."""
+        import custom_components.spyster.game.content as content_module
+        content_module._LOADED_PACKS.clear()
+
+        with pytest.raises(RuntimeError):
+            get_location_by_id("nonexistent", "beach")
+
+
+class TestAssignRolesForLocation:
+    """Tests for assign_roles_for_location function (Story 8-2: AC4)."""
+
+    def test_assign_roles_success(self):
+        """Assigns correct number of roles for player count."""
+        location = {
+            "name": "Beach",
+            "roles": [
+                {"id": "r1", "name": "Role1", "hint": "h1"},
+                {"id": "r2", "name": "Role2", "hint": "h2"},
+                {"id": "r3", "name": "Role3", "hint": "h3"},
+                {"id": "r4", "name": "Role4", "hint": "h4"},
+                {"id": "r5", "name": "Role5", "hint": "h5"},
+                {"id": "r6", "name": "Role6", "hint": "h6"},
+            ]
+        }
+
+        # 5 players = 4 non-spy players need roles
+        assigned = assign_roles_for_location("test", location, 5)
+
+        assert len(assigned) == 4
+        # All assigned roles should be from the location
+        for role in assigned:
+            assert role in location["roles"]
+
+    def test_assign_roles_no_duplicates(self):
+        """Assigned roles should be unique."""
+        location = {
+            "name": "Beach",
+            "roles": [
+                {"id": "r1", "name": "Role1", "hint": "h1"},
+                {"id": "r2", "name": "Role2", "hint": "h2"},
+                {"id": "r3", "name": "Role3", "hint": "h3"},
+                {"id": "r4", "name": "Role4", "hint": "h4"},
+                {"id": "r5", "name": "Role5", "hint": "h5"},
+                {"id": "r6", "name": "Role6", "hint": "h6"},
+            ]
+        }
+
+        assigned = assign_roles_for_location("test", location, 5)
+
+        # No duplicates
+        role_ids = [r["id"] for r in assigned]
+        assert len(role_ids) == len(set(role_ids))
+
+    def test_assign_roles_not_enough(self):
+        """Raises ValueError when not enough roles."""
+        location = {
+            "name": "Beach",
+            "roles": [
+                {"id": "r1", "name": "Role1", "hint": "h1"},
+                {"id": "r2", "name": "Role2", "hint": "h2"},
+            ]
+        }
+
+        # 5 players = 4 non-spy, but only 2 roles available
+        with pytest.raises(ValueError, match="has 2 roles but needs 4"):
+            assign_roles_for_location("test", location, 5)
+
+    def test_assign_roles_uses_csprng(self, monkeypatch):
+        """Verifies Fisher-Yates uses secrets.randbelow for CSPRNG."""
+        import secrets
+
+        randbelow_calls = []
+
+        def mock_randbelow(n):
+            randbelow_calls.append(n)
+            return 0  # Always return 0 for deterministic test
+
+        monkeypatch.setattr(secrets, "randbelow", mock_randbelow)
+
+        location = {
+            "name": "Beach",
+            "roles": [
+                {"id": "r1", "name": "Role1", "hint": "h1"},
+                {"id": "r2", "name": "Role2", "hint": "h2"},
+                {"id": "r3", "name": "Role3", "hint": "h3"},
+                {"id": "r4", "name": "Role4", "hint": "h4"},
+            ]
+        }
+
+        assign_roles_for_location("test", location, 3)
+
+        # Fisher-Yates should call randbelow multiple times
+        assert len(randbelow_calls) > 0, "secrets.randbelow must be called for CSPRNG"
+
+
+class TestClearCache:
+    """Tests for clear_cache function."""
+
+    def test_clear_cache(self):
+        """Clears the loaded packs cache."""
+        import custom_components.spyster.game.content as content_module
+
+        content_module._LOADED_PACKS["test"] = {"id": "test"}
+        assert "test" in content_module._LOADED_PACKS
+
+        clear_cache()
+
+        assert content_module._LOADED_PACKS == {}

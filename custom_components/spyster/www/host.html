@@ -35,7 +35,7 @@
                 <div class="qr-container">
                     <h2 id="lobby-heading">Scan to Join</h2>
                     <div class="qr-code-wrapper">
-                        <img id="qr-code-image" src="" alt="QR Code to join game" />
+                        <div id="qr-code-container" aria-label="QR Code to join game"></div>
                     </div>
                     <p class="join-url" id="join-url-text" aria-label="Join URL"></p>
                     <div class="player-count" aria-live="polite" aria-atomic="true">
@@ -293,6 +293,7 @@
     </div>
 
     <!-- JavaScript -->
+    <script src="/api/spyster/static/js/vendor/qrcode.min.js"></script>
     <script src="/api/spyster/static/js/host.js"></script>
 </body>
 </html>

@@ -2086,18 +2086,18 @@ async def test_transition_to_questioning_invalid_phase():
 @pytest.mark.asyncio
 async def test_role_display_timer_triggers_transition():
     """Test role display timer automatically transitions to QUESTIONING."""
-    from custom_components.spyster.const import TIMER_ROLE_DISPLAY
-    
+    from custom_components.spyster.const import TIMER_DURATION_ROLE_DISPLAY
+
     state = GameState()
     state.phase = GamePhase.ROLES
     state.config.round_duration_minutes = 5
-    
+
     success, error = state.start_role_display_timer()
     assert success is True
     assert "role_display" in state._timers
-    
+
     # Wait for timer to expire (5 seconds + tolerance)
-    await asyncio.sleep(TIMER_ROLE_DISPLAY + 0.5)
+    await asyncio.sleep(TIMER_DURATION_ROLE_DISPLAY + 0.5)
     
     # Verify phase transitioned
     assert state.phase == GamePhase.QUESTIONING

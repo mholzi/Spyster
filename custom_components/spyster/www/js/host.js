@@ -1217,64 +1217,91 @@ function showPhaseSection(sectionId) {
 }
 
 // ============================================================================
-// QR CODE LOADING (Story 1.3)
+// QR CODE GENERATION (Story 1.3)
 // ============================================================================
 
+// Cache for QR code to avoid regeneration
+let cachedQRUrl = null;
+
 /**
- * Load and display QR code from server
+ * Generate and display QR code client-side
+ * Uses QRCode.js library for generation (no server dependency)
+ * @param {string} sessionId - The game session ID
  */
-async function loadQRCode() {
-  const qrImage = getElement('qr-code-image');
+function generateQRCode(sessionId) {
+  const qrContainer = getElement('qr-code-container');
   const joinUrlText = getElement('join-url-text');
 
+  if (!sessionId) {
+    console.warn('[Host] No session ID available for QR code');
+    if (joinUrlText) {
+      joinUrlText.textContent = 'Waiting for session...';
+      joinUrlText.classList.add('error');
+    }
+    return;
+  }
+
+  // Construct join URL from current host
+  const joinUrl = `${window.location.origin}/api/spyster/player?session=${sessionId}`;
+
+  // Skip if URL hasn't changed
+  if (cachedQRUrl === joinUrl) {
+    return;
+  }
+
   try {
-    // Create abort controller for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    if (qrContainer) {
+      // Clear previous QR code
+      qrContainer.innerHTML = '';
 
-    const response = await fetch('/api/spyster/qr', {
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
+      // Check if QRCode library is loaded
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(qrContainer, {
+          text: joinUrl,
+          width: 300,
+          height: 300,
+          colorDark: '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+        console.log('[Host] QR code generated successfully');
+      } else {
+        console.error('[Host] QRCode library not loaded');
+        qrContainer.innerHTML = '<p class="error">QR code library not loaded</p>';
+      }
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      cachedQRUrl = joinUrl;
     }
 
-    const data = await response.json();
-
-    if (data.success) {
-      // Set QR code image with descriptive alt text
-      if (qrImage) {
-        qrImage.src = data.qr_code_data;
-        qrImage.alt = `QR Code to join game session ${data.session_id.substring(0, 8)}`;
-      }
-
-      // Set join URL text
-      if (joinUrlText) {
-        joinUrlText.textContent = data.join_url;
-        joinUrlText.classList.remove('error');
-      }
-
-      console.log('[Host] QR code loaded successfully');
-    } else {
-      throw new Error(data.message || 'QR code generation failed');
+    // Set join URL text
+    if (joinUrlText) {
+      joinUrlText.textContent = joinUrl;
+      joinUrlText.classList.remove('error');
     }
   } catch (error) {
-    console.error('[Host] Failed to load QR code:', error);
+    console.error('[Host] Failed to generate QR code:', error);
 
-    // Clear image source and show error in UI
-    if (qrImage) {
-      qrImage.src = '';
-      qrImage.alt = 'QR Code failed to load';
+    if (qrContainer) {
+      qrContainer.innerHTML = '<p class="error">Failed to generate QR code</p>';
     }
 
     if (joinUrlText) {
-      joinUrlText.textContent = error.name === 'AbortError'
-        ? 'Connection timeout - please refresh the page'
-        : 'Failed to load QR code - please refresh the page';
+      joinUrlText.textContent = 'Failed to generate QR code';
       joinUrlText.classList.add('error');
     }
+  }
+}
+
+/**
+ * Legacy function for backward compatibility
+ * Now generates QR code from current game state session ID
+ */
+async function loadQRCode() {
+  // Get session ID from current game state
+  if (currentGameState && currentGameState.session_id) {
+    generateQRCode(currentGameState.session_id);
+  } else {
+    console.warn('[Host] No game state available for QR code');
   }
 }
 

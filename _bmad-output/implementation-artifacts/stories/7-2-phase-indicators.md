@@ -1,6 +1,6 @@
 # Story 7.2: Phase Indicators
 
-Status: review
+Status: done
 
 ## Story
 

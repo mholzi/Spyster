@@ -118,10 +118,10 @@ DEFAULT_ROUND_COUNT = 5
 DEFAULT_VOTE_DURATION = 60  # 60 seconds
 
 # Timer durations (seconds) - ARCH-10
-TIMER_ROLE_DISPLAY = 5  # Display roles before questioning (Story 4.1)
-TIMER_ROUND_DEFAULT = 300  # Default 5 minutes for questioning, configurable (Story 4.1)
-TIMER_VOTE = 60  # 60 seconds for voting (Story 4.1, FR30)
-TIMER_REVEAL_DELAY = 3  # Delay before reveal sequence (Story 4.1)
+TIMER_DURATION_ROLE_DISPLAY = 5  # Display roles before questioning (Story 4.1)
+TIMER_DURATION_ROUND_DEFAULT = 300  # Default 5 minutes for questioning, configurable (Story 4.1)
+TIMER_DURATION_VOTE = 60  # 60 seconds for voting (Story 4.1, FR30)
+TIMER_DURATION_REVEAL_DELAY = 3  # Delay before reveal sequence (Story 4.1)
 VOTE_TIMER_DURATION = 60  # FR30, ARCH-10 (kept for backward compatibility)
 SCORING_DISPLAY_SECONDS = 10  # Time to view leaderboard before next round (Story 6.5)
 
@@ -136,11 +136,11 @@ CONFIG_DEFAULT_ROUNDS = 5
 
 CONFIG_DEFAULT_LOCATION_PACK = "classic"
 
-# Timer types
-TIMER_ROUND = "round"
-TIMER_VOTE = "vote"
-TIMER_ROLE_DISPLAY = "role_display"
-TIMER_REVEAL_DELAY = "reveal_delay"
+# Timer type identifiers (string names for timer management)
+TIMER_TYPE_ROUND = "round"
+TIMER_TYPE_VOTE = "vote"
+TIMER_TYPE_ROLE_DISPLAY = "role_display"
+TIMER_TYPE_REVEAL_DELAY = "reveal_delay"
 
 # Disconnect handling (Story 2.4)
 DISCONNECT_GRACE_SECONDS = 30  # seconds - NFR11 requirement

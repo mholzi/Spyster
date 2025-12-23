@@ -1,6 +1,6 @@
 # Story 7.4: Vote Results Visualization
 
-Status: review
+Status: done
 
 ## Story
 

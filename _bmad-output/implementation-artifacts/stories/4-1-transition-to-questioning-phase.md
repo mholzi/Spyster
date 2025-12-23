@@ -6,7 +6,7 @@ story_name: "Transition to Questioning Phase"
 priority: "high"
 estimated_effort: "3 hours"
 dependencies: ["3.2", "3.3", "3.4", "3.5"]
-status: "ready-for-dev"
+status: "done"
 created: "2025-12-23"
 ---
 

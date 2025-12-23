@@ -1,6 +1,6 @@
 # Story 7.1: Host Display Layout
 
-Status: review
+Status: done
 
 ## Story
 

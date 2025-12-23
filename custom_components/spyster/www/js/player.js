@@ -559,6 +559,9 @@ class PlayerClient {
 
     // Attach event listeners
     this.attachQuestioningEventListeners();
+
+    // Story 8-3: Announce phase transition for screen readers (AC6)
+    announceToScreenReader('Questioning phase started. Ask and answer questions to find the spy.', 'assertive');
   }
 
   /**
@@ -672,6 +675,15 @@ class PlayerClient {
     } else if (seconds <= 10) {
       element.classList.add('critical');
     }
+
+    // Story 8-3: Announce timer at key intervals for screen readers (AC5)
+    const announceAt = [60, 30, 10, 5, 3, 2, 1];
+    if (announceAt.includes(seconds)) {
+      const message = seconds === 1
+        ? '1 second remaining'
+        : `${seconds} seconds remaining`;
+      announceToScreenReader(message, seconds <= 10 ? 'assertive' : 'polite');
+    }
   }
 
   /**
@@ -769,6 +781,9 @@ class PlayerClient {
       this.setupSpyModeListeners();
       this.setupSubmitGuessListener();
     }
+
+    // Story 8-3: Announce phase transition for screen readers (AC6)
+    announceToScreenReader('Voting phase started. Select a player you suspect is the spy.', 'assertive');
   }
 
   /**
@@ -2357,6 +2372,129 @@ function removeClass(id, className) {
 }
 
 // ============================================================================
+// STORY 8-3: KEYBOARD NAVIGATION SUPPORT
+// ============================================================================
+
+/**
+ * Setup keyboard navigation for interactive elements (Story 8-3: AC2)
+ * Enables arrow key navigation and Enter/Space activation for:
+ * - Player cards in vote phase
+ * - Confidence buttons
+ * - Location items for spy guess
+ */
+function setupKeyboardNavigation() {
+  console.log('[Player] Setting up keyboard navigation');
+
+  // Global keyboard handler for navigation
+  document.addEventListener('keydown', (event) => {
+    const activeElement = document.activeElement;
+
+    // Handle Enter/Space on focusable game elements
+    if (event.key === 'Enter' || event.key === ' ') {
+      if (activeElement.matches('.player-card, .confidence-btn, .location-item, .spy-mode-tab')) {
+        event.preventDefault();
+        activeElement.click();
+        return;
+      }
+    }
+
+    // Arrow key navigation within groups
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+      // Find the parent container and all focusable siblings
+      const containers = [
+        { selector: '.player-cards-grid', items: '.player-card:not([disabled])' },
+        { selector: '.confidence-buttons', items: '.confidence-btn:not([disabled])' },
+        { selector: '.location-list', items: '.location-item:not([disabled])' },
+        { selector: '.spy-mode-options', items: '.spy-mode-tab:not([disabled])' }
+      ];
+
+      for (const { selector, items } of containers) {
+        const container = activeElement.closest(selector);
+        if (container) {
+          const focusableItems = Array.from(container.querySelectorAll(items));
+          const currentIndex = focusableItems.indexOf(activeElement);
+
+          if (currentIndex === -1) continue;
+
+          let nextIndex = currentIndex;
+          const isGrid = selector === '.player-cards-grid';
+          const columnsPerRow = isGrid ? getGridColumns(container) : 1;
+
+          switch (event.key) {
+            case 'ArrowRight':
+              nextIndex = Math.min(currentIndex + 1, focusableItems.length - 1);
+              break;
+            case 'ArrowLeft':
+              nextIndex = Math.max(currentIndex - 1, 0);
+              break;
+            case 'ArrowDown':
+              nextIndex = Math.min(currentIndex + columnsPerRow, focusableItems.length - 1);
+              break;
+            case 'ArrowUp':
+              nextIndex = Math.max(currentIndex - columnsPerRow, 0);
+              break;
+          }
+
+          if (nextIndex !== currentIndex && focusableItems[nextIndex]) {
+            event.preventDefault();
+            focusableItems[nextIndex].focus();
+          }
+          return;
+        }
+      }
+    }
+
+    // Escape key to deselect/cancel
+    if (event.key === 'Escape') {
+      // Blur current element if it's a game control
+      if (activeElement.matches('.player-card, .confidence-btn, .location-item')) {
+        activeElement.blur();
+      }
+    }
+  });
+}
+
+/**
+ * Get number of columns in a CSS grid container
+ * @param {HTMLElement} container - Grid container element
+ * @returns {number} Number of columns
+ */
+function getGridColumns(container) {
+  const computedStyle = window.getComputedStyle(container);
+  const gridTemplateColumns = computedStyle.getPropertyValue('grid-template-columns');
+  // Count the number of column values (e.g., "1fr 1fr" = 2 columns)
+  const columns = gridTemplateColumns.split(' ').filter(col => col.trim()).length;
+  return Math.max(columns, 1);
+}
+
+/**
+ * Announce message to screen readers via live region (Story 8-3: AC4)
+ * @param {string} message - Message to announce
+ * @param {string} priority - 'polite' or 'assertive'
+ */
+function announceToScreenReader(message, priority = 'polite') {
+  // Find or create the live region
+  let liveRegion = document.getElementById('sr-announcements');
+  if (!liveRegion) {
+    liveRegion = document.createElement('div');
+    liveRegion.id = 'sr-announcements';
+    liveRegion.setAttribute('aria-live', priority);
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.className = 'sr-only';
+    document.body.appendChild(liveRegion);
+  }
+
+  // Set priority if different
+  liveRegion.setAttribute('aria-live', priority);
+
+  // Clear and set message (triggers announcement)
+  liveRegion.textContent = '';
+  setTimeout(() => {
+    liveRegion.textContent = message;
+  }, 100);
+}
+
+// ============================================================================
 // INITIALIZATION
 // ============================================================================
 
@@ -2369,6 +2507,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize player client
   playerClient = new PlayerClient();
   playerClient.connect();
+
+  // Story 8-3: Setup keyboard navigation
+  setupKeyboardNavigation();
 
   // Story 2.2: Setup join form handler
   const joinForm = document.getElementById('join-form');

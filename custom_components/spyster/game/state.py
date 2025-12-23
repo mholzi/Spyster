@@ -12,8 +12,8 @@ _LOGGER = logging.getLogger(__name__)
 class GamePhase(Enum):
     """Game phase enumeration.
 
-    All phases must be defined here even though this story only uses LOBBY.
-    Future stories will implement phase transitions.
+    Defines all valid game phases. Phase transitions are validated
+    via VALID_TRANSITIONS map in const.py (ARCH-4).
     """
     LOBBY = "LOBBY"
     ROLES = "ROLES"
@@ -1559,14 +1559,14 @@ class GameState:
         Returns:
             (success: bool, error_code: str | None)
         """
-        from ..const import ERR_INVALID_PHASE, TIMER_ROLE_DISPLAY
+        from ..const import ERR_INVALID_PHASE, TIMER_DURATION_ROLE_DISPLAY
 
         # Phase guard
         if self.phase != GamePhase.ROLES:
             _LOGGER.warning("Cannot start role display timer - invalid phase: %s", self.phase)
             return False, ERR_INVALID_PHASE
 
-        _LOGGER.info("Starting role display timer (%d seconds)", TIMER_ROLE_DISPLAY)
+        _LOGGER.info("Starting role display timer (%d seconds)", TIMER_DURATION_ROLE_DISPLAY)
 
         # Cancel existing timer if present (ARCH-11)
         self.cancel_timer("role_display")
@@ -1574,7 +1574,7 @@ class GameState:
         # Start timer
         self.start_timer(
             "role_display",
-            float(TIMER_ROLE_DISPLAY),
+            float(TIMER_DURATION_ROLE_DISPLAY),
             self._on_role_display_complete
         )
 

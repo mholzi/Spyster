@@ -1,6 +1,6 @@
 # Story 7.3: Player Status Display
 
-Status: review
+Status: done
 
 ## Story
 

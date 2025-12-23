@@ -5608,3 +5608,231 @@ p {
     }
 }
 
+/* ============================================================================
+   STORY 8-3: ACCESSIBILITY COMPLIANCE
+   Additional ARIA and keyboard navigation support
+   ============================================================================ */
+
+/* Skip link for keyboard navigation */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--color-accent-primary);
+    color: var(--color-text-primary);
+    padding: var(--space-sm) var(--space-md);
+    z-index: 10000;
+    transition: top 0.3s ease;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* Enhanced focus indicators for interactive elements */
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+a:focus-visible {
+    outline: 3px solid var(--color-accent-secondary);
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --color-bg-secondary: #1a1a1a;
+        --color-bg-tertiary: #333333;
+        --color-text-primary: #ffffff;
+        --color-text-secondary: #cccccc;
+    }
+
+    button,
+    .btn,
+    .player-card,
+    .confidence-btn {
+        border-width: 3px;
+    }
+}
+
+/* ============================================================================
+   STORY 8-4: BROWSER COMPATIBILITY AND POLISH
+   Vendor prefixes, iOS Safari fixes, and cross-browser support
+   ============================================================================ */
+
+/* Base body - iOS Safari viewport fix */
+html {
+    /* iOS Safari 100vh fix - use dvh where supported */
+    height: 100%;
+    height: -webkit-fill-available;
+}
+
+body {
+    min-height: 100%;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    /* Safe area insets for notched devices */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    /* Prevent iOS text size adjust */
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* Container with safe area padding */
+.container {
+    padding-left: max(var(--space-md), env(safe-area-inset-left));
+    padding-right: max(var(--space-md), env(safe-area-inset-right));
+}
+
+/* Touch interaction optimization */
+button,
+.btn,
+.player-card,
+.confidence-btn,
+.location-item,
+.spy-mode-tab,
+input,
+select {
+    /* Disable tap highlight on mobile */
+    -webkit-tap-highlight-color: transparent;
+    /* Optimize touch interactions */
+    touch-action: manipulation;
+    /* Prevent text selection on buttons */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Flexbox vendor prefixes for older browsers */
+.container,
+.btn,
+.player-card,
+.confidence-btn,
+.vote-header,
+.leaderboard-item {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+/* Grid vendor prefixes */
+.player-cards-grid,
+.location-list,
+.reveal-votes-grid {
+    display: -ms-grid;
+    display: grid;
+}
+
+/* Transform vendor prefixes */
+.btn:hover,
+.player-card:hover,
+.confidence-btn:hover {
+    -webkit-transform: translateY(-2px);
+    -ms-transform: translateY(-2px);
+    transform: translateY(-2px);
+}
+
+/* Note: -webkit-border-radius and -moz-border-radius removed as obsolete (2012+)
+   border-radius is fully supported in all target browsers */
+
+/* Note: -webkit-box-shadow and -moz-box-shadow removed as obsolete (2011+)
+   box-shadow is fully supported in all target browsers */
+
+/* Smooth scrolling with vendor prefixes */
+html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Scrollbar styling for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-accent-primary);
+    border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent-secondary);
+}
+
+/* Firefox scrollbar styling - target scrollable containers only */
+body,
+.questioning-view,
+.location-list,
+.player-cards-grid,
+#vote-view,
+#reveal-view,
+#scoring-view,
+#end-view {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent-primary) var(--color-bg-tertiary);
+}
+
+/* Animation vendor prefixes */
+@-webkit-keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+@-moz-keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* iOS Safari position fixed fix */
+.timer-header,
+.connection-status,
+.error-display,
+.admin-bar {
+    position: -webkit-sticky;
+    position: sticky;
+    /* Prevent iOS bounce scroll issues */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* Prevent iOS rubber-band scrolling on fixed elements */
+.questioning-view,
+#vote-view,
+#reveal-view,
+#scoring-view,
+#end-view {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Font smoothing for better text rendering */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Image rendering optimization */
+img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* QR code specific rendering */
+#qr-code-image {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
