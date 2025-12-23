@@ -21,6 +21,9 @@ let previousPhase = null;
 let phaseTransitionTimeout = null;
 const PHASE_TRANSITION_DURATION = 2500; // Match CSS animation duration
 
+// Current game state (for QR code generation)
+let currentGameState = null;
+
 /**
  * Initialize WebSocket connection to game server (Story 2.1 & 2.4)
  */
@@ -162,11 +165,16 @@ function showErrorBanner(message, code) {
 function renderLobby(state) {
   console.log('[Host] Rendering lobby:', state);
 
+  // Store current game state for QR code generation
+  currentGameState = state;
+
   // Show lobby section
   showPhaseSection('lobby-section');
 
-  // Load QR code
-  loadQRCode();
+  // Generate QR code with session ID
+  if (state.session_id) {
+    generateQRCode(state.session_id);
+  }
 
   // Update player count
   const connectedCount = state.connected_count || 0;
