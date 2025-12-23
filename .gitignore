@@ -1,30 +1,43 @@
-# Python
+# ========================================
+# HACS Integration - Keep only essentials
+# ========================================
+
+# BMAD workflow system (development artifacts)
+_bmad/
+_bmad-output/
+
+# Claude AI configuration
+.claude/
+
+# Tests (development only)
+tests/
+test_*.py
+conftest.py
+
+# Implementation summaries (development artifacts)
+IMPLEMENTATION*.txt
+IMPLEMENTATION*.md
+STORY*.md
+
+# Python bytecode
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+
+# Build artifacts
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
 *.egg
+.eggs/
 
 # Virtual environments
 venv/
-ENV/
-env/
 .venv/
+env/
+ENV/
 
 # IDE
 .idea/
