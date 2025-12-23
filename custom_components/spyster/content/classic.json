@@ -1,0 +1,138 @@
+{
+  "id": "classic",
+  "name": "Classic Locations",
+  "description": "The original Spyfall location pack",
+  "version": "1.0.0",
+  "locations": [
+    {
+      "id": "beach",
+      "name": "Beach",
+      "flavor": "Sun, sand, and surf",
+      "roles": [
+        {"name": "Lifeguard", "hint": "You watch over swimmers and enforce safety rules"},
+        {"name": "Beach Vendor", "hint": "You sell snacks, drinks, and beach gear"},
+        {"name": "Surfer", "hint": "You ride the waves on your board"},
+        {"name": "Tourist", "hint": "You're on vacation enjoying the sun"},
+        {"name": "Photographer", "hint": "You capture memories for beachgoers"},
+        {"name": "Beach Cleaner", "hint": "You keep the shore clean and tidy"}
+      ]
+    },
+    {
+      "id": "airplane",
+      "name": "Airplane",
+      "flavor": "30,000 feet above ground",
+      "roles": [
+        {"name": "Pilot", "hint": "You're flying this aircraft"},
+        {"name": "Flight Attendant", "hint": "You serve passengers and ensure their safety"},
+        {"name": "Passenger", "hint": "You're traveling to your destination"},
+        {"name": "Air Marshal", "hint": "You provide security on this flight"},
+        {"name": "Co-Pilot", "hint": "You assist the captain in flying the plane"},
+        {"name": "Mechanic", "hint": "You handle in-flight technical issues"}
+      ]
+    },
+    {
+      "id": "casino",
+      "name": "Casino",
+      "flavor": "High stakes and bright lights",
+      "roles": [
+        {"name": "Dealer", "hint": "You manage the card games and payouts"},
+        {"name": "Pit Boss", "hint": "You oversee the gaming floor"},
+        {"name": "Gambler", "hint": "You're here to try your luck"},
+        {"name": "Security Guard", "hint": "You watch for cheaters and troublemakers"},
+        {"name": "Bartender", "hint": "You serve drinks to patrons"},
+        {"name": "Slot Attendant", "hint": "You assist with slot machines and payouts"}
+      ]
+    },
+    {
+      "id": "hospital",
+      "name": "Hospital",
+      "flavor": "Where healing happens",
+      "roles": [
+        {"name": "Doctor", "hint": "You diagnose and treat patients"},
+        {"name": "Nurse", "hint": "You provide patient care and assist doctors"},
+        {"name": "Patient", "hint": "You're receiving medical treatment"},
+        {"name": "Surgeon", "hint": "You perform operations"},
+        {"name": "Pharmacist", "hint": "You dispense medications"},
+        {"name": "Paramedic", "hint": "You bring emergency cases to the hospital"}
+      ]
+    },
+    {
+      "id": "restaurant",
+      "name": "Restaurant",
+      "flavor": "Fine dining experience",
+      "roles": [
+        {"name": "Chef", "hint": "You prepare the meals in the kitchen"},
+        {"name": "Waiter", "hint": "You serve food and take orders"},
+        {"name": "Customer", "hint": "You're here to enjoy a meal"},
+        {"name": "Host", "hint": "You greet and seat guests"},
+        {"name": "Dishwasher", "hint": "You clean dishes and utensils"},
+        {"name": "Sommelier", "hint": "You recommend and serve wines"}
+      ]
+    },
+    {
+      "id": "school",
+      "name": "School",
+      "flavor": "Education in session",
+      "roles": [
+        {"name": "Teacher", "hint": "You educate the students"},
+        {"name": "Student", "hint": "You're here to learn"},
+        {"name": "Principal", "hint": "You run the school"},
+        {"name": "Janitor", "hint": "You keep the building clean"},
+        {"name": "Librarian", "hint": "You manage the school library"},
+        {"name": "Gym Coach", "hint": "You teach physical education"}
+      ]
+    },
+    {
+      "id": "theater",
+      "name": "Theater",
+      "flavor": "The show must go on",
+      "roles": [
+        {"name": "Actor", "hint": "You perform on stage"},
+        {"name": "Director", "hint": "You oversee the production"},
+        {"name": "Audience Member", "hint": "You're watching the show"},
+        {"name": "Stage Hand", "hint": "You manage props and scenery"},
+        {"name": "Usher", "hint": "You help guests find their seats"},
+        {"name": "Costume Designer", "hint": "You create and manage outfits for performers"}
+      ]
+    },
+    {
+      "id": "bank",
+      "name": "Bank",
+      "flavor": "Where money matters",
+      "roles": [
+        {"name": "Teller", "hint": "You handle customer transactions"},
+        {"name": "Manager", "hint": "You oversee bank operations"},
+        {"name": "Customer", "hint": "You're managing your finances"},
+        {"name": "Security Guard", "hint": "You protect the bank and its assets"},
+        {"name": "Loan Officer", "hint": "You evaluate and approve loans"},
+        {"name": "Vault Keeper", "hint": "You manage access to the vault"}
+      ]
+    },
+    {
+      "id": "police_station",
+      "name": "Police Station",
+      "flavor": "Law and order headquarters",
+      "roles": [
+        {"name": "Detective", "hint": "You investigate crimes"},
+        {"name": "Officer", "hint": "You patrol and maintain order"},
+        {"name": "Suspect", "hint": "You're being questioned"},
+        {"name": "Dispatcher", "hint": "You coordinate emergency responses"},
+        {"name": "Lawyer", "hint": "You provide legal representation"},
+        {"name": "Forensic Scientist", "hint": "You analyze evidence"}
+      ]
+    },
+    {
+      "id": "space_station",
+      "name": "Space Station",
+      "flavor": "Orbiting above Earth",
+      "roles": [
+        {"name": "Commander", "hint": "You lead the station crew"},
+        {"name": "Astronaut", "hint": "You conduct experiments and maintain the station"},
+        {"name": "Engineer", "hint": "You keep the station's systems running"},
+        {"name": "Scientist", "hint": "You perform research in microgravity"},
+        {"name": "Medical Officer", "hint": "You monitor crew health"},
+        {"name": "Mission Control", "hint": "You communicate with Earth and coordinate operations"}
+      ]
+    }
+  ]
+}

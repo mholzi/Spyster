@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>Spyster - Host Display</title>
+    <link rel="stylesheet" href="/api/spyster/static/css/styles.css">
+</head>
+<body class="host-display">
+    <div class="container">
+        <!-- Header -->
+        <header role="banner" class="header">
+            <h1>Spyster</h1>
+            <div class="session-info">
+                <span id="session-id-display" aria-live="polite"></span>
+                <span id="phase-display" class="phase-badge" aria-live="polite"></span>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main role="main" class="main-content">
+            <!-- Lobby Phase: QR Code Display -->
+            <section id="lobby-section" class="phase-section" role="region" aria-labelledby="lobby-heading">
+                <div class="qr-container">
+                    <h2 id="lobby-heading">Scan to Join</h2>
+                    <div class="qr-code-wrapper">
+                        <img id="qr-code-image" src="" alt="QR Code to join game" />
+                    </div>
+                    <p class="join-url" id="join-url-text" aria-label="Join URL"></p>
+                    <div class="player-count" aria-live="polite" aria-atomic="true">
+                        <span id="current-player-count">0</span> /
+                        <span id="max-player-count">10</span> players
+                    </div>
+
+                    <!-- Configuration Panel (Story 3.1) -->
+                    <div class="config-panel">
+                        <h2>Game Settings</h2>
+
+                        <!-- Round Duration -->
+                        <div class="config-option">
+                            <label id="config-round-duration-label">Round Duration (minutes)</label>
+                            <div class="config-controls" role="group" aria-labelledby="config-round-duration-label">
+                                <button
+                                    id="config-round-duration-dec"
+                                    class="config-btn"
+                                    aria-label="Decrease round duration">
+                                    −
+                                </button>
+                                <span id="config-round-duration-value" class="config-value" role="status" aria-live="polite">7</span>
+                                <button
+                                    id="config-round-duration-inc"
+                                    class="config-btn"
+                                    aria-label="Increase round duration">
+                                    +
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Number of Rounds -->
+                        <div class="config-option">
+                            <label id="config-num-rounds-label">Number of Rounds</label>
+                            <div class="config-controls" role="group" aria-labelledby="config-num-rounds-label">
+                                <button
+                                    id="config-num-rounds-dec"
+                                    class="config-btn"
+                                    aria-label="Decrease number of rounds">
+                                    −
+                                </button>
+                                <span id="config-num-rounds-value" class="config-value" role="status" aria-live="polite">5</span>
+                                <button
+                                    id="config-num-rounds-inc"
+                                    class="config-btn"
+                                    aria-label="Increase number of rounds">
+                                    +
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Location Pack -->
+                        <div class="config-option">
+                            <label for="config-location-pack">Location Pack</label>
+                            <select
+                                id="config-location-pack"
+                                class="config-select"
+                                aria-label="Select location pack">
+                                <option value="classic" selected>Classic</option>
+                                <!-- Future packs added here -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Player List -->
+                    <div id="player-list-section" class="player-list-section">
+                        <div id="player-list"></div>
+                    </div>
+
+                    <!-- Game Controls (Story 3.2) -->
+                    <div class="game-controls">
+                        <button
+                            id="start-game-btn"
+                            class="btn-primary btn-large"
+                            disabled
+                            aria-label="Start game"
+                        >
+                            START GAME
+                        </button>
+                        <div id="start-message" class="help-text" aria-live="polite"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Placeholder for future phases -->
+            <section id="roles-section" class="phase-section hidden" role="region" aria-labelledby="roles-heading">
+                <h2 id="roles-heading">Role Assignment</h2>
+                <p>Roles are being assigned...</p>
+            </section>
+
+            <!-- Questioning Phase (Story 4.3) -->
+            <section id="questioning-section" class="phase-section hidden" role="region" aria-labelledby="questioning-heading">
+                <div class="phase-header">
+                    <h2 id="questioning-heading">Questioning Phase</h2>
+                    <div id="round-timer-host" class="timer-display large" role="timer" aria-live="polite">
+                        <span class="timer-value">0:00</span>
+                    </div>
+                </div>
+
+                <!-- Current Turn Display -->
+                <div id="turn-display" class="turn-indicator" role="region" aria-labelledby="turn-label">
+                    <div id="turn-label" class="turn-label">CURRENT TURN</div>
+                    <div class="turn-info">
+                        <div class="questioner-box">
+                            <div class="role-label">ASKING</div>
+                            <div id="questioner-name" class="player-name-large" aria-live="polite">
+                                Waiting...
+                            </div>
+                        </div>
+                        <div class="turn-arrow" aria-hidden="true">→</div>
+                        <div class="answerer-box">
+                            <div class="role-label">ANSWERING</div>
+                            <div id="answerer-name" class="player-name-large" aria-live="polite">
+                                Waiting...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Player Status Grid -->
+                <div id="player-status-grid" class="player-grid" role="list" aria-label="Player connection status">
+                    <!-- Populated by JavaScript -->
+                </div>
+
+                <!-- Host Controls (Story 4.3: AC5) -->
+                <div class="host-controls" style="margin-top: var(--space-xl); text-align: center;">
+                    <button
+                        id="next-turn-btn"
+                        class="btn-primary btn-large"
+                        aria-label="Advance to next turn"
+                    >
+                        NEXT TURN
+                    </button>
+                </div>
+            </section>
+
+            <section id="vote-section" class="phase-section hidden" role="region" aria-labelledby="vote-heading">
+                <h2 id="vote-heading">Voting Phase</h2>
+                <p>Players are voting...</p>
+            </section>
+
+            <section id="reveal-section" class="phase-section hidden" role="region" aria-labelledby="reveal-heading">
+                <h2 id="reveal-heading">Reveal</h2>
+                <p>Revealing results...</p>
+            </section>
+
+            <section id="scoring-section" class="phase-section hidden" role="region" aria-labelledby="scoring-heading">
+                <h2 id="scoring-heading">Scoring</h2>
+                <p>Calculating scores...</p>
+            </section>
+
+            <section id="end-section" class="phase-section hidden" role="region" aria-labelledby="end-heading">
+                <h2 id="end-heading">Game Over</h2>
+                <p>Final results</p>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer role="contentinfo" class="footer">
+            <div class="status-indicator">
+                <span id="connection-status" class="status-dot" role="status"></span>
+                <span id="status-text" aria-live="polite">Connecting...</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/api/spyster/static/js/host.js"></script>
+</body>
+</html>

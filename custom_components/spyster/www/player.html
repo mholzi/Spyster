@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Spyster - Player</title>
+    <link rel="stylesheet" href="/api/spyster/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Connection Status -->
+        <div id="connection-status" class="connection-status status-disconnected">
+            Disconnected
+        </div>
+
+        <!-- Error Display -->
+        <div id="error-display" class="error-display"></div>
+
+        <!-- Header -->
+        <header role="banner" class="text-center" style="margin-bottom: var(--space-xl);">
+            <h1 id="page-title" class="text-primary" style="font-family: var(--font-display); font-size: var(--text-title);">
+                SPYSTER
+            </h1>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content" role="main">
+            <!-- Join View (placeholder) -->
+            <div id="join-view" class="card" style="padding: var(--space-xl);">
+                <h2 id="join-heading" class="text-center text-secondary" style="margin-bottom: var(--space-lg);">
+                    Join Game
+                </h2>
+                <form id="join-form" role="form" aria-labelledby="join-heading" style="display: flex; flex-direction: column; gap: var(--space-md);">
+                    <input
+                        type="text"
+                        id="player-name-input"
+                        placeholder="Enter your name"
+                        maxlength="20"
+                        autocomplete="off"
+                        autocapitalize="words"
+                        style="
+                            font-family: var(--font-body);
+                            font-size: var(--text-body);
+                            padding: var(--space-md);
+                            border: 2px solid var(--color-accent-primary);
+                            border-radius: var(--radius-md);
+                            background-color: var(--color-bg-secondary);
+                            color: var(--color-text-primary);
+                            min-height: var(--touch-minimum);
+                        "
+                        aria-label="Enter your player name"
+                        required
+                    >
+                    <button type="submit" id="join-button" class="btn btn-primary" aria-label="Submit and join the game">
+                        JOIN GAME
+                    </button>
+                </form>
+                <div id="error-message" class="error-message" style="display: none; margin-top: var(--space-md);"></div>
+            </div>
+
+            <!-- Lobby View -->
+            <div id="lobby-view" class="card text-center" style="display: none; padding: var(--space-xl);">
+                <h2 class="text-secondary" style="margin-bottom: var(--space-lg);">
+                    Waiting for Host...
+                </h2>
+                <div id="lobby-player-count" class="text-primary" style="font-size: var(--text-heading); margin-bottom: var(--space-lg);">
+                    0 players
+                </div>
+
+                <!-- Game Settings Display (Story 3.1) -->
+                <div class="config-display">
+                    <h3>Game Settings</h3>
+                    <ul>
+                        <li>Round Duration: <strong><span id="config-round-duration-display">7</span> minutes</strong></li>
+                        <li>Number of Rounds: <strong><span id="config-num-rounds-display">5</span></strong></li>
+                        <li>Location Pack: <strong><span id="config-location-pack-display">Classic</span></strong></li>
+                    </ul>
+                </div>
+
+                <div id="player-list-container">
+                    <h3 class="text-secondary" style="font-size: var(--text-body); margin-bottom: var(--space-md);">Players:</h3>
+                    <ul id="player-list" class="player-list" style="list-style: none; padding: 0;"></ul>
+                </div>
+            </div>
+
+            <!-- Roles Loading View (Story 3.2) -->
+            <div id="roles-loading-view" class="card text-center" style="display: none; padding: var(--space-xl);">
+                <div class="loading-container">
+                    <div class="spinner"></div>
+                    <h2 class="text-secondary" style="margin-top: var(--space-lg);">Assigning roles...</h2>
+                    <p class="help-text" style="margin-top: var(--space-md);">Please wait</p>
+                </div>
+            </div>
+
+            <!-- Role Display View - Story 3.5 -->
+            <div id="role-view" style="display: none;">
+                <!-- Content will be dynamically rendered by renderRoleDisplay() -->
+            </div>
+
+            <!-- Questioning Phase View (Story 4.3) -->
+            <div id="questioning-view" style="display: none;">
+                <!-- Phase Header -->
+                <div class="phase-header" style="margin-bottom: var(--space-lg);">
+                    <h2 class="text-center text-secondary" style="margin-bottom: var(--space-md);">
+                        Questioning Phase
+                    </h2>
+                    <!-- Timer -->
+                    <div id="round-timer-player" class="timer-display" role="timer" aria-live="polite" style="text-align: center; margin-bottom: var(--space-lg);">
+                        <span class="timer-value" style="font-size: var(--text-heading); color: var(--color-accent-primary);">0:00</span>
+                    </div>
+                </div>
+
+                <!-- Turn Info (compact) - Story 4.3 -->
+                <div id="turn-info-player" class="turn-info-compact card" style="margin-bottom: var(--space-lg); padding: var(--space-md); text-align: center;">
+                    <span id="questioner-name-player" class="name-highlight">Player A</span>
+                    <span class="turn-text" style="color: var(--color-text-secondary); padding: 0 var(--space-sm);">asks</span>
+                    <span id="answerer-name-player" class="name-highlight">Player B</span>
+                </div>
+
+                <!-- Role Reference -->
+                <div id="role-reference" class="role-reference card" style="margin-bottom: var(--space-lg); padding: var(--space-md);">
+                    <!-- Populated by JavaScript based on player role -->
+                </div>
+
+                <!-- Call Vote Button -->
+                <div class="action-controls">
+                    <button id="call-vote-btn" class="btn btn-primary" style="width: 100%; min-height: var(--touch-minimum);" aria-label="Call a vote to identify the spy">
+                        CALL VOTE
+                    </button>
+                </div>
+            </div>
+
+            <!-- Voting View (placeholder) -->
+            <div id="voting-view" style="display: none;">
+                <h2 class="text-center text-secondary" style="margin-bottom: var(--space-lg);">
+                    Who's the Spy?
+                </h2>
+
+                <!-- Player Grid (placeholder) -->
+                <div id="vote-grid" class="flex flex-col gap-sm" style="margin-bottom: var(--space-xl);">
+                    <!-- Player cards will be inserted here -->
+                </div>
+
+                <!-- Bet Selector (placeholder) -->
+                <div id="bet-selector" class="card" style="margin-bottom: var(--space-lg); display: none;">
+                    <h3 class="text-center text-primary" style="margin-bottom: var(--space-md);">
+                        Confidence Bet
+                    </h3>
+                    <div class="flex gap-md" role="radiogroup" aria-label="Confidence bet selection">
+                        <button class="btn btn-secondary" data-bet="1" style="flex: 1;">
+                            1
+                        </button>
+                        <button class="btn btn-secondary" data-bet="2" style="flex: 1;">
+                            2
+                        </button>
+                        <button class="btn btn-all-in" data-bet="3" style="flex: 1;">
+                            ALL IN
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lock Vote Button -->
+                <button id="lock-vote-btn" class="btn btn-primary" style="width: 100%; display: none;" disabled>
+                    LOCK IT IN
+                </button>
+
+                <!-- Submission Status -->
+                <div id="vote-submitted" class="text-center text-success" style="display: none; margin-top: var(--space-lg);">
+                    Vote submitted! Waiting for others...
+                </div>
+            </div>
+
+            <!-- Reveal View (placeholder) -->
+            <div id="reveal-view" class="card text-center" style="display: none; padding: var(--space-xl);">
+                <h2 class="text-secondary" style="margin-bottom: var(--space-lg);">
+                    The Reveal
+                </h2>
+                <div id="reveal-result" style="font-size: var(--text-heading);">
+                    <!-- Reveal animation and results will appear here -->
+                </div>
+                <div id="points-change" style="font-size: var(--text-title); margin-top: var(--space-lg);">
+                    <!-- Points earned/lost will appear here -->
+                </div>
+            </div>
+
+            <!-- Scoring View (placeholder) -->
+            <div id="scoring-view" style="display: none;">
+                <h2 class="text-center text-primary" style="margin-bottom: var(--space-lg);">
+                    Leaderboard
+                </h2>
+                <div id="leaderboard" class="flex flex-col gap-md">
+                    <!-- Leaderboard items will be inserted here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer role="contentinfo" class="text-center" style="margin-top: var(--space-2xl); padding: var(--space-lg);">
+            <p class="text-secondary" style="font-size: var(--text-small);">
+                Spyster
+            </p>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/api/spyster/static/js/player.js"></script>
+</body>
+</html>

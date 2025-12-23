@@ -1,0 +1,116 @@
+# generated: 2025-12-22
+# project: Spyster
+# project_key: spyster
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2025-12-22
+project: Spyster
+project_key: spyster
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 1: Project Foundation & Game Session
+  epic-1: done
+  1-1-initialize-project-structure-and-ha-integration: done
+  1-2-create-game-session-with-lobby-phase: done
+  1-3-generate-and-display-qr-code: done
+  1-4-implement-basic-player-and-host-views: done
+  epic-1-retrospective: optional
+
+  # Epic 2: Player Join & Connection
+  epic-2: done
+  2-1-websocket-connection-handler: done
+  2-2-player-join-flow: done
+  2-3-player-session-management: done
+  2-4-disconnect-detection: done
+  2-5-player-reconnection: done
+  2-6-host-lobby-management: done
+  epic-2-retrospective: optional
+
+  # Epic 3: Game Configuration & Role Assignment
+  epic-3: done
+  3-1-game-configuration-ui: done
+  3-2-start-game-with-player-validation: done
+  3-3-spy-assignment: done
+  3-4-role-distribution-with-per-player-filtering: done
+  3-5-role-display-ui-with-spy-parity: done
+  epic-3-retrospective: optional
+
+  # Epic 4: Questioning Phase
+  epic-4: in-progress
+  4-1-transition-to-questioning-phase: review
+  4-2-round-timer-with-countdown: done
+  4-3-questioner-answerer-turn-management: done  # Story file created 2025-12-23
+  4-4-player-role-view-during-questioning: done  # Story file created 2025-12-23
+  4-5-call-vote-functionality: done  # Story file created 2025-12-23
+  epic-4-retrospective: optional
+
+  # Epic 5: Voting & Confidence Betting
+  epic-5: backlog
+  5-1-voting-phase-ui-with-player-cards: backlog
+  5-2-confidence-betting-selection: backlog
+  5-3-vote-submission-and-tracking: backlog
+  5-4-spy-location-guess-option: backlog
+  5-5-vote-timer-and-abstain-handling: backlog
+  5-6-vote-and-bet-reveal-sequence: backlog
+  5-7-conviction-logic: backlog
+  epic-5-retrospective: optional
+
+  # Epic 6: Scoring & Game Progression
+  epic-6: backlog
+  6-1-scoring-module-with-pure-functions: backlog
+  6-2-vote-scoring-calculation: backlog
+  6-3-double-agent-bonus: backlog
+  6-4-spy-location-guess-scoring: backlog
+  6-5-leaderboard-display: backlog
+  6-6-round-progression: backlog
+  6-7-game-end-and-winner-declaration: backlog
+  epic-6-retrospective: optional
+
+  # Epic 7: Host Display Experience
+  epic-7: backlog
+  7-1-host-display-layout: backlog
+  7-2-phase-indicators: backlog
+  7-3-player-status-display: backlog
+  7-4-vote-results-visualization: backlog
+  7-5-host-admin-controls: backlog
+  epic-7-retrospective: optional
+
+  # Epic 8: Content & Polish
+  epic-8: backlog
+  8-1-classic-location-pack-content: backlog
+  8-2-content-loading-and-validation: backlog
+  8-3-accessibility-compliance: backlog
+  8-4-browser-compatibility-and-polish: backlog
+  epic-8-retrospective: optional
