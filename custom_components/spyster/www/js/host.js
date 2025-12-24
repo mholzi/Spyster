@@ -47,6 +47,14 @@ function handleWebSocketOpen() {
   console.log('[Host] WebSocket connected');
   clearTimeout(reconnectTimeout);
   startHeartbeat(); // Story 2.4: Start sending heartbeats
+
+  // Register as host to receive game state with session_id
+  ws.send(JSON.stringify({
+    type: 'join',
+    name: 'HostDisplay',
+    is_host: true
+  }));
+  console.log('[Host] Registered as host display');
 }
 
 /**
@@ -1497,13 +1505,10 @@ function startGame() {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('[Host] Initializing host display');
 
-  // Story 1.3: Load QR code for lobby display
   // Show lobby section by default
   showPhaseSection('lobby-section');
 
-  // Load QR code immediately for testing
-  // In future stories, this will be triggered by game state updates
-  loadQRCode();
+  // QR code will be generated when game state is received via WebSocket
 
   // Story 3.1: Initialize configuration controls
   initConfigControls();
