@@ -1,7 +1,9 @@
 """HTTP views for Spyster integration."""
 import base64
 import io
+import json
 import logging
+import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -16,6 +18,52 @@ if TYPE_CHECKING:
     from ..game.state import GameState
 
 _LOGGER = logging.getLogger(__name__)
+
+# Cache the version to avoid reading manifest on every request
+_CACHED_VERSION: str | None = None
+
+
+def _get_version() -> str:
+    """Get version from manifest.json for cache busting."""
+    global _CACHED_VERSION
+    if _CACHED_VERSION is not None:
+        return _CACHED_VERSION
+
+    try:
+        manifest_path = Path(__file__).parent.parent / "manifest.json"
+        with open(manifest_path, encoding="utf-8") as f:
+            manifest = json.load(f)
+            _CACHED_VERSION = manifest.get("version", "0.0.0")
+    except Exception as err:
+        _LOGGER.warning("Failed to read version from manifest: %s", err)
+        _CACHED_VERSION = "0.0.0"
+
+    return _CACHED_VERSION
+
+
+def _inject_cache_bust(html_content: str) -> str:
+    """Inject version query parameter into static file URLs for cache busting.
+
+    Args:
+        html_content: The HTML content to process
+
+    Returns:
+        HTML content with versioned static file URLs
+    """
+    version = _get_version()
+
+    # Pattern to match static file URLs (CSS, JS, vendor JS)
+    # Matches: /api/spyster/static/css/styles.css, /api/spyster/static/js/host.js,
+    # or /api/spyster/static/js/vendor/qrcode.min.js
+    pattern = r'(/api/spyster/static/(?:css|js(?:/vendor)?)/[^"\']+\.(css|js))(["\'])'
+
+    def add_version(match: re.Match) -> str:
+        url = match.group(1)
+        quote = match.group(3)
+        # Add version query parameter
+        return f'{url}?v={version}{quote}'
+
+    return re.sub(pattern, add_version, html_content)
 
 
 class HostView(HomeAssistantView):
@@ -48,8 +96,9 @@ class HostView(HomeAssistantView):
                     content_type="text/plain",
                 )
 
-            # Read the HTML file
+            # Read the HTML file and inject cache busting
             html_content = html_path.read_text(encoding="utf-8")
+            html_content = _inject_cache_bust(html_content)
 
             return web.Response(text=html_content, content_type="text/html")
         except FileNotFoundError as err:
@@ -98,8 +147,9 @@ class PlayerView(HomeAssistantView):
                     content_type="text/plain",
                 )
 
-            # Read the HTML file
+            # Read the HTML file and inject cache busting
             html_content = html_path.read_text(encoding="utf-8")
+            html_content = _inject_cache_bust(html_content)
 
             return web.Response(text=html_content, content_type="text/html")
         except FileNotFoundError as err:

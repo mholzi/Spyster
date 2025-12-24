@@ -33,10 +33,13 @@ class StaticCSSView(HomeAssistantView):
                 return web.Response(text="Forbidden", status=403)
 
             content = css_path.read_text(encoding="utf-8")
+            # Cache for 1 year - URL includes version query param for cache busting
+            headers = {"Cache-Control": "public, max-age=31536000, immutable"}
             return web.Response(
                 text=content,
                 content_type="text/css",
-                charset="utf-8"
+                charset="utf-8",
+                headers=headers
             )
         except Exception as err:
             _LOGGER.error("Error serving CSS %s: %s", filename, err)
@@ -65,10 +68,13 @@ class StaticJSView(HomeAssistantView):
                 return web.Response(text="Forbidden", status=403)
 
             content = js_path.read_text(encoding="utf-8")
+            # Cache for 1 year - URL includes version query param for cache busting
+            headers = {"Cache-Control": "public, max-age=31536000, immutable"}
             return web.Response(
                 text=content,
                 content_type="application/javascript",
-                charset="utf-8"
+                charset="utf-8",
+                headers=headers
             )
         except Exception as err:
             _LOGGER.error("Error serving JS %s: %s", filename, err)
@@ -97,10 +103,13 @@ class StaticVendorJSView(HomeAssistantView):
                 return web.Response(text="Forbidden", status=403)
 
             content = js_path.read_text(encoding="utf-8")
+            # Cache for 1 year - URL includes version query param for cache busting
+            headers = {"Cache-Control": "public, max-age=31536000, immutable"}
             return web.Response(
                 text=content,
                 content_type="application/javascript",
-                charset="utf-8"
+                charset="utf-8",
+                headers=headers
             )
         except Exception as err:
             _LOGGER.error("Error serving vendor JS %s: %s", filename, err)
