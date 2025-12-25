@@ -235,9 +235,14 @@ p {
 
 .container {
   width: 100%;
-  max-width: 428px; /* Mobile-first max width */
+  max-width: 380px; /* iPhone-optimized width - centered on all screens */
   margin: 0 auto;
   padding: var(--space-md);
+  /* Safe area insets for iPhone notch/home indicator */
+  padding-top: max(var(--space-md), env(safe-area-inset-top));
+  padding-bottom: max(var(--space-md), env(safe-area-inset-bottom));
+  padding-left: max(var(--space-md), env(safe-area-inset-left));
+  padding-right: max(var(--space-md), env(safe-area-inset-right));
 }
 
 .flex {
@@ -276,7 +281,7 @@ p {
   background-color: var(--color-bg-card);
   color: var(--color-text-card);
   border-radius: var(--radius-lg);
-  padding: var(--space-xl);
+  padding: var(--space-lg); /* Standardized to 24px */
   transition: all var(--transition-normal);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
@@ -440,11 +445,12 @@ p {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  padding: var(--space-xl);
+  padding: var(--space-lg); /* Standardized to 24px */
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
-  height: 480px; /* CRITICAL: FIXED height for parity (UX-9, UX-10) - changed from min-height */
-  overflow: hidden; /* Prevent layout tells from overflow */
+  min-height: 400px; /* Minimum height, can grow */
+  max-height: 70vh; /* Cap at 70% viewport to prevent overflow on small screens */
+  overflow-y: auto; /* Allow scroll if content exceeds */
 }
 
 .role-display__header {
@@ -710,41 +716,40 @@ p {
 
 /* ============================================================================
    RESPONSIVE BREAKPOINTS
+   Container stays at 380px on ALL screen sizes (centered)
+   Only host-display in fullscreen mode expands
    ============================================================================ */
 
-/* Tablet / Host Display - 768px+ */
+/* Tablet+ - container stays 380px, only host-display scales text */
 @media (min-width: 768px) {
-  .container {
-    max-width: 1024px;
-    padding: var(--space-xl);
-  }
+  /* Container stays at 380px - DO NOT EXPAND */
 
-  /* Scale up for host display only - not player UI */
-  .host-display {
-    --text-hero: 108px; /* 1.5x */
-    --text-timer: 96px; /* 1.5x */
-    --text-title: 48px; /* 1.5x */
-    --text-heading: 36px; /* 1.5x */
-    --text-body: 24px; /* 1.5x */
+  /* Scale up for host display in fullscreen/TV mode only */
+  .host-display.fullscreen {
+    --text-hero: 108px;
+    --text-timer: 96px;
+    --text-title: 48px;
+    --text-heading: 36px;
+    --text-body: 24px;
   }
 }
 
 /* Large Display - 1024px+ */
 @media (min-width: 1024px) {
-  /* Scale up for host display only - not player UI */
-  .host-display {
-    --text-hero: 144px; /* 2x */
-    --text-timer: 128px; /* 2x */
-    --text-title: 64px; /* 2x */
-    --text-heading: 48px; /* 2x */
-    --text-body: 32px; /* 2x */
+  /* Scale up for host display in fullscreen/TV mode only */
+  .host-display.fullscreen {
+    --text-hero: 144px;
+    --text-timer: 128px;
+    --text-title: 64px;
+    --text-heading: 48px;
+    --text-body: 32px;
   }
 }
 
-/* TV / Maximum Scale - 1440px+ */
+/* TV mode - fullscreen host display can expand */
 @media (min-width: 1440px) {
-  .container {
-    max-width: 1920px;
+  .host-display.fullscreen .container {
+    max-width: 1200px;
   }
 }
 
@@ -827,6 +832,179 @@ p {
 }
 
 /* ============================================================================
+   PLAYER PAGE SPECIFIC STYLES
+   Replaces inline styles from player.html
+   ============================================================================ */
+
+/* Player page header */
+.player-header {
+  margin-bottom: var(--space-xl);
+}
+
+.player-title {
+  font-family: var(--font-display);
+  font-size: var(--text-title);
+  color: var(--color-accent-primary);
+  text-align: center;
+  margin: 0;
+}
+
+/* Join form card */
+.join-card {
+  padding: var(--space-lg);
+}
+
+.join-heading {
+  text-align: center;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-lg);
+}
+
+.join-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.player-name-input {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  padding: var(--space-md);
+  border: 2px solid var(--color-accent-primary);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  min-height: var(--touch-minimum);
+}
+
+.player-name-input:focus {
+  outline: none;
+  border-color: var(--color-accent-secondary);
+  box-shadow: var(--glow-secondary);
+}
+
+/* Lobby view */
+.lobby-card {
+  text-align: center;
+  padding: var(--space-lg);
+}
+
+.lobby-heading {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-lg);
+}
+
+.lobby-player-count {
+  font-size: var(--text-heading);
+  color: var(--color-accent-primary);
+  margin-bottom: var(--space-lg);
+}
+
+/* Phase header */
+.phase-header {
+  margin-bottom: var(--space-lg);
+}
+
+.phase-title {
+  text-align: center;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-md);
+}
+
+/* Timer in player view */
+.timer-player {
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+.timer-player .timer-value {
+  font-size: var(--text-heading);
+  color: var(--color-accent-primary);
+}
+
+/* Turn info compact */
+.turn-info-compact {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+  text-align: center;
+}
+
+.turn-text {
+  color: var(--color-text-secondary);
+  padding: 0 var(--space-sm);
+}
+
+/* Role reference card */
+.role-reference {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+}
+
+/* Action controls */
+.action-controls {
+  margin-top: var(--space-lg);
+}
+
+.action-controls .btn {
+  width: 100%;
+  min-height: var(--touch-minimum);
+}
+
+/* Player footer */
+.player-footer {
+  margin-top: var(--space-2xl);
+  padding: var(--space-lg);
+  text-align: center;
+}
+
+.player-footer p {
+  font-size: var(--text-small);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Error message in join form */
+.join-error {
+  display: none;
+  margin-top: var(--space-md);
+}
+
+.join-error.visible {
+  display: block;
+}
+
+/* Config display in lobby */
+.config-display {
+  text-align: left;
+  margin: var(--space-lg) 0;
+}
+
+.config-display h3 {
+  font-size: var(--text-body);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+.config-display ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.config-display li {
+  padding: var(--space-xs) 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-small);
+}
+
+/* Player list in lobby */
+.player-list-title {
+  font-size: var(--text-body);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-md);
+}
+
+/* ============================================================================
    CONNECTION STATUS & ERROR DISPLAY (Story 2.1)
    ============================================================================ */
 
@@ -894,13 +1072,23 @@ p {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  align-items: center; /* Center the container */
 }
 
 .host-display .container {
-  max-width: 100%;
+  /* Inherits 380px max-width from .container */
   display: flex;
   flex-direction: column;
   flex: 1;
+}
+
+/* Fullscreen mode for TV/presentation - add class via JS */
+.host-display.fullscreen {
+  align-items: stretch;
+}
+
+.host-display.fullscreen .container {
+  max-width: 100%;
 }
 
 .header {
@@ -945,8 +1133,7 @@ p {
 
 .phase-section {
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+  /* No max-width needed - container already constrains to 380px */
 }
 
 /* QR Code Container Styles */
@@ -961,9 +1148,7 @@ p {
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
   margin-bottom: var(--space-xl);
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
+  /* Full width within container - no separate max-width */
 }
 
 .host-join-section.joined {
@@ -1035,14 +1220,17 @@ p {
   margin: var(--space-xl) auto;
 }
 
-#qr-code-image {
-  width: 300px;
-  height: 300px;
+#qr-code-image,
+#qr-code-container {
+  width: 100%;
+  max-width: 280px; /* Responsive - fits within 380px container with padding */
+  aspect-ratio: 1; /* Square */
   border-radius: var(--radius-lg);
   background-color: var(--color-text-primary);
   padding: var(--space-md);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   display: block;
+  margin: 0 auto;
 }
 
 #qr-code-image:empty {
@@ -1103,35 +1291,35 @@ p {
   box-shadow: var(--glow-success);
 }
 
-/* Tablet/TV Host Display Scale */
+/* Tablet/TV Host Display Scale - only in fullscreen mode */
 @media (min-width: 768px) {
-  .header h1 {
+  .host-display.fullscreen .header h1 {
     font-size: var(--text-title);
   }
 
-  .qr-container h2 {
+  .host-display.fullscreen .qr-container h2 {
     font-size: var(--text-title);
   }
 
-  #qr-code-image {
-    width: 400px;
-    height: 400px;
+  .host-display.fullscreen #qr-code-image,
+  .host-display.fullscreen #qr-code-container {
+    max-width: 400px;
   }
 
-  .join-url {
+  .host-display.fullscreen .join-url {
     font-size: var(--text-body);
   }
 
-  .player-count {
+  .host-display.fullscreen .player-count {
     font-size: var(--text-title);
   }
 }
 
-/* Large Display Scale */
+/* Large Display Scale - only in fullscreen mode */
 @media (min-width: 1024px) {
-  #qr-code-image {
-    width: 500px;
-    height: 500px;
+  .host-display.fullscreen #qr-code-image,
+  .host-display.fullscreen #qr-code-container {
+    max-width: 500px;
   }
 }
 

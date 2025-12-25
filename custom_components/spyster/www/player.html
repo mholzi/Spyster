@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>Spyster - Player</title>
-    <link rel="stylesheet" href="/api/spyster/static/css/styles.css?v=1.0.11">
+    <link rel="stylesheet" href="/api/spyster/static/css/styles.css?v=1.0.14">
 </head>
 <body>
     <!-- Story 8-3: Skip link for keyboard navigation -->
@@ -22,37 +22,24 @@
         <div id="error-display" class="error-display"></div>
 
         <!-- Header -->
-        <header role="banner" class="text-center" style="margin-bottom: var(--space-xl);">
-            <h1 id="page-title" class="text-primary" style="font-family: var(--font-display); font-size: var(--text-title);">
-                SPYSTER
-            </h1>
+        <header role="banner" class="player-header">
+            <h1 id="page-title" class="player-title">SPYSTER</h1>
         </header>
 
         <!-- Main Content Area -->
         <main id="main-content" role="main">
-            <!-- Join View (placeholder) -->
-            <div id="join-view" class="card" style="padding: var(--space-xl);">
-                <h2 id="join-heading" class="text-center text-secondary" style="margin-bottom: var(--space-lg);">
-                    Join Game
-                </h2>
-                <form id="join-form" role="form" aria-labelledby="join-heading" style="display: flex; flex-direction: column; gap: var(--space-md);">
+            <!-- Join View -->
+            <div id="join-view" class="card join-card">
+                <h2 id="join-heading" class="join-heading">Join Game</h2>
+                <form id="join-form" class="join-form" role="form" aria-labelledby="join-heading">
                     <input
                         type="text"
                         id="player-name-input"
+                        class="player-name-input"
                         placeholder="Enter your name"
                         maxlength="20"
                         autocomplete="off"
                         autocapitalize="words"
-                        style="
-                            font-family: var(--font-body);
-                            font-size: var(--text-body);
-                            padding: var(--space-md);
-                            border: 2px solid var(--color-accent-primary);
-                            border-radius: var(--radius-md);
-                            background-color: var(--color-bg-secondary);
-                            color: var(--color-text-primary);
-                            min-height: var(--touch-minimum);
-                        "
                         aria-label="Enter your player name"
                         required
                     >
@@ -60,17 +47,13 @@
                         JOIN GAME
                     </button>
                 </form>
-                <div id="error-message" class="error-message" style="display: none; margin-top: var(--space-md);"></div>
+                <div id="error-message" class="error-message join-error"></div>
             </div>
 
             <!-- Lobby View -->
-            <div id="lobby-view" class="card text-center" style="display: none; padding: var(--space-xl);">
-                <h2 class="text-secondary" style="margin-bottom: var(--space-lg);">
-                    Waiting for Host...
-                </h2>
-                <div id="lobby-player-count" class="text-primary" style="font-size: var(--text-heading); margin-bottom: var(--space-lg);">
-                    0 players
-                </div>
+            <div id="lobby-view" class="card lobby-card hidden">
+                <h2 class="lobby-heading">Waiting for Host...</h2>
+                <div id="lobby-player-count" class="lobby-player-count">0 players</div>
 
                 <!-- Game Settings Display (Story 3.1) -->
                 <div class="config-display">
@@ -83,62 +66,60 @@
                 </div>
 
                 <div id="player-list-container">
-                    <h3 class="text-secondary" style="font-size: var(--text-body); margin-bottom: var(--space-md);">Players:</h3>
-                    <ul id="player-list" class="player-list" style="list-style: none; padding: 0;"></ul>
+                    <h3 class="player-list-title">Players:</h3>
+                    <ul id="player-list" class="player-list"></ul>
                 </div>
             </div>
 
             <!-- Roles Loading View (Story 3.2) -->
-            <div id="roles-loading-view" class="card text-center" style="display: none; padding: var(--space-xl);">
+            <div id="roles-loading-view" class="card lobby-card hidden">
                 <div class="loading-container">
                     <div class="spinner"></div>
-                    <h2 class="text-secondary" style="margin-top: var(--space-lg);">Assigning roles...</h2>
-                    <p class="help-text" style="margin-top: var(--space-md);">Please wait</p>
+                    <h2 class="lobby-heading">Assigning roles...</h2>
+                    <p class="help-text">Please wait</p>
                 </div>
             </div>
 
             <!-- Role Display View - Story 3.5 -->
-            <div id="role-view" style="display: none;">
+            <div id="role-view" class="hidden">
                 <!-- Content will be dynamically rendered by renderRoleDisplay() -->
             </div>
 
             <!-- Questioning Phase View (Story 4.3) -->
-            <div id="questioning-view" style="display: none;">
+            <div id="questioning-view" class="hidden">
                 <!-- Phase Header -->
-                <div class="phase-header" style="margin-bottom: var(--space-lg);">
-                    <h2 class="text-center text-secondary" style="margin-bottom: var(--space-md);">
-                        Questioning Phase
-                    </h2>
+                <div class="phase-header">
+                    <h2 class="phase-title">Questioning Phase</h2>
                     <!-- Timer -->
-                    <div id="round-timer-player" class="timer-display" role="timer" aria-live="polite" style="text-align: center; margin-bottom: var(--space-lg);">
-                        <span class="timer-value" style="font-size: var(--text-heading); color: var(--color-accent-primary);">0:00</span>
+                    <div id="round-timer-player" class="timer-display timer-player" role="timer" aria-live="polite">
+                        <span class="timer-value">0:00</span>
                     </div>
                 </div>
 
                 <!-- Turn Info (compact) - Story 4.3 -->
-                <div id="turn-info-player" class="turn-info-compact card" style="margin-bottom: var(--space-lg); padding: var(--space-md); text-align: center;">
+                <div id="turn-info-player" class="card turn-info-compact">
                     <span id="questioner-name-player" class="name-highlight">Player A</span>
-                    <span class="turn-text" style="color: var(--color-text-secondary); padding: 0 var(--space-sm);">asks</span>
+                    <span class="turn-text">asks</span>
                     <span id="answerer-name-player" class="name-highlight">Player B</span>
                 </div>
 
                 <!-- Role Reference -->
-                <div id="role-reference" class="role-reference card" style="margin-bottom: var(--space-lg); padding: var(--space-md);">
+                <div id="role-reference" class="card role-reference">
                     <!-- Populated by JavaScript based on player role -->
                 </div>
 
                 <!-- Call Vote Button -->
                 <div class="action-controls">
-                    <button id="call-vote-btn" class="btn btn-primary" style="width: 100%; min-height: var(--touch-minimum);" aria-label="Call a vote to identify the spy">
+                    <button id="call-vote-btn" class="btn btn-primary" aria-label="Call a vote to identify the spy">
                         CALL VOTE
                     </button>
                 </div>
             </div>
 
             <!-- Vote Phase View (Story 5.1) -->
-            <div id="vote-view" class="phase-view" style="display: none;">
+            <div id="vote-view" class="phase-view hidden">
                 <!-- Vote notification banner -->
-                <div id="vote-notification" class="vote-notification" style="display: none;"></div>
+                <div id="vote-notification" class="vote-notification hidden"></div>
 
                 <!-- Vote header with timer and tracker -->
                 <div class="vote-header">
@@ -151,7 +132,7 @@
                 </div>
 
                 <!-- Spy Mode Toggle (Story 5.4) - Hidden for non-spy -->
-                <div id="spy-mode-toggle" class="spy-mode-toggle" style="display: none;">
+                <div id="spy-mode-toggle" class="spy-mode-toggle hidden">
                     <div class="spy-mode-options" role="tablist">
                         <button
                             type="button"
@@ -185,7 +166,7 @@
                 </div>
 
                 <!-- Location Guess Panel (Story 5.4) - Hidden by default -->
-                <div id="guess-panel" class="vote-section" style="display: none;" role="tabpanel">
+                <div id="guess-panel" class="vote-section hidden" role="tabpanel">
                     <h2 class="vote-section-title">Where do you think they are?</h2>
                     <div id="location-list" class="location-list" role="radiogroup" aria-label="Select a location">
                         <!-- Location items injected dynamically -->
@@ -258,14 +239,14 @@
             <div id="sr-announcer" aria-live="assertive" aria-atomic="true" class="sr-only"></div>
 
             <!-- Reveal Phase View (Story 5.6, 5.7) -->
-            <div id="reveal-view" class="phase-view" style="display: none;">
+            <div id="reveal-view" class="phase-view hidden">
                 <!-- Reveal header -->
                 <div class="reveal-header">
                     <h1 class="reveal-title">The Votes Are In!</h1>
                 </div>
 
                 <!-- Conviction Banner (Story 5.7) -->
-                <div id="conviction-banner" class="conviction-banner" style="display: none;">
+                <div id="conviction-banner" class="conviction-banner hidden">
                     <div class="conviction-result">
                         <div id="conviction-message" class="conviction-message"></div>
                         <div id="conviction-detail" class="conviction-detail"></div>
@@ -274,7 +255,7 @@
                 </div>
 
                 <!-- Spy guess result (if applicable) -->
-                <div id="spy-guess-result" class="reveal-section" style="display: none;">
+                <div id="spy-guess-result" class="reveal-section hidden">
                     <div class="reveal-card reveal-card--spy">
                         <h2 class="reveal-card-title">Spy's Location Guess</h2>
                         <div id="spy-guess-location" class="reveal-highlight"></div>
@@ -324,7 +305,7 @@
             </div>
 
             <!-- Scoring View (Story 6.5) -->
-            <div id="scoring-view" class="phase-view" style="display: none;">
+            <div id="scoring-view" class="phase-view hidden">
                 <div class="scoring-header">
                     <h1 class="scoring-title">Round <span id="scoring-round-number">1</span> Complete</h1>
                     <div id="next-round-timer" class="next-round-countdown">
@@ -349,7 +330,7 @@
             </div>
 
             <!-- End Game View (Story 6.7) -->
-            <div id="end-view" class="phase-view" style="display: none;">
+            <div id="end-view" class="phase-view hidden">
                 <div class="end-header">
                     <h1 class="end-title">Game Over!</h1>
                 </div>
@@ -385,14 +366,12 @@
         </main>
 
         <!-- Footer -->
-        <footer role="contentinfo" class="text-center" style="margin-top: var(--space-2xl); padding: var(--space-lg);">
-            <p class="text-secondary" style="font-size: var(--text-small);">
-                Spyster
-            </p>
+        <footer role="contentinfo" class="player-footer">
+            <p>Spyster</p>
         </footer>
     </div>
 
     <!-- JavaScript -->
-    <script src="/api/spyster/static/js/player.js?v=1.0.11"></script>
+    <script src="/api/spyster/static/js/player.js?v=1.0.14"></script>
 </body>
 </html>
