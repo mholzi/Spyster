@@ -417,8 +417,8 @@ class WebSocketHandler:
 
         if is_host_display:
             # Create a session for the host display without adding to players
-            from .session import PlayerSession
-            session = PlayerSession(name=name, is_host=True)
+            # PlayerSession is already imported at top of file from ..game.player
+            session = PlayerSession.create_new(name=name, is_host=True)
             session.ws = ws
             success, error = True, None
         else:
