@@ -14,6 +14,13 @@
   --color-bg-secondary: #12121a;
   --color-bg-tertiary: #1a1a24;
 
+  /* Color Palette - Card (white cards on dark background like Beatify) */
+  --color-bg-card: #ffffff;
+  --color-bg-card-hover: #f9fafb;
+  --color-text-card: #1f2937;
+  --color-text-card-secondary: #6b7280;
+  --color-border-card: #e5e7eb;
+
   /* Color Palette - Text */
   --color-text-primary: #ffffff;
   --color-text-secondary: #a0a0a8;
@@ -266,14 +273,16 @@ p {
    ============================================================================ */
 
 .card {
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg-card);
+  color: var(--color-text-card);
   border-radius: var(--radius-lg);
-  padding: var(--space-lg);
+  padding: var(--space-xl);
   transition: all var(--transition-normal);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .card:hover {
-  background-color: var(--color-bg-tertiary);
+  background-color: var(--color-bg-card-hover);
 }
 
 /* ============================================================================
@@ -360,7 +369,8 @@ p {
    ============================================================================ */
 
 .player-card {
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg-card);
+  color: var(--color-text-card);
   border-radius: var(--radius-md);
   padding: var(--space-md);
   min-height: var(--touch-minimum);
@@ -369,16 +379,18 @@ p {
   gap: var(--space-md);
   cursor: pointer;
   transition: all var(--transition-normal);
-  border: 2px solid transparent;
+  border: 1px solid var(--color-border-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .player-card:hover {
-  background-color: var(--color-bg-tertiary);
+  background-color: var(--color-bg-card-hover);
   border-color: var(--color-accent-primary);
 }
 
 .player-card.is-selected {
   background-color: var(--color-accent-primary);
+  color: var(--color-text-primary);
   border-color: var(--color-accent-primary);
   box-shadow: var(--glow-primary);
 }
@@ -1379,17 +1391,19 @@ p {
 
 /* Configuration Panel - Host Display */
 .config-panel {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 24px;
-  margin: 24px 0;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-bg-card);
+  color: var(--color-text-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  margin: var(--space-lg) 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .config-panel h2 {
-  color: var(--color-accent-primary);
-  font-size: 24px;
-  margin-bottom: 20px;
+  color: var(--color-text-card);
+  font-size: var(--text-heading);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-md);
   text-align: center;
 }
 
@@ -1397,10 +1411,11 @@ p {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-bg-card-hover);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-card);
 }
 
 .config-option:last-child {
@@ -1408,9 +1423,9 @@ p {
 }
 
 .config-option label {
-  color: var(--color-text-primary);
-  font-size: 18px;
-  font-weight: 500;
+  color: var(--color-text-card);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-medium);
 }
 
 .config-controls {
@@ -1463,9 +1478,9 @@ p {
 }
 
 .config-value {
-  color: var(--color-accent-secondary);
-  font-size: 28px;
-  font-weight: bold;
+  color: var(--color-accent-primary);
+  font-size: var(--text-heading);
+  font-weight: var(--font-weight-bold);
   min-width: 48px;
   text-align: center;
 }
@@ -4035,8 +4050,9 @@ p {
     gap: var(--space-xs);
     padding: var(--space-sm) var(--space-lg);
     border-radius: var(--radius-lg);
-    background: var(--color-bg-secondary);
+    background: var(--color-bg-card);
     border: 2px solid var(--phase-color, var(--color-accent-secondary));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     transition: all var(--transition-normal);
 }
 
@@ -4052,7 +4068,7 @@ p {
 
 .phase-info {
     font-size: var(--text-small);
-    color: var(--color-text-secondary);
+    color: var(--color-text-card-secondary);
     font-weight: var(--font-weight-medium);
 }
 
@@ -4313,16 +4329,18 @@ p {
     align-items: center;
     gap: var(--space-md);
     padding: var(--space-md) var(--space-lg);
-    background: var(--color-bg-secondary);
+    background: var(--color-bg-card);
+    color: var(--color-text-card);
     border-radius: var(--radius-lg);
-    border: 2px solid transparent;
+    border: 1px solid var(--color-border-card);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     transition: all var(--transition-normal);
     position: relative;
     overflow: hidden;
 }
 
 .host-display .player-card:hover {
-    background: var(--color-bg-tertiary);
+    background: var(--color-bg-card-hover);
     border-color: var(--color-accent-primary);
 }
 
@@ -4403,7 +4421,7 @@ p {
     font-family: var(--font-display);
     font-size: var(--text-body);
     font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
+    color: var(--color-text-card);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
