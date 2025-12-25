@@ -304,7 +304,7 @@ p {
   background-color: var(--color-bg-card);
   color: var(--color-text-card);
   border-radius: var(--radius-lg);
-  padding: var(--space-lg); /* Standardized to 24px */
+  padding: var(--space-md) var(--space-sm); /* 16px top/bottom, 8px left/right */
   transition: all var(--transition-normal);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
@@ -912,7 +912,7 @@ body:not(.host-display) main {
 
 /* Join form card */
 .join-card {
-  padding: var(--space-lg);
+  padding: var(--space-md) var(--space-sm); /* 16px top/bottom, 8px left/right */
 }
 
 .join-heading {
@@ -948,7 +948,7 @@ body:not(.host-display) main {
 /* Lobby view */
 .lobby-card {
   text-align: center;
-  padding: var(--space-lg);
+  padding: var(--space-md) var(--space-sm); /* 16px top/bottom, 8px left/right */
 }
 
 .lobby-heading {
@@ -1209,7 +1209,7 @@ body:not(.host-display) main {
 .host-join-section {
   background: var(--color-bg-card);
   border-radius: var(--radius-lg);
-  padding: var(--space-lg);
+  padding: var(--space-md) var(--space-sm); /* 16px top/bottom, 8px left/right */
   margin-bottom: var(--space-xl);
   /* Full width within container - no separate max-width */
 }
@@ -1718,7 +1718,7 @@ body:not(.host-display) main {
   background: var(--color-bg-card);
   color: var(--color-text-card);
   border-radius: var(--radius-lg);
-  padding: var(--space-xl);
+  padding: var(--space-md) var(--space-sm); /* 16px top/bottom, 8px left/right */
   margin: var(--space-lg) 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
@@ -5926,6 +5926,12 @@ body:not(.host-display) main {
 /* Hidden buttons (phase-specific) */
 .admin-btn.hidden {
     display: none;
+}
+
+/* Hide admin bar in LOBBY and END phases */
+.admin-bar[data-phase="LOBBY"],
+.admin-bar[data-phase="END"] {
+    display: none !important;
 }
 
 /* Host display scaling */

@@ -1802,6 +1802,12 @@ function toggleAdminBar() {
 function updateAdminBarVisibility(phase) {
   currentPhase = phase;
 
+  // Set data-phase on admin bar for CSS visibility control
+  const adminBar = getElement('admin-bar');
+  if (adminBar) {
+    adminBar.dataset.phase = phase;
+  }
+
   const buttons = document.querySelectorAll('.admin-btn[data-phases]');
   buttons.forEach(btn => {
     const phases = btn.dataset.phases.split(',');
