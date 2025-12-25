@@ -1401,7 +1401,7 @@ p {
 
 .config-panel h2 {
   color: var(--color-text-card);
-  font-size: var(--text-heading);
+  font-size: 18px;
   font-weight: var(--font-weight-bold);
   margin-bottom: var(--space-md);
   text-align: center;
@@ -3499,13 +3499,13 @@ p {
     /* Scale factors - default (mobile/small tablet) */
     --host-scale-factor: 1;
 
-    /* Host typography scale - based on scale factor */
-    --host-font-size-hero: calc(72px * var(--host-scale-factor));
-    --host-font-size-timer: calc(64px * var(--host-scale-factor));
-    --host-font-size-title: calc(32px * var(--host-scale-factor));
-    --host-font-size-heading: calc(24px * var(--host-scale-factor));
-    --host-font-size-body: calc(16px * var(--host-scale-factor));
-    --host-font-size-small: calc(14px * var(--host-scale-factor));
+    /* Host typography scale - Beatify-aligned base sizes */
+    --host-font-size-hero: calc(48px * var(--host-scale-factor));
+    --host-font-size-timer: calc(48px * var(--host-scale-factor));
+    --host-font-size-title: calc(20px * var(--host-scale-factor));
+    --host-font-size-heading: calc(16px * var(--host-scale-factor));
+    --host-font-size-body: calc(14px * var(--host-scale-factor));
+    --host-font-size-small: calc(12px * var(--host-scale-factor));
 
     /* Host spacing scale */
     --host-space-xs: calc(4px * var(--host-scale-factor));
@@ -3524,13 +3524,13 @@ p {
    1440px+ = Large TV (2.5x-3x scale)
    ----------------------------------------------------------------------------- */
 
-/* Tablet / Small TV - 768px+ (1.5x scale) */
+/* Tablet / Small TV - 768px+ (1x scale - no change from mobile) */
 @media (min-width: 768px) {
     .host-display {
-        --host-scale-factor: 1.5;
+        --host-scale-factor: 1;
 
-        /* Ensure timer meets 96px minimum per AC#3 */
-        --host-font-size-timer: 96px;
+        /* Timer at comfortable size for tablets */
+        --host-font-size-timer: 56px;
     }
 
     /* Apply scaled typography */
@@ -3574,13 +3574,13 @@ p {
     }
 }
 
-/* Medium TV - 1024px+ (2x scale) */
+/* Medium TV - 1024px+ (1.25x scale) */
 @media (min-width: 1024px) {
     .host-display {
-        --host-scale-factor: 2;
+        --host-scale-factor: 1.25;
 
-        /* Timer at 120px for medium screens */
-        --host-font-size-timer: 120px;
+        /* Timer at comfortable size for medium screens */
+        --host-font-size-timer: 64px;
     }
 
     .host-display .timer-value {
@@ -3607,13 +3607,13 @@ p {
     }
 }
 
-/* Large TV / Maximum Scale - 1440px+ (2.5-3x scale) */
+/* Large TV / Maximum Scale - 1440px+ (1.5x scale) */
 @media (min-width: 1440px) {
     .host-display {
-        --host-scale-factor: 2.5;
+        --host-scale-factor: 1.5;
 
-        /* Timer at maximum 144px (AC#3) */
-        --host-font-size-timer: 144px;
+        /* Timer larger for TV viewing */
+        --host-font-size-timer: 80px;
     }
 
     .host-display .container {
@@ -3658,10 +3658,11 @@ p {
     }
 }
 
-/* Ultra-wide / 4K TV - 1920px+ (3x scale) */
+/* Ultra-wide / 4K TV - 1920px+ (2x scale) */
 @media (min-width: 1920px) {
     .host-display {
-        --host-scale-factor: 3;
+        --host-scale-factor: 2;
+        --host-font-size-timer: 96px;
     }
 
     .host-display .phase-section {
