@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>Spyster - Player</title>
-    <link rel="stylesheet" href="/api/spyster/static/css/styles.css?v=1.0.14">
+    <link rel="stylesheet" href="/api/spyster/static/css/styles.css?v=1.0.15">
 </head>
 <body>
     <!-- Story 8-3: Skip link for keyboard navigation -->
@@ -51,7 +51,7 @@
             </div>
 
             <!-- Lobby View -->
-            <div id="lobby-view" class="card lobby-card hidden">
+            <div id="lobby-view" class="card lobby-card" style="display: none;">
                 <h2 class="lobby-heading">Waiting for Host...</h2>
                 <div id="lobby-player-count" class="lobby-player-count">0 players</div>
 
@@ -72,7 +72,7 @@
             </div>
 
             <!-- Roles Loading View (Story 3.2) -->
-            <div id="roles-loading-view" class="card lobby-card hidden">
+            <div id="roles-loading-view" class="card lobby-card" style="display: none;">
                 <div class="loading-container">
                     <div class="spinner"></div>
                     <h2 class="lobby-heading">Assigning roles...</h2>
@@ -81,12 +81,12 @@
             </div>
 
             <!-- Role Display View - Story 3.5 -->
-            <div id="role-view" class="hidden">
+            <div id="role-view" style="display: none;">
                 <!-- Content will be dynamically rendered by renderRoleDisplay() -->
             </div>
 
             <!-- Questioning Phase View (Story 4.3) -->
-            <div id="questioning-view" class="hidden">
+            <div id="questioning-view" style="display: none;">
                 <!-- Phase Header -->
                 <div class="phase-header">
                     <h2 class="phase-title">Questioning Phase</h2>
@@ -117,9 +117,9 @@
             </div>
 
             <!-- Vote Phase View (Story 5.1) -->
-            <div id="vote-view" class="phase-view hidden">
+            <div id="vote-view" class="phase-view" style="display: none;">
                 <!-- Vote notification banner -->
-                <div id="vote-notification" class="vote-notification hidden"></div>
+                <div id="vote-notification" class="vote-notification" style="display: none;"></div>
 
                 <!-- Vote header with timer and tracker -->
                 <div class="vote-header">
@@ -132,7 +132,7 @@
                 </div>
 
                 <!-- Spy Mode Toggle (Story 5.4) - Hidden for non-spy -->
-                <div id="spy-mode-toggle" class="spy-mode-toggle hidden">
+                <div id="spy-mode-toggle" class="spy-mode-toggle" style="display: none;">
                     <div class="spy-mode-options" role="tablist">
                         <button
                             type="button"
@@ -166,7 +166,7 @@
                 </div>
 
                 <!-- Location Guess Panel (Story 5.4) - Hidden by default -->
-                <div id="guess-panel" class="vote-section hidden" role="tabpanel">
+                <div id="guess-panel" class="vote-section" style="display: none;" role="tabpanel">
                     <h2 class="vote-section-title">Where do you think they are?</h2>
                     <div id="location-list" class="location-list" role="radiogroup" aria-label="Select a location">
                         <!-- Location items injected dynamically -->
@@ -239,14 +239,14 @@
             <div id="sr-announcer" aria-live="assertive" aria-atomic="true" class="sr-only"></div>
 
             <!-- Reveal Phase View (Story 5.6, 5.7) -->
-            <div id="reveal-view" class="phase-view hidden">
+            <div id="reveal-view" class="phase-view" style="display: none;">
                 <!-- Reveal header -->
                 <div class="reveal-header">
                     <h1 class="reveal-title">The Votes Are In!</h1>
                 </div>
 
                 <!-- Conviction Banner (Story 5.7) -->
-                <div id="conviction-banner" class="conviction-banner hidden">
+                <div id="conviction-banner" class="conviction-banner" style="display: none;">
                     <div class="conviction-result">
                         <div id="conviction-message" class="conviction-message"></div>
                         <div id="conviction-detail" class="conviction-detail"></div>
@@ -255,7 +255,7 @@
                 </div>
 
                 <!-- Spy guess result (if applicable) -->
-                <div id="spy-guess-result" class="reveal-section hidden">
+                <div id="spy-guess-result" class="reveal-section" style="display: none;">
                     <div class="reveal-card reveal-card--spy">
                         <h2 class="reveal-card-title">Spy's Location Guess</h2>
                         <div id="spy-guess-location" class="reveal-highlight"></div>
@@ -305,7 +305,7 @@
             </div>
 
             <!-- Scoring View (Story 6.5) -->
-            <div id="scoring-view" class="phase-view hidden">
+            <div id="scoring-view" class="phase-view" style="display: none;">
                 <div class="scoring-header">
                     <h1 class="scoring-title">Round <span id="scoring-round-number">1</span> Complete</h1>
                     <div id="next-round-timer" class="next-round-countdown">
@@ -330,7 +330,7 @@
             </div>
 
             <!-- End Game View (Story 6.7) -->
-            <div id="end-view" class="phase-view hidden">
+            <div id="end-view" class="phase-view" style="display: none;">
                 <div class="end-header">
                     <h1 class="end-title">Game Over!</h1>
                 </div>

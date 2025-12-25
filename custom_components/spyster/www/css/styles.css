@@ -827,8 +827,8 @@ p {
   border-width: 0;
 }
 
-.hidden {
-  display: none !important;
+.hidden:not([style*="display"]) {
+  display: none;
 }
 
 /* ============================================================================
