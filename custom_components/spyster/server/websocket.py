@@ -417,6 +417,11 @@ class WebSocketHandler:
             # Map WebSocket to player session
             self._ws_to_player[ws] = session
 
+            # Update host_id when the actual host joins
+            if is_host:
+                self.game_state.host_id = name
+                _LOGGER.info("Host registered: %s", name)
+
             # FIXED: Use correct message type "join_success" and field names per spec
             await ws.send_json({
                 "type": "join_success",
@@ -520,6 +525,9 @@ class WebSocketHandler:
 
         # Add as player with the new name
         self.game_state.players[name] = player_session
+
+        # Update host_id to match the new name
+        self.game_state.host_id = name
 
         _LOGGER.info("Host joined as player: %s", name)
 

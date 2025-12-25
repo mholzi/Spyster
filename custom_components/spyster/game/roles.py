@@ -23,6 +23,8 @@ def assign_spy(game_state: GameState) -> str:
     Raises:
         ValueError: If no connected players available or insufficient players
     """
+    from ..const import MIN_PLAYERS
+
     connected_players = [
         name for name, player in game_state.players.items()
         if player.connected
@@ -31,8 +33,8 @@ def assign_spy(game_state: GameState) -> str:
     if not connected_players:
         raise ValueError("Cannot assign spy: no connected players")
 
-    if len(connected_players) < 4:
-        raise ValueError(f"Cannot assign spy: need 4+ players, have {len(connected_players)}")
+    if len(connected_players) < MIN_PLAYERS:
+        raise ValueError(f"Cannot assign spy: need {MIN_PLAYERS}+ players, have {len(connected_players)}")
 
     # CRITICAL: Use secrets.choice() for cryptographic randomness (NFR6, ARCH-6)
     spy_name = secrets.choice(connected_players)
