@@ -4,20 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
     <title>Spyster - Host Display</title>
-    <link rel="stylesheet" href="/api/spyster/static/css/styles.css?v=1.0.16">
+    <link rel="stylesheet" href="/api/spyster/static/css/styles.css?v=1.0.17">
 </head>
 <body class="host-display">
     <div class="container">
         <!-- Header -->
         <header role="banner" class="header">
             <h1 class="site-logo"><span class="logo-spy">Spy</span><span class="logo-ster">ster</span></h1>
-            <div class="session-info">
-                <span id="session-id-display" aria-live="polite"></span>
-                <!-- Phase Indicator Component (Story 7.2) -->
-                <div id="phase-indicator" class="phase-indicator" data-phase="LOBBY" aria-live="polite">
-                    <span id="phase-name" class="phase-name">LOBBY</span>
-                    <span id="phase-info" class="phase-info"></span>
-                </div>
+            <!-- Phase Indicator Component (Story 7.2) -->
+            <div id="phase-indicator" class="phase-indicator" data-phase="LOBBY" aria-live="polite">
+                <span id="phase-name" class="phase-name">LOBBY</span>
+                <span id="phase-info" class="phase-info"></span>
             </div>
         </header>
 
@@ -313,7 +310,7 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="/api/spyster/static/js/vendor/qrcode.min.js?v=1.0.16"></script>
-    <script src="/api/spyster/static/js/host.js?v=1.0.16"></script>
+    <script src="/api/spyster/static/js/vendor/qrcode.min.js?v=1.0.17"></script>
+    <script src="/api/spyster/static/js/host.js?v=1.0.17"></script>
 </body>
 </html>
