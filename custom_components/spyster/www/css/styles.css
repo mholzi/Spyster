@@ -840,6 +840,12 @@ p {
   font-weight: 600;
   z-index: 1000;
   transition: all 0.3s ease;
+  /* Ensure it stays as a small badge */
+  width: auto;
+  height: auto;
+  max-width: 150px;
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .status-disconnected,
@@ -6059,12 +6065,17 @@ body,
 
 /* iOS Safari position fixed fix */
 .timer-header,
-.connection-status,
-.error-display,
 .admin-bar {
     position: -webkit-sticky;
     position: sticky;
     /* Prevent iOS bounce scroll issues */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* Connection status and error display must stay fixed positioned */
+.connection-status,
+.error-display {
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
 }
