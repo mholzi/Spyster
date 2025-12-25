@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
     <title>Spyster - Host Display</title>
-    <link rel="stylesheet" href="/api/spyster/static/css/styles.css?v=1.0.10">
+    <link rel="stylesheet" href="/api/spyster/static/css/styles.css?v=1.0.11">
 </head>
 <body class="host-display">
     <div class="container">
@@ -33,6 +33,26 @@
             <!-- Lobby Phase: QR Code Display -->
             <section id="lobby-section" class="phase-section" role="region" aria-labelledby="lobby-heading">
                 <div class="qr-container">
+                    <!-- Host Name Input (optional - to join as player) -->
+                    <div id="host-join-section" class="host-join-section">
+                        <label for="host-name-input" class="host-join-label">Your Name (to play)</label>
+                        <div class="host-join-controls">
+                            <input
+                                type="text"
+                                id="host-name-input"
+                                placeholder="Enter name to join as player"
+                                maxlength="20"
+                                autocomplete="off"
+                                class="host-name-input"
+                                aria-label="Enter your name to join as a player"
+                            >
+                            <button id="host-join-btn" class="btn-primary" aria-label="Join game as player">
+                                JOIN
+                            </button>
+                        </div>
+                        <p id="host-join-status" class="host-join-status"></p>
+                    </div>
+
                     <h2 id="lobby-heading">Scan to Join</h2>
                     <div class="qr-code-wrapper">
                         <div id="qr-code-container" aria-label="QR Code to join game"></div>
@@ -293,7 +313,7 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="/api/spyster/static/js/vendor/qrcode.min.js?v=1.0.10"></script>
-    <script src="/api/spyster/static/js/host.js?v=1.0.10"></script>
+    <script src="/api/spyster/static/js/vendor/qrcode.min.js?v=1.0.11"></script>
+    <script src="/api/spyster/static/js/host.js?v=1.0.11"></script>
 </body>
 </html>

@@ -955,6 +955,73 @@ p {
   padding: var(--space-2xl);
 }
 
+/* Host Join Section - allows host to join as player */
+.host-join-section {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.host-join-section.joined {
+  background: var(--color-bg-tertiary);
+  opacity: 0.7;
+}
+
+.host-join-label {
+  display: block;
+  font-size: var(--text-body);
+  color: var(--color-text-card);
+  margin-bottom: var(--space-sm);
+  font-weight: 600;
+}
+
+.host-join-controls {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.host-name-input {
+  flex: 1;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-body);
+  border: 2px solid var(--color-border-card);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+.host-name-input:focus {
+  outline: none;
+  border-color: var(--color-accent-primary);
+}
+
+.host-name-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.host-join-section .btn-primary {
+  padding: var(--space-sm) var(--space-lg);
+}
+
+.host-join-status {
+  margin-top: var(--space-sm);
+  font-size: var(--text-small);
+  min-height: 1.2em;
+}
+
+.host-join-status.success {
+  color: var(--color-success);
+}
+
+.host-join-status.error {
+  color: var(--color-accent-primary);
+}
+
 .qr-container h2 {
   font-size: var(--text-heading);
   margin-bottom: var(--space-xl);

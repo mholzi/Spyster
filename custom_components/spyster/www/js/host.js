@@ -16,6 +16,10 @@ const HEARTBEAT_INTERVAL = 10000; // Story 2.4: 10 seconds (matches const.py)
 const MIN_PLAYERS = 3;
 const MAX_PLAYERS = 10;
 
+// Host player state (when host joins as a player)
+let hostPlayerName = null;
+let hostHasJoined = false;
+
 // Story 7.2: Phase indicator state
 let previousPhase = null;
 let phaseTransitionTimeout = null;
@@ -177,6 +181,11 @@ function handleGameStateUpdate(message) {
     console.error('[Host] Server error:', message.code, message.message);
     // Show error feedback with better UX
     showErrorBanner(message.message || 'An error occurred', message.code);
+  }
+
+  // Handle host join as player response
+  if (message.type === 'host_join_response') {
+    handleHostJoinResponse(message);
   }
 }
 
@@ -1569,9 +1578,107 @@ document.addEventListener('DOMContentLoaded', () => {
   // Story 7.5: Initialize admin controls
   initAdminControls();
 
+  // Host join as player - event listeners
+  const hostJoinBtn = getElement('host-join-btn');
+  const hostNameInput = getElement('host-name-input');
+  if (hostJoinBtn && hostNameInput) {
+    hostJoinBtn.addEventListener('click', hostJoinAsPlayer);
+    hostNameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        hostJoinAsPlayer();
+      }
+    });
+  }
+
   // Story 2.4: Initialize WebSocket connection
   initWebSocket();
 });
+
+// ============================================================================
+// HOST JOIN AS PLAYER
+// ============================================================================
+
+/**
+ * Handle host joining the game as a player
+ */
+function hostJoinAsPlayer() {
+  const nameInput = getElement('host-name-input');
+  const joinBtn = getElement('host-join-btn');
+  const statusEl = getElement('host-join-status');
+
+  if (!nameInput || !joinBtn) return;
+
+  const name = nameInput.value.trim();
+
+  // Validate name
+  if (!name || name.length < 1 || name.length > 20) {
+    if (statusEl) {
+      statusEl.textContent = 'Please enter a name (1-20 characters)';
+      statusEl.className = 'host-join-status error';
+    }
+    return;
+  }
+
+  // Check WebSocket connection
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
+    if (statusEl) {
+      statusEl.textContent = 'Not connected. Please wait...';
+      statusEl.className = 'host-join-status error';
+    }
+    return;
+  }
+
+  // Disable input while joining
+  nameInput.disabled = true;
+  joinBtn.disabled = true;
+  if (statusEl) {
+    statusEl.textContent = 'Joining...';
+    statusEl.className = 'host-join-status';
+  }
+
+  // Send join request as host player
+  hostPlayerName = name;
+  sendMessage({
+    type: 'host_join_as_player',
+    name: name
+  });
+
+  console.log('[Host] Requesting to join as player:', name);
+}
+
+/**
+ * Handle response to host join as player request
+ * @param {Object} message - Response message from server
+ */
+function handleHostJoinResponse(message) {
+  const nameInput = getElement('host-name-input');
+  const joinBtn = getElement('host-join-btn');
+  const statusEl = getElement('host-join-status');
+  const joinSection = getElement('host-join-section');
+
+  if (message.success) {
+    hostHasJoined = true;
+    if (statusEl) {
+      statusEl.textContent = `Joined as "${hostPlayerName}"`;
+      statusEl.className = 'host-join-status success';
+    }
+    // Hide the input section after successful join
+    if (joinSection) {
+      joinSection.classList.add('joined');
+    }
+    console.log('[Host] Successfully joined as player:', hostPlayerName);
+  } else {
+    // Re-enable inputs on failure
+    if (nameInput) nameInput.disabled = false;
+    if (joinBtn) joinBtn.disabled = false;
+    if (statusEl) {
+      statusEl.textContent = message.error || 'Failed to join';
+      statusEl.className = 'host-join-status error';
+    }
+    hostPlayerName = null;
+    console.error('[Host] Failed to join as player:', message.error);
+  }
+}
 
 /**
  * Send advance turn request to server (Story 4.3: AC5)

@@ -269,6 +269,11 @@ class WebSocketHandler:
             await self._handle_spy_guess(ws, message)
             return
 
+        # Host join as player (allows host to participate in the game)
+        if message_type == "host_join_as_player":
+            await self._handle_host_join_as_player(ws, message)
+            return
+
         # TODO: Route to other specific handlers based on message_type
         # For now, just acknowledge receipt
         await ws.send_json({"type": "ack", "received": message_type})
@@ -434,6 +439,99 @@ class WebSocketHandler:
             )
         else:
             await self._send_error(ws, error)
+
+    async def _handle_host_join_as_player(self, ws: web.WebSocketResponse, data: dict) -> None:
+        """Handle host joining the game as a player.
+
+        This allows the host display to also participate as a player in the game.
+
+        Args:
+            ws: WebSocket connection (must be the host)
+            data: Message data containing 'name' field
+        """
+        import re as regex_module
+
+        # Verify this is the host connection
+        player_session = self._ws_to_player.get(ws)
+        if not player_session or not player_session.is_host:
+            await ws.send_json({
+                "type": "host_join_response",
+                "success": False,
+                "error": "Only the host can use this feature"
+            })
+            return
+
+        name = data.get("name", "").strip()
+
+        # Validate name length
+        if not name or len(name) < MIN_NAME_LENGTH or len(name) > MAX_NAME_LENGTH:
+            await ws.send_json({
+                "type": "host_join_response",
+                "success": False,
+                "error": "Please enter a name (1-20 characters)"
+            })
+            return
+
+        # SECURITY: Sanitize name to prevent XSS
+        if regex_module.search(r'[<>"\'&;]', name):
+            await ws.send_json({
+                "type": "host_join_response",
+                "success": False,
+                "error": "Name contains invalid characters"
+            })
+            return
+
+        # Check game phase - must be in LOBBY
+        if self.game_state.phase != GamePhase.LOBBY:
+            await ws.send_json({
+                "type": "host_join_response",
+                "success": False,
+                "error": "Game has already started"
+            })
+            return
+
+        # Check if name is already taken (by someone other than HostDisplay)
+        if name in self.game_state.players and name != "HostDisplay":
+            await ws.send_json({
+                "type": "host_join_response",
+                "success": False,
+                "error": "That name is already taken"
+            })
+            return
+
+        # Check game capacity
+        current_player_count = sum(1 for p in self.game_state.players.values() if p.name != "HostDisplay")
+        if current_player_count >= MAX_PLAYERS:
+            await ws.send_json({
+                "type": "host_join_response",
+                "success": False,
+                "error": "Game is full"
+            })
+            return
+
+        # Update the host's name from "HostDisplay" to the chosen name
+        old_name = player_session.name
+        if old_name in self.game_state.players:
+            # Remove the old HostDisplay entry
+            del self.game_state.players[old_name]
+
+        # Update session with new name
+        player_session.name = name
+
+        # Add as player with the new name
+        self.game_state.players[name] = player_session
+
+        _LOGGER.info("Host joined as player: %s", name)
+
+        # Send success response
+        await ws.send_json({
+            "type": "host_join_response",
+            "success": True,
+            "player_name": name
+        })
+
+        # Broadcast updated state to all players
+        await self.broadcast_state()
 
     async def broadcast_state(self) -> None:
         """Broadcast personalized state to all players (Story 3.4).
