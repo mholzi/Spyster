@@ -350,7 +350,7 @@ p {
 /* Responsive - larger on tablets/host display */
 @media (min-width: 768px) {
   .timer-value {
-    font-size: 144px; /* 2x scale for host/TV display */
+    font-size: 72px; /* Comfortable for tablet/desktop */
   }
 }
 
@@ -3500,12 +3500,12 @@ p {
     --host-scale-factor: 1;
 
     /* Host typography scale - Beatify-aligned base sizes */
-    --host-font-size-hero: calc(48px * var(--host-scale-factor));
-    --host-font-size-timer: calc(48px * var(--host-scale-factor));
-    --host-font-size-title: calc(20px * var(--host-scale-factor));
-    --host-font-size-heading: calc(16px * var(--host-scale-factor));
-    --host-font-size-body: calc(14px * var(--host-scale-factor));
-    --host-font-size-small: calc(12px * var(--host-scale-factor));
+    --host-font-size-hero: 72px;    /* Wordmark only - matches Beatify */
+    --host-font-size-timer: 64px;   /* Timer display - matches Beatify */
+    --host-font-size-title: 24px;   /* Section titles - Beatify 2xl */
+    --host-font-size-heading: 18px; /* Headings - Beatify lg */
+    --host-font-size-body: 14px;    /* Body text - Beatify base */
+    --host-font-size-small: 12px;   /* Small text - Beatify sm */
 
     /* Host spacing scale */
     --host-space-xs: calc(4px * var(--host-scale-factor));
@@ -3551,9 +3551,9 @@ p {
         font-size: var(--host-font-size-body);
     }
 
-    /* Timer at 96px minimum (AC#3) */
+    /* Timer sized for tablet viewing */
     .host-display .timer-value {
-        font-size: clamp(96px, 15vw, 144px);
+        font-size: 64px;
     }
 
     /* Increase spacing for readability at distance */
@@ -3584,7 +3584,7 @@ p {
     }
 
     .host-display .timer-value {
-        font-size: clamp(120px, 12vw, 144px);
+        font-size: 72px;
     }
 
     .host-display .phase-section {
@@ -3622,7 +3622,7 @@ p {
     }
 
     .host-display .timer-value {
-        font-size: 144px;
+        font-size: 96px;
     }
 
     .host-display .phase-section {
@@ -3631,8 +3631,8 @@ p {
 
     /* QR code larger for far viewing */
     .host-display #qr-code-image {
-        width: 600px;
-        height: 600px;
+        width: 400px;
+        height: 400px;
     }
 
     /* Player cards even larger */
