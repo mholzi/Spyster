@@ -505,9 +505,9 @@ function renderQuestioning(state) {
   // Story 7.2: Update phase indicator with round info
   updatePhaseIndicator('QUESTIONING', state);
 
-  // Update timer (Story 4.2)
-  if (state.round_time_remaining !== undefined) {
-    updateRoundTimer(state.round_time_remaining);
+  // Update timer (Story 4.2) - timer data comes as state.timer object
+  if (state.timer && state.timer.remaining !== undefined) {
+    updateRoundTimer(state.timer.remaining);
   }
 
   // Update turn display (Story 4.3)
@@ -651,9 +651,9 @@ function renderVoting(state) {
   // Story 7.2: Update phase indicator with vote count
   updatePhaseIndicator('VOTE', state);
 
-  // Story 7.4: Update vote timer
-  if (state.vote_time_remaining !== undefined) {
-    updateVoteTimer(state.vote_time_remaining);
+  // Story 7.4: Update vote timer - timer data comes as state.timer object
+  if (state.timer && state.timer.remaining !== undefined) {
+    updateVoteTimer(state.timer.remaining);
   }
 
   // Story 7.4: Update submission tracker

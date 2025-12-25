@@ -411,16 +411,29 @@ class WebSocketHandler:
             return
 
         # Story 2.3: Add player (handles FR18 duplicate name replacement)
-        success, error, session = self.game_state.add_player(name, is_host, ws)
+        # FIX: Host display ("HostDisplay") should not be added as a player
+        # It's just an observer that can control the game
+        is_host_display = is_host and name == "HostDisplay"
+
+        if is_host_display:
+            # Create a session for the host display without adding to players
+            from .session import PlayerSession
+            session = PlayerSession(name=name, is_host=True)
+            session.ws = ws
+            success, error = True, None
+        else:
+            success, error, session = self.game_state.add_player(name, is_host, ws)
 
         if success:
             # Map WebSocket to player session
             self._ws_to_player[ws] = session
 
-            # Update host_id when the actual host joins
-            if is_host:
+            # Update host_id when the actual host joins (not for host display)
+            if is_host and not is_host_display:
                 self.game_state.host_id = name
                 _LOGGER.info("Host registered: %s", name)
+            elif is_host_display:
+                _LOGGER.info("Host display connected (not added as player)")
 
             # FIXED: Use correct message type "join_success" and field names per spec
             await ws.send_json({
@@ -434,8 +447,9 @@ class WebSocketHandler:
             state = self.game_state.get_state(for_player=session.name)
             await ws.send_json({"type": "state", **state})
 
-            # Broadcast to all players
-            await self.broadcast_state()
+            # Broadcast to all players (only if an actual player joined)
+            if not is_host_display:
+                await self.broadcast_state()
 
             _LOGGER.info(
                 "Player joined: %s (total: %d)",
@@ -573,6 +587,17 @@ class WebSocketHandler:
                     _LOGGER.warning("Failed to send state to %s: %s", player_name, err)
                     failed_broadcasts.append(player_name)
 
+        # Also send to host display connections (not in players list)
+        for ws, session in self._ws_to_player.items():
+            if session.name == "HostDisplay" and session.is_host:
+                if ws and not ws.closed:
+                    try:
+                        # Host display gets full state (host view)
+                        state = self.game_state.get_state(for_player=None)
+                        await ws.send_json({"type": "state", **state})
+                    except Exception as err:
+                        _LOGGER.warning("Failed to send state to HostDisplay: %s", err)
+
         # Log aggregate broadcast failures for monitoring
         if failed_broadcasts:
             _LOGGER.error("Broadcast failed for %d players: %s", len(failed_broadcasts), failed_broadcasts)
@@ -663,7 +688,14 @@ class WebSocketHandler:
             await self._handle_start_game(ws)
         elif action == 'advance_turn':
             await self._handle_advance_turn(ws)
-        # Future admin actions: pause_game, etc.
+        elif action == 'skip_to_vote':
+            await self._handle_skip_to_vote(ws)
+        elif action == 'next_round':
+            await self._handle_next_round(ws)
+        elif action == 'pause':
+            await self._handle_pause(ws)
+        elif action == 'end_game':
+            await self._handle_end_game(ws)
         else:
             _LOGGER.warning("Unknown admin action: %s", action)
             await self._send_error(ws, ERR_INVALID_MESSAGE)
@@ -723,6 +755,71 @@ class WebSocketHandler:
         self.game_state.advance_turn()
 
         _LOGGER.info("Turn advanced by host")
+        await self.broadcast_state()
+
+    async def _handle_skip_to_vote(self, ws: web.WebSocketResponse) -> None:
+        """Handle skip to vote admin action (Story 7.5).
+
+        Allows host to skip directly to voting phase during questioning.
+
+        Args:
+            ws: WebSocket connection
+        """
+        player = self._get_player_by_ws(ws)
+        caller_name = player.name if player else "[HOST]"
+
+        success, error = self.game_state.call_vote(caller_name=caller_name)
+        if not success:
+            await self._send_error(ws, error or "Cannot skip to vote")
+            return
+
+        _LOGGER.info("Host skipped to voting phase")
+        await self.broadcast_state()
+
+    async def _handle_next_round(self, ws: web.WebSocketResponse) -> None:
+        """Handle next round admin action (Story 7.5).
+
+        Allows host to start the next round during scoring phase.
+
+        Args:
+            ws: WebSocket connection
+        """
+        success, error = self.game_state.start_next_round()
+        if not success:
+            await self._send_error(ws, error or "Cannot start next round")
+            return
+
+        _LOGGER.info("Host started next round")
+        await self.broadcast_state()
+
+    async def _handle_pause(self, ws: web.WebSocketResponse) -> None:
+        """Handle pause/resume admin action (Story 7.5).
+
+        Toggles game pause state.
+
+        Args:
+            ws: WebSocket connection
+        """
+        # Toggle pause state
+        self.game_state.paused = not getattr(self.game_state, 'paused', False)
+
+        _LOGGER.info("Game %s by host", "paused" if self.game_state.paused else "resumed")
+        await self.broadcast_state()
+
+    async def _handle_end_game(self, ws: web.WebSocketResponse) -> None:
+        """Handle end game admin action (Story 7.5).
+
+        Ends the game and transitions to END phase.
+
+        Args:
+            ws: WebSocket connection
+        """
+        success, error = self.game_state.end_game()
+        if not success:
+            await self._send_error(ws, error or "Cannot end game")
+            return
+
+        _LOGGER.info("Game ended by host")
         await self.broadcast_state()
 
     async def _handle_configure(self, ws: web.WebSocketResponse, data: dict) -> None:

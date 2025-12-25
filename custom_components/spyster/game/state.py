@@ -1225,6 +1225,35 @@ class GameState:
 
         return True, None
 
+    def end_game(self) -> tuple[bool, str | None]:
+        """
+        End the game immediately (Story 7.5 admin action).
+
+        Transitions to END phase regardless of current state.
+        Used by host to forcefully end a game.
+
+        Returns:
+            (success: bool, error_code: str | None)
+        """
+        if self.phase == GamePhase.LOBBY:
+            return False, "Cannot end game that hasn't started"
+
+        if self.phase == GamePhase.END:
+            return False, "Game already ended"
+
+        # Cancel all active timers
+        self.cancel_all_timers()
+
+        # Save current round history if in a game phase
+        if self.phase in (GamePhase.QUESTIONING, GamePhase.VOTE, GamePhase.REVEAL, GamePhase.SCORING):
+            self._save_round_history()
+
+        # Transition to END phase
+        self.phase = GamePhase.END
+
+        _LOGGER.info("Game ended by host after round %d", self.current_round)
+        return True, None
+
     def _save_round_history(self) -> None:
         """Save current round data to history (Story 6.6)."""
         if not hasattr(self, 'round_history'):
