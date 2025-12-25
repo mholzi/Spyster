@@ -41,12 +41,43 @@ function initWebSocket() {
 }
 
 /**
+ * Update connection status indicator in footer
+ * @param {string} status - 'connecting', 'connected', or 'disconnected'
+ */
+function updateConnectionStatus(status) {
+  const statusDot = document.getElementById('connection-status');
+  const statusText = document.getElementById('status-text');
+
+  if (!statusDot || !statusText) return;
+
+  // Remove all status classes
+  statusDot.classList.remove('connected', 'disconnected', 'connecting');
+
+  switch (status) {
+    case 'connected':
+      statusDot.classList.add('connected');
+      statusText.textContent = 'Connected';
+      break;
+    case 'disconnected':
+      statusDot.classList.add('disconnected');
+      statusText.textContent = 'Disconnected';
+      break;
+    case 'connecting':
+    default:
+      statusDot.classList.add('connecting');
+      statusText.textContent = 'Connecting...';
+      break;
+  }
+}
+
+/**
  * Handle WebSocket open event (Story 2.4)
  */
 function handleWebSocketOpen() {
   console.log('[Host] WebSocket connected');
   clearTimeout(reconnectTimeout);
   startHeartbeat(); // Story 2.4: Start sending heartbeats
+  updateConnectionStatus('connected');
 
   // Register as host to receive game state with session_id
   ws.send(JSON.stringify({
@@ -77,6 +108,7 @@ function handleWebSocketMessage(event) {
  */
 function handleWebSocketError(event) {
   console.error('[Host] WebSocket error:', event);
+  updateConnectionStatus('disconnected');
 }
 
 /**
@@ -86,10 +118,12 @@ function handleWebSocketError(event) {
 function handleWebSocketClose(event) {
   console.log('[Host] WebSocket closed:', event.code, event.reason);
   stopHeartbeat(); // Story 2.4: Stop heartbeat on disconnect
+  updateConnectionStatus('disconnected');
 
   // Attempt reconnection after 3 seconds
   reconnectTimeout = setTimeout(() => {
     console.log('[Host] Attempting to reconnect...');
+    updateConnectionStatus('connecting');
     initWebSocket();
   }, 3000);
 }
