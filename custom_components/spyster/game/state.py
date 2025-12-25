@@ -1008,11 +1008,11 @@ class GameState:
         """
         Calculate vote results for reveal (Story 5.6).
 
-        Counts votes per target and determines convicted player.
-        Ties are broken alphabetically (first alphabetically wins).
+        Like real Spyfall: vote must be UNANIMOUS to convict.
+        If any player votes differently or abstains, no conviction.
 
         Returns:
-            dict with vote_counts, convicted, max_votes, total_votes, abstentions
+            dict with vote_counts, convicted, max_votes, total_votes, abstentions, is_unanimous
         """
         # Count votes per target
         vote_counts: dict[str, int] = {}
@@ -1021,29 +1021,42 @@ class GameState:
             if target:  # Ignore abstentions
                 vote_counts[target] = vote_counts.get(target, 0) + 1
 
-        # Find most voted (convicted) - ties go to first alphabetically
+        # Count totals
+        total_votes = len([v for v in self.votes.values() if v.get("target")])
+        abstentions = len([v for v in self.votes.values() if v.get("abstained")])
+        total_players = len(self.votes)
+
+        # UNANIMOUS VOTING: Only convict if ALL players voted for the same person
+        # Any abstention or split vote = no conviction (spy wins)
         convicted = None
         max_votes = 0
-        for target, count in sorted(vote_counts.items()):
-            if count > max_votes:
-                max_votes = count
-                convicted = target
+        is_unanimous = False
+
+        if vote_counts:
+            # Find the most voted target
+            top_target = max(vote_counts.items(), key=lambda x: x[1])
+            max_votes = top_target[1]
+
+            # Check for unanimous: all players voted, all for same person, no abstentions
+            if max_votes == total_players and abstentions == 0 and len(vote_counts) == 1:
+                convicted = top_target[0]
+                is_unanimous = True
+                _LOGGER.info("UNANIMOUS vote: %s convicted with %d votes", convicted, max_votes)
+            else:
+                _LOGGER.info(
+                    "Vote NOT unanimous: %d targets, %d abstentions, max %d/%d votes",
+                    len(vote_counts), abstentions, max_votes, total_players
+                )
 
         self.convicted_player = convicted
         self.vote_results = {
             "vote_counts": vote_counts,
             "convicted": convicted,
             "max_votes": max_votes,
-            "total_votes": len([v for v in self.votes.values() if v.get("target")]),
-            "abstentions": len([v for v in self.votes.values() if v.get("abstained")]),
+            "total_votes": total_votes,
+            "abstentions": abstentions,
+            "is_unanimous": is_unanimous,
         }
-
-        _LOGGER.info(
-            "Vote results calculated: convicted=%s (%d votes), %d abstentions",
-            convicted,
-            max_votes,
-            self.vote_results["abstentions"]
-        )
 
         return self.vote_results
 

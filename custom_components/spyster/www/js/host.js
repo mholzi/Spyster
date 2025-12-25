@@ -749,9 +749,19 @@ function renderReveal(state) {
     renderVoteCards(state.votes);
   }
 
+  // Build conviction object from state fields
+  const conviction = {
+    convicted_player: state.convicted,
+    is_spy: state.convicted === state.actual_spy,
+    actual_spy: state.actual_spy,
+    spy_guess_correct: state.spy_guess && state.spy_guess.correct,
+    is_unanimous: state.vote_results ? state.vote_results.is_unanimous : false,
+    is_tie: state.vote_results ? (state.vote_results.total_votes === 0) : true
+  };
+
   // Run reveal sequence if not already running
   if (!revealSequenceRunning && state.votes) {
-    runRevealSequence(state.votes, state.conviction);
+    runRevealSequence(state.votes, conviction);
   }
 }
 
@@ -906,11 +916,11 @@ function showConvictionResult(conviction) {
     verdictClass = 'spy-wins';
     detailsText = 'The spy correctly guessed the location!';
     showSpy = true;
-  } else if (conviction.is_tie) {
-    // Tie vote
-    verdictText = 'TIE!';
-    verdictClass = 'tie';
-    detailsText = 'No one was convicted - the spy survives!';
+  } else if (conviction.is_unanimous === false || conviction.is_tie) {
+    // Vote not unanimous - spy survives (like real Spyfall)
+    verdictText = 'SPY SURVIVES!';
+    verdictClass = 'spy-wins';
+    detailsText = 'Vote was not unanimous - the spy escapes!';
     showSpy = true;
   } else if (conviction.is_spy === true) {
     // Spy was caught
@@ -925,10 +935,10 @@ function showConvictionResult(conviction) {
     detailsText = `${escapeHtml(conviction.convicted_player)} was not the spy!`;
     showSpy = true;
   } else {
-    // No conviction (abstain majority or other)
-    verdictText = 'NO VERDICT';
-    verdictClass = 'tie';
-    detailsText = 'Not enough votes to convict anyone.';
+    // No conviction (no votes cast)
+    verdictText = 'SPY SURVIVES!';
+    verdictClass = 'spy-wins';
+    detailsText = 'No unanimous vote - the spy escapes!';
     showSpy = true;
   }
 

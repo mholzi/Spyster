@@ -1518,10 +1518,10 @@ class PlayerClient {
         detailEl.textContent = `${this.escapeHtml(convicted)} was innocent`;
       }
     } else {
-      // AC5: No conviction (tie or no votes)
+      // AC5: No conviction (vote not unanimous - like real Spyfall)
       banner.classList.add('conviction-banner--none');
-      messageEl.textContent = 'No Conviction';
-      detailEl.textContent = 'The vote was tied or no votes cast';
+      messageEl.textContent = 'Spy Survives!';
+      detailEl.textContent = 'Vote was not unanimous';
     }
 
     // Show player's score change (AC3)
