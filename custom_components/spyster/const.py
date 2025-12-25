@@ -153,7 +153,7 @@ MAX_CONNECTIONS = 50  # Maximum concurrent WebSocket connections
 DISCONNECT_GRACE_TIMEOUT = DISCONNECT_GRACE_SECONDS  # Alias for test compatibility
 
 # Player constraints
-MIN_PLAYERS = 4
+MIN_PLAYERS = 3
 MAX_PLAYERS = 10
 MIN_NAME_LENGTH = 1
 MAX_NAME_LENGTH = 20

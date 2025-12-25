@@ -13,7 +13,7 @@ let heartbeatTimer = null; // Story 2.4: Heartbeat timer
 const HEARTBEAT_INTERVAL = 10000; // Story 2.4: 10 seconds (matches const.py)
 
 // Story 3.2: Player count constants
-const MIN_PLAYERS = 4;
+const MIN_PLAYERS = 3;
 const MAX_PLAYERS = 10;
 
 // Story 7.2: Phase indicator state
