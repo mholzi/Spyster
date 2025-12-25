@@ -120,6 +120,13 @@ function handleWebSocketClose(event) {
   stopHeartbeat(); // Story 2.4: Stop heartbeat on disconnect
   updateConnectionStatus('disconnected');
 
+  // Don't reconnect if session was replaced by a new connection (code 4001)
+  // This prevents infinite reconnect loops when multiple tabs/windows are open
+  if (event.code === 4001) {
+    console.log('[Host] Session replaced by new connection - not reconnecting');
+    return;
+  }
+
   // Attempt reconnection after 3 seconds
   reconnectTimeout = setTimeout(() => {
     console.log('[Host] Attempting to reconnect...');

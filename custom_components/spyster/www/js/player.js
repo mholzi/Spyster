@@ -69,7 +69,7 @@ class PlayerClient {
     this.ws.onopen = () => this.onOpen();
     this.ws.onmessage = (event) => this.onMessage(event);
     this.ws.onerror = (error) => this.onError(error);
-    this.ws.onclose = () => this.onClose();
+    this.ws.onclose = (event) => this.onClose(event);
   }
 
   /**
@@ -161,12 +161,21 @@ class PlayerClient {
 
   /**
    * Handle WebSocket close event
+   * @param {CloseEvent} event - WebSocket close event
    */
-  onClose() {
-    console.log('[Player] WebSocket closed');
+  onClose(event) {
+    console.log('[Player] WebSocket closed:', event.code, event.reason);
     this.connectionState = 'disconnected';
     this.updateConnectionUI();
     this.stopHeartbeat(); // Story 2.4: Stop heartbeat on disconnect
+
+    // Don't reconnect if session was replaced by a new connection (code 4001)
+    // This prevents infinite reconnect loops when multiple tabs/windows are open
+    if (event.code === 4001) {
+      console.log('[Player] Session replaced by new connection - not reconnecting');
+      this.showError('Session replaced. Another device/tab connected with same name.');
+      return;
+    }
 
     // Attempt reconnection with exponential backoff
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
