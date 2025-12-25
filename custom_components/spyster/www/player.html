@@ -6,24 +6,22 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>Spyster - Player</title>
-    <link rel="stylesheet" href="/api/spyster/static/css/styles.css?v=1.0.15">
+    <link rel="stylesheet" href="/api/spyster/static/css/styles.css?v=1.0.16">
 </head>
 <body>
     <!-- Story 8-3: Skip link for keyboard navigation -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
     <div class="container">
-        <!-- Connection Status -->
-        <div id="connection-status" class="connection-status status-disconnected">
-            Disconnected
-        </div>
-
         <!-- Error Display -->
         <div id="error-display" class="error-display"></div>
 
-        <!-- Header -->
+        <!-- Header with integrated connection status -->
         <header role="banner" class="player-header">
-            <h1 id="page-title" class="player-title">SPYSTER</h1>
+            <h1 id="page-title" class="player-title"><span class="logo-spy">SPY</span><span class="logo-ster">STER</span></h1>
+            <div id="connection-status" class="connection-status status-disconnected">
+                Disconnected
+            </div>
         </header>
 
         <!-- Main Content Area -->
@@ -372,6 +370,6 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="/api/spyster/static/js/player.js?v=1.0.14"></script>
+    <script src="/api/spyster/static/js/player.js?v=1.0.16"></script>
 </body>
 </html>

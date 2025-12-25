@@ -142,6 +142,29 @@ h6 {
   margin-bottom: var(--space-md);
 }
 
+/* ============================================================================
+   LOGO STYLING - Spyster Brand
+   ============================================================================ */
+
+.site-logo,
+.player-title {
+  display: inline-flex;
+  align-items: baseline;
+  margin: 0;
+}
+
+.logo-spy {
+  color: var(--color-accent-primary);
+  text-shadow: var(--glow-primary);
+}
+
+.logo-ster {
+  background: linear-gradient(135deg, var(--color-accent-secondary) 0%, #a855f7 50%, var(--color-accent-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 h1 {
   font-size: var(--text-hero);
 }
@@ -831,14 +854,46 @@ p {
   display: none;
 }
 
+/* Phase sections need higher specificity to override media query display:flex */
+.phase-section.hidden {
+  display: none !important;
+}
+
 /* ============================================================================
    PLAYER PAGE SPECIFIC STYLES
    Replaces inline styles from player.html
    ============================================================================ */
 
+/* Player page layout - full height with sticky footer */
+body:not(.host-display) {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+body:not(.host-display) .container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100vh;
+}
+
+body:not(.host-display) main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: var(--space-lg);
+}
+
 /* Player page header */
 .player-header {
-  margin-bottom: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-lg) 0;
+  margin-bottom: var(--space-md);
 }
 
 .player-title {
@@ -849,14 +904,21 @@ p {
   margin: 0;
 }
 
+/* Connection status in header (player page) */
+.player-header .connection-status {
+  position: static;
+  margin: 0;
+}
+
 /* Join form card */
 .join-card {
   padding: var(--space-lg);
 }
 
 .join-heading {
+  font-size: var(--text-heading); /* 24px - appropriate for form title */
   text-align: center;
-  color: var(--color-text-secondary);
+  color: var(--color-text-card);
   margin-bottom: var(--space-lg);
 }
 
@@ -950,16 +1012,17 @@ p {
   min-height: var(--touch-minimum);
 }
 
-/* Player footer */
+/* Player footer - sticky at bottom */
 .player-footer {
-  margin-top: var(--space-2xl);
-  padding: var(--space-lg);
+  margin-top: auto;
+  padding: var(--space-md);
   text-align: center;
 }
 
 .player-footer p {
   font-size: var(--text-small);
   color: var(--color-text-secondary);
+  opacity: 0.5;
   margin: 0;
 }
 
