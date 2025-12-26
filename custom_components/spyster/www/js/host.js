@@ -1311,7 +1311,10 @@ function generateQRCode(sessionId) {
   const qrContainer = getElement('qr-code-container');
   const joinUrlText = getElement('join-url-text');
 
-  if (!sessionId) {
+  // Use current game state session_id as fallback
+  const effectiveSessionId = sessionId || (currentGameState && currentGameState.session_id);
+
+  if (!effectiveSessionId) {
     console.warn('[Host] No session ID available for QR code');
     if (joinUrlText) {
       joinUrlText.textContent = 'Waiting for session...';
@@ -1319,6 +1322,9 @@ function generateQRCode(sessionId) {
     }
     return;
   }
+
+  // Use the effective session ID
+  sessionId = effectiveSessionId;
 
   // Construct join URL from current host
   const joinUrl = `${window.location.origin}/api/spyster/player?session=${sessionId}`;
@@ -1671,10 +1677,9 @@ function setLobbyStep(step) {
  */
 function hostJoinAsPlayer() {
   const nameInput = getElement('host-name-input');
-  const joinBtn = getElement('host-join-btn');
   const statusEl = getElement('host-join-status');
 
-  if (!nameInput || !joinBtn) return;
+  if (!nameInput) return;
 
   const name = nameInput.value.trim();
 
@@ -1698,7 +1703,6 @@ function hostJoinAsPlayer() {
 
   // Disable input while joining
   nameInput.disabled = true;
-  joinBtn.disabled = true;
   if (statusEl) {
     statusEl.textContent = 'Joining...';
     statusEl.className = 'host-join-status';
@@ -1720,7 +1724,6 @@ function hostJoinAsPlayer() {
  */
 function handleHostJoinResponse(message) {
   const nameInput = getElement('host-name-input');
-  const joinBtn = getElement('host-join-btn');
   const statusEl = getElement('host-join-status');
   const joinSection = getElement('host-join-section');
 
@@ -1738,7 +1741,6 @@ function handleHostJoinResponse(message) {
   } else {
     // Re-enable inputs on failure
     if (nameInput) nameInput.disabled = false;
-    if (joinBtn) joinBtn.disabled = false;
     if (statusEl) {
       statusEl.textContent = message.error || 'Failed to join';
       statusEl.className = 'host-join-status error';

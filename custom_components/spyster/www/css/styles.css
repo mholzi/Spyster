@@ -1900,32 +1900,7 @@ body:not(.host-display) main {
   font-weight: 600;
 }
 
-/* Responsive - Host Display (larger screens) */
-@media (min-width: 768px) {
-  .config-panel h2 {
-    font-size: 36px;
-  }
-
-  .config-option label {
-    font-size: 28px;
-  }
-
-  .config-btn {
-    min-width: 64px;
-    min-height: 64px;
-    font-size: 32px;
-  }
-
-  .config-value {
-    font-size: 42px;
-    min-width: 80px;
-  }
-
-  .config-select {
-    min-height: 64px;
-    font-size: 24px;
-  }
-}
+/* Config panel - consistent sizing (no scaling) */
 
 /* Error Banner (Story 3.1 error handling) */
 .error-banner {
@@ -3850,27 +3825,27 @@ body:not(.host-display) main {
    Applied via media queries to progressively scale up content.
    ----------------------------------------------------------------------------- */
 
-/* Base host display - uses existing styles, add scaling variables */
+/* Base host display - consistent sizing (no viewport scaling) */
 .host-display {
-    /* Scale factors - default (mobile/small tablet) */
-    --host-scale-factor: 1;
+    /* Host typography - fixed sizes for consistent UI */
+    --host-font-size-hero: 48px;    /* Logo/wordmark */
+    --host-font-size-timer: 48px;   /* Timer display */
+    --host-font-size-title: 20px;   /* Section titles */
+    --host-font-size-heading: 16px; /* Headings */
+    --host-font-size-body: 14px;    /* Body text */
+    --host-font-size-small: 12px;   /* Small text */
+    --host-font-size-lg: 18px;      /* Large text */
+    --host-font-size-xl: 20px;      /* Extra large */
+    --host-font-size-2xl: 24px;     /* 2x large */
 
-    /* Host typography scale - Beatify-aligned base sizes */
-    --host-font-size-hero: 72px;    /* Wordmark only - matches Beatify */
-    --host-font-size-timer: 64px;   /* Timer display - matches Beatify */
-    --host-font-size-title: 24px;   /* Section titles - Beatify 2xl */
-    --host-font-size-heading: 18px; /* Headings - Beatify lg */
-    --host-font-size-body: 14px;    /* Body text - Beatify base */
-    --host-font-size-small: 12px;   /* Small text - Beatify sm */
-
-    /* Host spacing scale */
-    --host-space-xs: calc(4px * var(--host-scale-factor));
-    --host-space-sm: calc(8px * var(--host-scale-factor));
-    --host-space-md: calc(16px * var(--host-scale-factor));
-    --host-space-lg: calc(24px * var(--host-scale-factor));
-    --host-space-xl: calc(32px * var(--host-scale-factor));
-    --host-space-2xl: calc(48px * var(--host-scale-factor));
-    --host-space-3xl: calc(64px * var(--host-scale-factor));
+    /* Host spacing - fixed values */
+    --host-space-xs: 4px;
+    --host-space-sm: 8px;
+    --host-space-md: 16px;
+    --host-space-lg: 24px;
+    --host-space-xl: 32px;
+    --host-space-2xl: 48px;
+    --host-space-3xl: 64px;
 }
 
 /* -----------------------------------------------------------------------------
@@ -3880,158 +3855,10 @@ body:not(.host-display) main {
    1440px+ = Large TV (2.5x-3x scale)
    ----------------------------------------------------------------------------- */
 
-/* Tablet / Small TV - 768px+ (1x scale - no change from mobile) */
-@media (min-width: 768px) {
-    .host-display {
-        --host-scale-factor: 1;
-
-        /* Timer at comfortable size for tablets */
-        --host-font-size-timer: 56px;
-    }
-
-    /* Apply scaled typography */
-    .host-display h1 {
-        font-size: var(--host-font-size-hero);
-    }
-
-    .host-display h2 {
-        font-size: var(--host-font-size-title);
-    }
-
-    .host-display h3 {
-        font-size: var(--host-font-size-heading);
-    }
-
-    .host-display p,
-    .host-display .help-text {
-        font-size: var(--host-font-size-body);
-    }
-
-    /* Timer sized for tablet viewing */
-    .host-display .timer-value {
-        font-size: 64px;
-    }
-
-    /* Increase spacing for readability at distance */
-    .host-display .container {
-        padding: var(--host-space-xl);
-    }
-
-    .host-display .header {
-        padding: var(--host-space-lg) var(--host-space-xl);
-    }
-
-    .host-display .main-content {
-        padding: var(--host-space-2xl);
-    }
-
-    .host-display .phase-section {
-        max-width: 1200px;
-    }
-}
-
-/* Medium TV - 1024px+ (1.25x scale) */
-@media (min-width: 1024px) {
-    .host-display {
-        --host-scale-factor: 1.25;
-
-        /* Timer at comfortable size for medium screens */
-        --host-font-size-timer: 64px;
-    }
-
-    .host-display .timer-value {
-        font-size: 72px;
-    }
-
-    .host-display .phase-section {
-        max-width: 1400px;
-    }
-
-    /* Larger player cards for TV viewing */
-    .host-display .player-card {
-        padding: var(--host-space-md) var(--host-space-lg);
-        font-size: var(--host-font-size-body);
-    }
-
-    .host-display .player-name {
-        font-size: var(--host-font-size-heading);
-    }
-
-    .host-display .host-badge {
-        font-size: 14px;
-        padding: 4px 10px;
-    }
-}
-
-/* Large TV / Maximum Scale - 1440px+ (1.5x scale) */
-@media (min-width: 1440px) {
-    .host-display {
-        --host-scale-factor: 1.5;
-
-        /* Timer larger for TV viewing */
-        --host-font-size-timer: 80px;
-    }
-
-    .host-display .container {
-        max-width: 1920px;
-        padding: var(--host-space-2xl);
-    }
-
-    .host-display .timer-value {
-        font-size: 96px;
-    }
-
-    .host-display .phase-section {
-        max-width: 1600px;
-    }
-
-    /* QR code larger for far viewing */
-    .host-display #qr-code-image {
-        width: 400px;
-        height: 400px;
-    }
-
-    /* Player cards even larger */
-    .host-display .player-card {
-        padding: var(--host-space-lg) var(--host-space-xl);
-    }
-
-    .host-display .player-name {
-        font-size: 32px;
-    }
-
-    .host-display .host-badge {
-        font-size: 16px;
-        padding: 6px 14px;
-    }
-
-    .host-display .player-name-large {
-        font-size: 4.5rem;
-    }
-
-    .host-display .turn-arrow {
-        font-size: 5rem;
-    }
-}
-
-/* Ultra-wide / 4K TV - 1920px+ (2x scale) */
-@media (min-width: 1920px) {
-    .host-display {
-        --host-scale-factor: 2;
-        --host-font-size-timer: 96px;
-    }
-
-    .host-display .phase-section {
-        max-width: 1800px;
-    }
-
-    .host-display .player-name-large {
-        font-size: 6rem;
-    }
-
-    .host-display .turn-arrow {
-        font-size: 6rem;
-    }
+/* All screen sizes - consistent 368px max-width, centered */
+.host-display .phase-section {
+    max-width: 368px;
+    margin: 0 auto;
 }
 
 /* -----------------------------------------------------------------------------
@@ -4554,7 +4381,7 @@ body:not(.host-display) main {
 
 .phase-transition-text {
     font-family: var(--font-display);
-    font-size: clamp(48px, 15vw, 144px);
+    font-size: 48px;
     font-weight: var(--font-weight-bold);
     color: var(--color-text-primary);
     text-transform: uppercase;
@@ -5630,7 +5457,7 @@ body:not(.host-display) main {
 
 .conviction-verdict {
     font-family: var(--font-display);
-    font-size: clamp(48px, 12vw, 120px);
+    font-size: 48px;
     font-weight: var(--font-weight-black);
     text-transform: uppercase;
     letter-spacing: 4px;
@@ -5712,7 +5539,7 @@ body:not(.host-display) main {
 
 .conviction-details {
     font-family: var(--font-display);
-    font-size: clamp(18px, 4vw, 32px);
+    font-size: 18px;
     font-weight: var(--font-weight-medium);
     color: var(--color-text-secondary);
     opacity: 0;
@@ -5746,7 +5573,7 @@ body:not(.host-display) main {
 }
 
 .spy-label {
-    font-size: clamp(14px, 3vw, 24px);
+    font-size: 14px;
     font-weight: var(--font-weight-medium);
     color: var(--color-text-secondary);
     text-transform: uppercase;
@@ -5755,31 +5582,13 @@ body:not(.host-display) main {
 
 .spy-name {
     font-family: var(--font-display);
-    font-size: clamp(32px, 8vw, 72px);
+    font-size: 32px;
     font-weight: var(--font-weight-black);
     color: var(--color-accent-primary);
     text-shadow: 0 0 30px var(--color-accent-primary);
 }
 
-/* Host display scaling for conviction */
-@media (min-width: 768px) {
-    .host-display .conviction-verdict {
-        font-size: clamp(72px, 15vw, 160px);
-        letter-spacing: 8px;
-    }
-
-    .host-display .conviction-details {
-        font-size: clamp(24px, 5vw, 48px);
-    }
-
-    .host-display .spy-label {
-        font-size: clamp(20px, 4vw, 36px);
-    }
-
-    .host-display .spy-name {
-        font-size: clamp(48px, 10vw, 96px);
-    }
-}
+/* Host display - consistent font sizes (no scaling) */
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
@@ -5966,7 +5775,7 @@ body:not(.host-display) main {
     display: none !important;
 }
 
-/* Host display scaling */
+/* Admin bar layout - consistent sizing */
 @media (min-width: 768px) {
     .admin-bar {
         bottom: var(--host-space-lg);
@@ -6042,7 +5851,7 @@ body:not(.host-display) main {
 
 .paused-text {
     font-family: var(--font-display);
-    font-size: clamp(48px, 12vw, 120px);
+    font-size: 48px;
     font-weight: var(--font-weight-black);
     color: var(--color-accent-secondary);
     text-transform: uppercase;
@@ -6069,17 +5878,7 @@ body:not(.host-display) main {
     letter-spacing: 2px;
 }
 
-/* Host display scaling for paused overlay */
-@media (min-width: 768px) {
-    .host-display .paused-text {
-        font-size: clamp(72px, 15vw, 160px);
-        letter-spacing: 12px;
-    }
-
-    .host-display .paused-hint {
-        font-size: var(--host-font-size-body);
-    }
-}
+/* Host display - consistent paused text (no scaling) */
 
 /* -----------------------------------------------------------------------------
    TASK 4: Confirmation Modal
