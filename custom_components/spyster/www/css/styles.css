@@ -931,7 +931,7 @@ body:not(.host-display) main {
 .player-name-input {
   font-family: var(--font-body);
   font-size: var(--text-body);
-  padding: var(--space-md);
+  padding: var(--space-sm); /* 8px all sides */
   border: 2px solid var(--color-accent-primary);
   border-radius: var(--radius-md);
   background-color: var(--color-bg-secondary);
@@ -1234,7 +1234,7 @@ body:not(.host-display) main {
 
 .host-name-input {
   flex: 1;
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-sm); /* 8px all sides */
   font-size: var(--text-body);
   border: 2px solid var(--color-border-card);
   border-radius: var(--radius-md);
@@ -1253,7 +1253,7 @@ body:not(.host-display) main {
 }
 
 .host-join-section .btn-primary {
-  padding: var(--space-sm) var(--space-lg);
+  padding: var(--space-sm); /* 8px all sides */
 }
 
 .host-join-status {
@@ -1735,8 +1735,8 @@ body:not(.host-display) main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-md);
-  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-sm);
+  padding: var(--space-sm); /* 8px all sides */
   background: var(--color-bg-card-hover);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-card);
@@ -1755,7 +1755,7 @@ body:not(.host-display) main {
 .config-controls {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
 }
 
 .config-btn {
