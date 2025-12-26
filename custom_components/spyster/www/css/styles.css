@@ -1199,6 +1199,38 @@ body:not(.host-display) main {
   /* No max-width needed - container already constrains to 380px */
 }
 
+/* ============================================================================
+   LOBBY STEP FLOW
+   ============================================================================ */
+
+.lobby-step {
+  display: block;
+  padding: var(--space-md);
+}
+
+.lobby-step.hidden {
+  display: none !important;
+}
+
+.lobby-step-actions {
+  margin-top: var(--space-lg);
+  text-align: center;
+}
+
+.step-heading {
+  font-size: var(--text-heading);
+  color: var(--color-text-card);
+  text-align: center;
+  margin-bottom: var(--space-sm);
+}
+
+.step-description {
+  font-size: var(--text-body);
+  color: var(--color-text-card-secondary);
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
 /* QR Code Container Styles */
 .qr-container {
   text-align: center;

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
     <title>Spyster - Host Display</title>
-    <link rel="stylesheet" href="/api/spyster/static/css/styles.css?v=1.0.22">
+    <link rel="stylesheet" href="/api/spyster/static/css/styles.css?v=1.0.23">
 </head>
 <body class="host-display">
     <div class="container">
@@ -22,40 +22,10 @@
 
         <!-- Main Content Area -->
         <main role="main" class="main-content">
-            <!-- Lobby Phase: QR Code Display -->
+            <!-- Lobby Phase: 3-Step Flow -->
             <section id="lobby-section" class="phase-section" role="region" aria-labelledby="lobby-heading">
-                <div class="qr-container">
-                    <!-- Host Name Input (optional - to join as player) -->
-                    <div id="host-join-section" class="host-join-section">
-                        <label for="host-name-input" class="host-join-label">Your Name (to play)</label>
-                        <div class="host-join-controls">
-                            <input
-                                type="text"
-                                id="host-name-input"
-                                placeholder="Enter name to join as player"
-                                maxlength="20"
-                                autocomplete="off"
-                                class="host-name-input"
-                                aria-label="Enter your name to join as a player"
-                            >
-                            <button id="host-join-btn" class="btn-primary" aria-label="Join game as player">
-                                JOIN
-                            </button>
-                        </div>
-                        <p id="host-join-status" class="host-join-status"></p>
-                    </div>
-
-                    <h2 id="lobby-heading">Scan to Join</h2>
-                    <div class="qr-code-wrapper">
-                        <div id="qr-code-container" aria-label="QR Code to join game"></div>
-                    </div>
-                    <p class="join-url" id="join-url-text" aria-label="Join URL"></p>
-                    <div class="player-count" aria-live="polite" aria-atomic="true">
-                        <span id="current-player-count">0</span> /
-                        <span id="max-player-count">10</span> players
-                    </div>
-
-                    <!-- Configuration Panel (Story 3.1) -->
+                <!-- Step 1: Game Settings -->
+                <div id="lobby-step-1" class="lobby-step">
                     <div class="config-panel">
                         <h2>Game Settings</h2>
 
@@ -107,9 +77,53 @@
                                 class="config-select"
                                 aria-label="Select location pack">
                                 <option value="classic" selected>Classic</option>
-                                <!-- Future packs added here -->
                             </select>
                         </div>
+                    </div>
+
+                    <div class="lobby-step-actions">
+                        <button id="settings-next-btn" class="btn-primary btn-large" aria-label="Continue to host setup">
+                            NEXT
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Host Name Entry -->
+                <div id="lobby-step-2" class="lobby-step hidden">
+                    <div class="host-join-section">
+                        <h2 class="step-heading">Enter Your Name</h2>
+                        <p class="step-description">You'll join the game as a player</p>
+                        <div class="host-join-controls">
+                            <input
+                                type="text"
+                                id="host-name-input"
+                                placeholder="Your name"
+                                maxlength="20"
+                                autocomplete="off"
+                                class="host-name-input"
+                                aria-label="Enter your name to join as a player"
+                            >
+                        </div>
+                        <p id="host-join-status" class="host-join-status"></p>
+                    </div>
+
+                    <div class="lobby-step-actions">
+                        <button id="invite-players-btn" class="btn-primary btn-large" disabled aria-label="Invite players to join">
+                            INVITE PLAYERS
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: QR Code & Player List -->
+                <div id="lobby-step-3" class="lobby-step hidden">
+                    <h2 id="lobby-heading">Scan to Join</h2>
+                    <div class="qr-code-wrapper">
+                        <div id="qr-code-container" aria-label="QR Code to join game"></div>
+                    </div>
+                    <p class="join-url" id="join-url-text" aria-label="Join URL"></p>
+                    <div class="player-count" aria-live="polite" aria-atomic="true">
+                        <span id="current-player-count">0</span> /
+                        <span id="max-player-count">10</span> players
                     </div>
 
                     <!-- Player List -->
@@ -117,7 +131,7 @@
                         <div id="player-list"></div>
                     </div>
 
-                    <!-- Game Controls (Story 3.2) -->
+                    <!-- Game Controls -->
                     <div class="game-controls">
                         <button
                             id="start-game-btn"
@@ -305,7 +319,7 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="/api/spyster/static/js/vendor/qrcode.min.js?v=1.0.22"></script>
-    <script src="/api/spyster/static/js/host.js?v=1.0.22"></script>
+    <script src="/api/spyster/static/js/vendor/qrcode.min.js?v=1.0.23"></script>
+    <script src="/api/spyster/static/js/host.js?v=1.0.23"></script>
 </body>
 </html>

@@ -20,6 +20,9 @@ const MAX_PLAYERS = 10;
 let hostPlayerName = null;
 let hostHasJoined = false;
 
+// Lobby step state (1=Settings, 2=Host Name, 3=QR Code)
+let lobbyStep = 1;
+
 // Story 7.2: Phase indicator state
 let previousPhase = null;
 let phaseTransitionTimeout = null;
@@ -229,8 +232,13 @@ function renderLobby(state) {
   // Show lobby section
   showPhaseSection('lobby-section');
 
-  // Generate QR code with session ID
-  if (state.session_id) {
+  // Handle lobby step on reconnect - if host has joined, show step 3
+  if (hostHasJoined && lobbyStep < 3) {
+    setLobbyStep(3);
+  }
+
+  // Generate QR code only if on step 3
+  if (lobbyStep === 3 && state.session_id) {
     generateQRCode(state.session_id);
   }
 
@@ -255,11 +263,6 @@ function renderLobby(state) {
 
   // Story 3.2: Update START button state
   updateStartButton(state);
-
-  // Update session info
-  if (state.session_id) {
-    setText('session-id-display', `Session: ${state.session_id.substring(0, 8)}`);
-  }
 
   // Story 7.2: Update phase indicator with player count
   updatePhaseIndicator('LOBBY', state);
@@ -1588,21 +1591,76 @@ document.addEventListener('DOMContentLoaded', () => {
   // Story 7.5: Initialize admin controls
   initAdminControls();
 
-  // Host join as player - event listeners
-  const hostJoinBtn = getElement('host-join-btn');
-  const hostNameInput = getElement('host-name-input');
-  if (hostJoinBtn && hostNameInput) {
-    hostJoinBtn.addEventListener('click', hostJoinAsPlayer);
-    hostNameInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        hostJoinAsPlayer();
-      }
-    });
-  }
+  // Lobby step navigation
+  initLobbyStepHandlers();
 
   // Story 2.4: Initialize WebSocket connection
   initWebSocket();
 });
+
+// ============================================================================
+// LOBBY STEP NAVIGATION
+// ============================================================================
+
+/**
+ * Initialize lobby step button handlers
+ */
+function initLobbyStepHandlers() {
+  // Step 1 → 2: NEXT button
+  const settingsNextBtn = getElement('settings-next-btn');
+  if (settingsNextBtn) {
+    settingsNextBtn.addEventListener('click', () => {
+      setLobbyStep(2);
+    });
+  }
+
+  // Step 2: Enable/disable INVITE PLAYERS based on name input
+  const hostNameInput = getElement('host-name-input');
+  const invitePlayersBtn = getElement('invite-players-btn');
+  if (hostNameInput && invitePlayersBtn) {
+    hostNameInput.addEventListener('input', () => {
+      const hasName = hostNameInput.value.trim().length > 0;
+      invitePlayersBtn.disabled = !hasName;
+    });
+
+    hostNameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !invitePlayersBtn.disabled) {
+        invitePlayersBtn.click();
+      }
+    });
+  }
+
+  // Step 2 → 3: INVITE PLAYERS button
+  if (invitePlayersBtn) {
+    invitePlayersBtn.addEventListener('click', () => {
+      // Join host as player
+      hostJoinAsPlayer();
+      // Move to step 3 and generate QR
+      setLobbyStep(3);
+    });
+  }
+}
+
+/**
+ * Set the current lobby step and update visibility
+ * @param {number} step - 1, 2, or 3
+ */
+function setLobbyStep(step) {
+  lobbyStep = step;
+  for (let i = 1; i <= 3; i++) {
+    const el = getElement(`lobby-step-${i}`);
+    if (el) {
+      el.classList.toggle('hidden', i !== step);
+    }
+  }
+
+  // Generate QR code when entering step 3
+  if (step === 3) {
+    generateQRCode();
+  }
+
+  console.log('[Host] Lobby step:', step);
+}
 
 // ============================================================================
 // HOST JOIN AS PLAYER
